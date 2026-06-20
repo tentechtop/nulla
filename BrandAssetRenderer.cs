@@ -1,14 +1,3 @@
-$ErrorActionPreference = "Stop"
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
-Add-Type -AssemblyName System.Drawing
-
-$projectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-$assetDirectory = Join-Path $projectRoot "assets\brand"
-
-New-Item -ItemType Directory -Force $assetDirectory | Out-Null
-
-$brandRendererSource = @"
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -126,34 +115,3 @@ public static class BrandAssetRenderer
         return path;
     }
 }
-"@
-
-# 功能目的：编译内嵌渲染器；实现原因：PowerShell 直接绑定 System.Drawing 构造器在不同版本上不稳定
-$temporaryDirectory = $env:TEMP
-if ([string]::IsNullOrWhiteSpace($temporaryDirectory)) {
-    $temporaryDirectory = $projectRoot.Path
-}
-
-$rendererSourcePath = Join-Path $temporaryDirectory "BrandAssetRenderer.cs"
-[System.IO.File]::WriteAllText($rendererSourcePath, $brandRendererSource, [System.Text.UTF8Encoding]::new($false))
-Add-Type -ReferencedAssemblies "System.Drawing" -Path $rendererSourcePath
-$rendererType = [AppDomain]::CurrentDomain.GetAssemblies() |
-    ForEach-Object { $_.GetType("BrandAssetRenderer", $false) } |
-    Where-Object { $null -ne $_ } |
-    Select-Object -First 1
-
-if ($null -eq $rendererType) {
-    throw "BrandAssetRenderer type load failed"
-}
-
-$iconPath = Join-Path $assetDirectory "icon.png"
-$adaptiveIconPath = Join-Path $assetDirectory "adaptive-icon.png"
-$splashLogoPath = Join-Path $assetDirectory "splash-logo.png"
-$splashPath = Join-Path $assetDirectory "splash.png"
-
-$rendererType.GetMethod("SaveIcon").Invoke($null, @([string]$iconPath)) | Out-Null
-$rendererType.GetMethod("SaveIcon").Invoke($null, @([string]$adaptiveIconPath)) | Out-Null
-$rendererType.GetMethod("SaveSplashLogo").Invoke($null, @([string]$splashLogoPath)) | Out-Null
-$rendererType.GetMethod("SaveSplash").Invoke($null, @([string]$splashPath)) | Out-Null
-
-Get-ChildItem -File $assetDirectory | Select-Object FullName, Length

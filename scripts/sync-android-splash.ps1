@@ -103,42 +103,27 @@ function Draw-SplashGlyph {
 
     # 功能目的：输出纯黑启动 LOGO；实现原因：原生启动页背景由 layer-list 统一提供白色
     $logoBrush = New-Brush "#050505"
-    $transparentBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::Transparent)
-    $pieces = @(
-        @(
-            @(0.164, 0.178), @(0.330, 0.178), @(0.483, 0.325), @(0.483, 0.348),
-            @(0.338, 0.348), @(0.338, 0.494), @(0.314, 0.494), @(0.164, 0.348)
-        ),
-        @(
-            @(0.836, 0.178), @(0.670, 0.178), @(0.517, 0.325), @(0.517, 0.348),
-            @(0.662, 0.348), @(0.662, 0.494), @(0.686, 0.494), @(0.836, 0.348)
-        ),
-        @(
-            @(0.164, 0.822), @(0.330, 0.822), @(0.483, 0.675), @(0.483, 0.652),
-            @(0.338, 0.652), @(0.338, 0.506), @(0.314, 0.506), @(0.164, 0.652)
-        ),
-        @(
-            @(0.836, 0.822), @(0.670, 0.822), @(0.517, 0.675), @(0.517, 0.652),
-            @(0.662, 0.652), @(0.662, 0.506), @(0.686, 0.506), @(0.836, 0.652)
-        )
+    $moduleRatio = 0.215
+    $gapRatio = 0.075
+    $moduleSize = $Bounds.Width * $moduleRatio
+    $moduleGap = $Bounds.Width * $gapRatio
+    $contentSize = ($moduleSize * 3) + ($moduleGap * 2)
+    $offsetX = $Bounds.X + (($Bounds.Width - $contentSize) / 2)
+    $offsetY = $Bounds.Y + (($Bounds.Height - $contentSize) / 2)
+    $placements = @(
+        @(0, 0),
+        @(2, 0),
+        @(1, 1),
+        @(0, 2),
+        @(2, 2)
     )
 
-    $previousCompositingMode = $Graphics.CompositingMode
-    $Graphics.CompositingMode = [System.Drawing.Drawing2D.CompositingMode]::SourceCopy
-    foreach ($piece in $pieces) {
-        Draw-LogoPiece -Graphics $Graphics -Bounds $Bounds -Points $piece -Brush $logoBrush
+    foreach ($placement in $placements) {
+        $left = $offsetX + ($placement[0] * ($moduleSize + $moduleGap))
+        $top = $offsetY + ($placement[1] * ($moduleSize + $moduleGap))
+        $Graphics.FillRectangle($logoBrush, $left, $top, $moduleSize, $moduleSize)
     }
 
-    $cutout = [System.Drawing.RectangleF]::new(
-        $Bounds.X + ($Bounds.Width * 0.338),
-        $Bounds.Y + ($Bounds.Height * 0.348),
-        $Bounds.Width * 0.324,
-        $Bounds.Height * 0.304
-    )
-    $Graphics.FillRectangle($transparentBrush, $cutout)
-    $Graphics.CompositingMode = $previousCompositingMode
-
-    $transparentBrush.Dispose()
     $logoBrush.Dispose()
 }
 

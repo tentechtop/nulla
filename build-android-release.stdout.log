@@ -71,10 +71,10 @@ Using expo modules
 > Task :app:createBundleReleaseJsAndAssets
 Starting Metro Bundler
 warning: Bundler cache is empty, rebuilding (this may take a minute)
-Android Bundled 8296ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (572 modules)
+Android Bundled 6442ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (571 modules)
 Writing bundle output to: android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle
 Writing sourcemap output to: android\app\build\intermediates\sourcemaps\react\release\index.android.bundle.packager.map
-Copying 7 asset files
+Copying 6 asset files
 Done writing bundle output
 Done writing sourcemap output
 
@@ -126,10 +126,10 @@ Done writing sourcemap output
 > Task :expo-font:processReleaseManifest UP-TO-DATE
 > Task :expo-keep-awake:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-keep-awake:processReleaseManifest UP-TO-DATE
-> Task :app:parseReleaseLocalResources
 > Task :expo-linear-gradient:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-linear-gradient:processReleaseManifest UP-TO-DATE
 > Task :expo-modules-core:extractDeepLinksRelease UP-TO-DATE
+> Task :app:parseReleaseLocalResources
 > Task :expo-modules-core:processReleaseManifest UP-TO-DATE
 > Task :expo-splash-screen:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-splash-screen:processReleaseManifest UP-TO-DATE
@@ -202,6 +202,7 @@ Done writing sourcemap output
 > Task :expo-font:bundleLibCompileToJarRelease UP-TO-DATE
 > Task :expo-keep-awake:checkKotlinGradlePluginConfigurationErrors
 > Task :expo-keep-awake:generateReleaseBuildConfig UP-TO-DATE
+> Task :app:mergeReleaseResources
 > Task :expo-keep-awake:compileReleaseKotlin UP-TO-DATE
 > Task :expo-keep-awake:javaPreCompileRelease UP-TO-DATE
 > Task :expo-keep-awake:compileReleaseJavaWithJavac UP-TO-DATE
@@ -377,7 +378,10 @@ Done writing sourcemap output
 > Task :expo-splash-screen:syncReleaseLibJars UP-TO-DATE
 > Task :expo-splash-screen:bundleReleaseLocalLintAar UP-TO-DATE
 > Task :expo-modules-core:configureCMakeRelWithDebInfo[arm64-v8a]
+> Task :app:processReleaseResources
 > Task :expo-modules-core:buildCMakeRelWithDebInfo[arm64-v8a]
+> Task :app:compileReleaseKotlin UP-TO-DATE
+> Task :app:compileReleaseJavaWithJavac UP-TO-DATE
 > Task :expo-modules-core:configureCMakeRelWithDebInfo[armeabi-v7a]
 > Task :expo-modules-core:buildCMakeRelWithDebInfo[armeabi-v7a]
 > Task :expo-modules-core:configureCMakeRelWithDebInfo[x86]
@@ -468,6 +472,7 @@ Done writing sourcemap output
 > Task :react-native-safe-area-context:extractProguardFiles UP-TO-DATE
 > Task :react-native-safe-area-context:writeReleaseLintModelMetadata UP-TO-DATE
 > Task :react-native-safe-area-context:generateReleaseLintModel UP-TO-DATE
+> Task :app:generateReleaseLintVitalReportModel
 > Task :expo:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-asset:generateReleaseLintVitalModel UP-TO-DATE
@@ -504,13 +509,19 @@ Done writing sourcemap output
 > Task :app:extractReleaseNativeSymbolTables UP-TO-DATE
 > Task :app:mergeReleaseNativeDebugMetadata UP-TO-DATE
 > Task :app:checkReleaseDuplicateClasses UP-TO-DATE
+> Task :app:dexBuilderRelease UP-TO-DATE
 > Task :app:desugarReleaseFileDependencies UP-TO-DATE
 > Task :app:mergeExtDexRelease UP-TO-DATE
+> Task :app:mergeDexRelease UP-TO-DATE
 > Task :app:mergeReleaseArtProfile UP-TO-DATE
+> Task :app:mergeReleaseGlobalSynthetics UP-TO-DATE
+> Task :app:compileReleaseArtProfile UP-TO-DATE
 > Task :app:mergeReleaseShaders UP-TO-DATE
 > Task :app:compileReleaseShaders NO-SOURCE
 > Task :app:generateReleaseAssets UP-TO-DATE
 > Task :app:mergeReleaseAssets
+> Task :app:processReleaseJavaRes UP-TO-DATE
+> Task :app:mergeReleaseJavaResource UP-TO-DATE
 > Task :app:collectReleaseDependencies UP-TO-DATE
 > Task :app:sdkReleaseDependencyData UP-TO-DATE
 > Task :app:validateSigningRelease UP-TO-DATE
@@ -519,11 +530,11 @@ Done writing sourcemap output
 > Task :expo:bundleReleaseAar UP-TO-DATE
 > Task :expo:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo:mergeReleaseResources UP-TO-DATE
+> Task :app:compressReleaseAssets
 > Task :expo:verifyReleaseResources UP-TO-DATE
 > Task :expo:assembleRelease UP-TO-DATE
 > Task :expo-asset:bundleReleaseAar UP-TO-DATE
 > Task :expo-asset:mapReleaseSourceSetPaths UP-TO-DATE
-> Task :app:compressReleaseAssets
 > Task :expo-asset:mergeReleaseResources UP-TO-DATE
 > Task :expo-asset:verifyReleaseResources UP-TO-DATE
 > Task :expo-asset:assembleRelease UP-TO-DATE
@@ -567,17 +578,6 @@ Done writing sourcemap output
 > Task :react-native-safe-area-context:mergeReleaseResources UP-TO-DATE
 > Task :react-native-safe-area-context:verifyReleaseResources UP-TO-DATE
 > Task :react-native-safe-area-context:assembleRelease UP-TO-DATE
-> Task :app:mergeReleaseResources
-> Task :app:processReleaseResources
-> Task :app:compileReleaseKotlin UP-TO-DATE
-> Task :app:compileReleaseJavaWithJavac UP-TO-DATE
-> Task :app:generateReleaseLintVitalReportModel
-> Task :app:dexBuilderRelease UP-TO-DATE
-> Task :app:mergeDexRelease UP-TO-DATE
-> Task :app:mergeReleaseGlobalSynthetics UP-TO-DATE
-> Task :app:compileReleaseArtProfile UP-TO-DATE
-> Task :app:processReleaseJavaRes UP-TO-DATE
-> Task :app:mergeReleaseJavaResource UP-TO-DATE
 > Task :app:optimizeReleaseResources
 > Task :app:lintVitalAnalyzeRelease
 > Task :app:lintVitalReportRelease UP-TO-DATE
@@ -592,5 +592,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 41s
+BUILD SUCCESSFUL in 32s
 473 actionable tasks: 35 executed, 438 up-to-date
