@@ -1,159 +1,181 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName WindowsBase, PresentationCore
 
 $projectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $assetDirectory = Join-Path $projectRoot "assets\brand"
+$solanaSvgDirectory = "F:\workSpace2029\ds\Logos\Solana Logotype\SVG"
+$iconSvgPath = Join-Path $solanaSvgDirectory "Size=96, Color=color-white.svg"
+$splashSvgPath = Join-Path $solanaSvgDirectory "Size=96, Color=color-black.svg"
 
 New-Item -ItemType Directory -Force $assetDirectory | Out-Null
 
-$brandRendererSource = @"
-using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
+function Assert-FileExists {
+    param([string]$FilePath)
 
-public static class BrandAssetRenderer
-{
-    private const float ModuleRatio = 0.215f;
-    private const float GapRatio = 0.075f;
-    private static readonly int[][] ModulePlacements = new int[][]
-    {
-        new int[] {0, 0},
-        new int[] {2, 0},
-        new int[] {1, 1},
-        new int[] {0, 2},
-        new int[] {2, 2}
-    };
-
-    public static void SaveIcon(string targetPath)
-    {
-        using (Bitmap bitmap = CreateCanvas(1024, 1024, Color.Transparent))
-        using (Graphics graphics = Graphics.FromImage(bitmap))
-        {
-            ConfigureGraphics(graphics);
-            DrawAppIcon(graphics, 512f, 512f, 1024f);
-            bitmap.Save(targetPath, ImageFormat.Png);
-        }
+    if (Test-Path -LiteralPath $FilePath) {
+        return
     }
 
-    public static void SaveSplashLogo(string targetPath)
-    {
-        using (Bitmap bitmap = CreateCanvas(720, 720, Color.Transparent))
-        using (Graphics graphics = Graphics.FromImage(bitmap))
-        using (SolidBrush blackBrush = new SolidBrush(Color.FromArgb(5, 5, 5)))
-        {
-            ConfigureGraphics(graphics);
-            DrawGlyph(graphics, CenteredBounds(360f, 360f, 430f), blackBrush);
-            bitmap.Save(targetPath, ImageFormat.Png);
-        }
-    }
-
-    public static void SaveSplash(string targetPath)
-    {
-        using (Bitmap bitmap = CreateCanvas(1242, 2688, Color.White))
-        using (Graphics graphics = Graphics.FromImage(bitmap))
-        using (SolidBrush blackBrush = new SolidBrush(Color.FromArgb(5, 5, 5)))
-        {
-            ConfigureGraphics(graphics);
-            DrawGlyph(graphics, CenteredBounds(621f, 1344f, 330f), blackBrush);
-            bitmap.Save(targetPath, ImageFormat.Png);
-        }
-    }
-
-    private static Bitmap CreateCanvas(int width, int height, Color backgroundColor)
-    {
-        Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-        using (Graphics graphics = Graphics.FromImage(bitmap))
-        {
-            graphics.Clear(backgroundColor);
-        }
-        return bitmap;
-    }
-
-    private static void ConfigureGraphics(Graphics graphics)
-    {
-        graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-    }
-
-    private static RectangleF CenteredBounds(float centerX, float centerY, float size)
-    {
-        return new RectangleF(centerX - (size / 2f), centerY - (size / 2f), size, size);
-    }
-
-    private static void DrawAppIcon(Graphics graphics, float centerX, float centerY, float canvasSize)
-    {
-        float panelSize = canvasSize * 0.742f;
-        RectangleF panelBounds = CenteredBounds(centerX, centerY, panelSize);
-        using (GraphicsPath panelPath = RoundedRectangle(panelBounds, panelSize * 0.188f))
-        using (SolidBrush panelBrush = new SolidBrush(Color.FromArgb(2, 3, 4)))
-        using (SolidBrush logoBrush = new SolidBrush(Color.White))
-        {
-            graphics.FillPath(panelBrush, panelPath);
-            DrawGlyph(graphics, panelBounds, logoBrush);
-        }
-    }
-
-    private static void DrawGlyph(Graphics graphics, RectangleF bounds, Brush moduleBrush)
-    {
-        float moduleSize = bounds.Width * ModuleRatio;
-        float moduleGap = bounds.Width * GapRatio;
-        float contentSize = (moduleSize * 3f) + (moduleGap * 2f);
-        float offsetX = bounds.X + ((bounds.Width - contentSize) / 2f);
-        float offsetY = bounds.Y + ((bounds.Height - contentSize) / 2f);
-
-        foreach (int[] placement in ModulePlacements)
-        {
-            float left = offsetX + (placement[0] * (moduleSize + moduleGap));
-            float top = offsetY + (placement[1] * (moduleSize + moduleGap));
-            graphics.FillRectangle(moduleBrush, left, top, moduleSize, moduleSize);
-        }
-    }
-
-    private static GraphicsPath RoundedRectangle(RectangleF bounds, float radius)
-    {
-        float safeRadius = Math.Min(radius, Math.Min(bounds.Width, bounds.Height) / 2f);
-        float diameter = safeRadius * 2f;
-        GraphicsPath path = new GraphicsPath();
-        path.AddArc(bounds.X, bounds.Y, diameter, diameter, 180f, 90f);
-        path.AddArc(bounds.Right - diameter, bounds.Y, diameter, diameter, 270f, 90f);
-        path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0f, 90f);
-        path.AddArc(bounds.X, bounds.Bottom - diameter, diameter, diameter, 90f, 90f);
-        path.CloseFigure();
-        return path;
-    }
-}
-"@
-
-# 功能目的：编译内嵌渲染器；实现原因：PowerShell 直接绑定 System.Drawing 构造器在不同版本上不稳定
-$temporaryDirectory = $env:TEMP
-if ([string]::IsNullOrWhiteSpace($temporaryDirectory)) {
-    $temporaryDirectory = $projectRoot.Path
+    throw "缺少文件：$FilePath"
 }
 
-$rendererSourcePath = Join-Path $temporaryDirectory "BrandAssetRenderer.cs"
-[System.IO.File]::WriteAllText($rendererSourcePath, $brandRendererSource, [System.Text.UTF8Encoding]::new($false))
-Add-Type -ReferencedAssemblies "System.Drawing" -Path $rendererSourcePath
-$rendererType = [AppDomain]::CurrentDomain.GetAssemblies() |
-    ForEach-Object { $_.GetType("BrandAssetRenderer", $false) } |
-    Where-Object { $null -ne $_ } |
-    Select-Object -First 1
+function Get-SvgPathItems {
+    param(
+        [string]$SvgPath,
+        [switch]$FirstPathOnly
+    )
 
-if ($null -eq $rendererType) {
-    throw "BrandAssetRenderer type load failed"
+    # 功能目的：读取 SVG 路径数据；实现原因：App 图标和启动页资源必须从用户指定 SVG 生成
+    [xml]$svgDocument = Get-Content -LiteralPath $SvgPath -Encoding UTF8 -Raw
+    $namespaceManager = New-Object System.Xml.XmlNamespaceManager($svgDocument.NameTable)
+    $namespaceManager.AddNamespace("svg", "http://www.w3.org/2000/svg")
+    $pathNodes = @($svgDocument.SelectNodes("//svg:path", $namespaceManager))
+
+    if ($pathNodes.Count -eq 0) {
+        throw "SVG 中没有 path：$SvgPath"
+    }
+
+    if ($FirstPathOnly) {
+        $pathNodes = @($pathNodes[0])
+    }
+
+    return @($pathNodes | ForEach-Object {
+        [pscustomobject]@{
+            Data = $_.GetAttribute("d")
+            Fill = $_.GetAttribute("fill")
+        }
+    })
 }
+
+function New-BrushFromFill {
+    param([string]$Fill)
+
+    if ($Fill -like "url(*)") {
+        $gradientBrush = New-Object System.Windows.Media.LinearGradientBrush
+        $gradientBrush.MappingMode = [System.Windows.Media.BrushMappingMode]::Absolute
+        $gradientBrush.StartPoint = [System.Windows.Point]::new(11.3861, 98.5375)
+        $gradientBrush.EndPoint = [System.Windows.Point]::new(99.4794, -0.769188)
+        [void]$gradientBrush.GradientStops.Add([System.Windows.Media.GradientStop]::new([System.Windows.Media.Color]::FromRgb(0x99, 0x45, 0xFF), 0.08))
+        [void]$gradientBrush.GradientStops.Add([System.Windows.Media.GradientStop]::new([System.Windows.Media.Color]::FromRgb(0x87, 0x52, 0xF3), 0.30))
+        [void]$gradientBrush.GradientStops.Add([System.Windows.Media.GradientStop]::new([System.Windows.Media.Color]::FromRgb(0x54, 0x97, 0xD5), 0.50))
+        [void]$gradientBrush.GradientStops.Add([System.Windows.Media.GradientStop]::new([System.Windows.Media.Color]::FromRgb(0x43, 0xB4, 0xCA), 0.60))
+        [void]$gradientBrush.GradientStops.Add([System.Windows.Media.GradientStop]::new([System.Windows.Media.Color]::FromRgb(0x28, 0xE0, 0xB9), 0.72))
+        [void]$gradientBrush.GradientStops.Add([System.Windows.Media.GradientStop]::new([System.Windows.Media.Color]::FromRgb(0x19, 0xFB, 0x9B), 0.97))
+        return $gradientBrush
+    }
+
+    if ([string]::IsNullOrWhiteSpace($Fill)) {
+        return [System.Windows.Media.Brushes]::Black
+    }
+
+    return New-Object System.Windows.Media.SolidColorBrush ([System.Windows.Media.ColorConverter]::ConvertFromString($Fill))
+}
+
+function Get-GeometryRecords {
+    param([object[]]$PathItems)
+
+    $records = @()
+    $bounds = [System.Windows.Rect]::Empty
+
+    foreach ($pathItem in $PathItems) {
+        $geometry = [System.Windows.Media.Geometry]::Parse($pathItem.Data)
+        $records += [pscustomobject]@{
+            Geometry = $geometry
+            Brush = New-BrushFromFill $pathItem.Fill
+        }
+
+        if ($bounds.IsEmpty) {
+            $bounds = $geometry.Bounds
+        } else {
+            $bounds.Union($geometry.Bounds)
+        }
+    }
+
+    return [pscustomobject]@{
+        Records = $records
+        Bounds = $bounds
+    }
+}
+
+function Save-VisualPng {
+    param(
+        [string]$TargetPath,
+        [int]$CanvasWidth,
+        [int]$CanvasHeight,
+        [System.Windows.Media.Brush]$BackgroundBrush,
+        [object[]]$PathItems,
+        [double]$MaxLogoWidth,
+        [double]$MaxLogoHeight,
+        [bool]$DrawIconPanel,
+        [double]$IconPanelScale = 0.65
+    )
+
+    # 功能目的：渲染 SVG 到 PNG；实现原因：Android/Expo 图标入口必须使用位图资源
+    $geometryData = Get-GeometryRecords $PathItems
+    $sourceBounds = $geometryData.Bounds
+    $scale = [Math]::Min($MaxLogoWidth / $sourceBounds.Width, $MaxLogoHeight / $sourceBounds.Height)
+    $translateX = ($CanvasWidth / 2) - (($sourceBounds.X + ($sourceBounds.Width / 2)) * $scale)
+    $translateY = ($CanvasHeight / 2) - (($sourceBounds.Y + ($sourceBounds.Height / 2)) * $scale)
+
+    $visual = New-Object System.Windows.Media.DrawingVisual
+    $drawingContext = $visual.RenderOpen()
+
+    if ($null -ne $BackgroundBrush) {
+        $drawingContext.DrawRectangle($BackgroundBrush, $null, [System.Windows.Rect]::new(0, 0, $CanvasWidth, $CanvasHeight))
+    }
+
+    if ($DrawIconPanel) {
+        # 功能目的：控制桌面图标黑底占比；实现原因：系统图标槽位需要保留呼吸感
+        $safeIconPanelScale = [Math]::Min([Math]::Max($IconPanelScale, 0.1), 1)
+        $panelSize = $CanvasWidth * $safeIconPanelScale
+        $panelRect = [System.Windows.Rect]::new(($CanvasWidth - $panelSize) / 2, ($CanvasHeight - $panelSize) / 2, $panelSize, $panelSize)
+        $drawingContext.DrawRoundedRectangle([System.Windows.Media.Brushes]::Black, $null, $panelRect, $panelSize * 0.188, $panelSize * 0.188)
+    }
+
+    $transformGroup = New-Object System.Windows.Media.TransformGroup
+    [void]$transformGroup.Children.Add([System.Windows.Media.ScaleTransform]::new($scale, $scale))
+    [void]$transformGroup.Children.Add([System.Windows.Media.TranslateTransform]::new($translateX, $translateY))
+    $drawingContext.PushTransform($transformGroup)
+
+    foreach ($record in $geometryData.Records) {
+        $drawingContext.DrawGeometry($record.Brush, $null, $record.Geometry)
+    }
+
+    $drawingContext.Pop()
+    $drawingContext.Close()
+
+    $bitmap = New-Object System.Windows.Media.Imaging.RenderTargetBitmap -ArgumentList @($CanvasWidth, $CanvasHeight, 96, 96, [System.Windows.Media.PixelFormats]::Pbgra32)
+    $bitmap.Render($visual)
+
+    $encoder = New-Object System.Windows.Media.Imaging.PngBitmapEncoder
+    [void]$encoder.Frames.Add([System.Windows.Media.Imaging.BitmapFrame]::Create($bitmap))
+    $stream = [System.IO.File]::Create($TargetPath)
+    try {
+        $encoder.Save($stream)
+    } finally {
+        $stream.Dispose()
+    }
+}
+
+Assert-FileExists $iconSvgPath
+Assert-FileExists $splashSvgPath
+
+$iconPathItems = Get-SvgPathItems -SvgPath $iconSvgPath -FirstPathOnly
+$splashPathItems = Get-SvgPathItems -SvgPath $splashSvgPath
 
 $iconPath = Join-Path $assetDirectory "icon.png"
 $adaptiveIconPath = Join-Path $assetDirectory "adaptive-icon.png"
 $splashLogoPath = Join-Path $assetDirectory "splash-logo.png"
 $splashPath = Join-Path $assetDirectory "splash.png"
+$iconPanelScale = 0.65
+$iconPanelSize = 1024 * $iconPanelScale
+$iconLogoSize = [Math]::Round($iconPanelSize * 0.65)
 
-$rendererType.GetMethod("SaveIcon").Invoke($null, @([string]$iconPath)) | Out-Null
-$rendererType.GetMethod("SaveIcon").Invoke($null, @([string]$adaptiveIconPath)) | Out-Null
-$rendererType.GetMethod("SaveSplashLogo").Invoke($null, @([string]$splashLogoPath)) | Out-Null
-$rendererType.GetMethod("SaveSplash").Invoke($null, @([string]$splashPath)) | Out-Null
+Save-VisualPng -TargetPath $iconPath -CanvasWidth 1024 -CanvasHeight 1024 -BackgroundBrush $null -PathItems $iconPathItems -MaxLogoWidth $iconLogoSize -MaxLogoHeight $iconLogoSize -DrawIconPanel $true -IconPanelScale $iconPanelScale
+Save-VisualPng -TargetPath $adaptiveIconPath -CanvasWidth 1024 -CanvasHeight 1024 -BackgroundBrush $null -PathItems $iconPathItems -MaxLogoWidth $iconLogoSize -MaxLogoHeight $iconLogoSize -DrawIconPanel $true -IconPanelScale $iconPanelScale
+Save-VisualPng -TargetPath $splashLogoPath -CanvasWidth 646 -CanvasHeight 97 -BackgroundBrush $null -PathItems $splashPathItems -MaxLogoWidth 646 -MaxLogoHeight 97 -DrawIconPanel $false
+Save-VisualPng -TargetPath $splashPath -CanvasWidth 1242 -CanvasHeight 2688 -BackgroundBrush ([System.Windows.Media.Brushes]::White) -PathItems $splashPathItems -MaxLogoWidth 760 -MaxLogoHeight 114 -DrawIconPanel $false
 
 Get-ChildItem -File $assetDirectory | Select-Object FullName, Length
