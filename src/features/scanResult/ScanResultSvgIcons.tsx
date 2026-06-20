@@ -178,17 +178,7 @@ export function ScanCornerFrameIcon({ size }: ScanFrameProps) {
           <Stop offset="0.52" stopColor="#4E5CFF" />
           <Stop offset="1" stopColor="#9B3DFF" />
         </SvgLinearGradient>
-        <SvgLinearGradient gradientUnits="userSpaceOnUse" id="scanResultScanLine" x1="56" x2="392" y1="224" y2="224">
-          <Stop stopColor="#176BFF" />
-          <Stop offset="0.5" stopColor="#4F5CFF" />
-          <Stop offset="1" stopColor="#9B3DFF" />
-        </SvgLinearGradient>
       </Defs>
-      <Rect height="302" rx="20" stroke="#FFFFFF" strokeOpacity="0.28" strokeWidth="2" width="302" x="73" y="73" />
-      <Path d="M123 73V375M173 73V375M275 73V375M325 73V375" stroke="#FFFFFF" strokeOpacity="0.07" strokeWidth="1" />
-      <Path d="M73 123H375M73 173H375M73 275H375M73 325H375" stroke="#FFFFFF" strokeOpacity="0.07" strokeWidth="1" />
-      <Path d="M224 73V375" stroke="#FFFFFF" strokeOpacity="0.28" strokeWidth="2" />
-      <Path d="M56 224H392" stroke="url(#scanResultScanLine)" strokeLinecap="round" strokeWidth="4" />
       <Path d="M56 104V74C56 64.1 64.1 56 74 56H104" stroke="url(#scanResultCornerGradient)" strokeLinecap="round" strokeWidth="7" />
       <Path d="M344 56H374C383.9 56 392 64.1 392 74V104" stroke="url(#scanResultCornerGradient)" strokeLinecap="round" strokeWidth="7" />
       <Path d="M392 344V374C392 383.9 383.9 392 374 392H344" stroke="url(#scanResultCornerGradient)" strokeLinecap="round" strokeWidth="7" />

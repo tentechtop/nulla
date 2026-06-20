@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,6 +16,8 @@ const HERO_CARD_CONTENT_WIDTH = HERO_CARD_WIDTH - HERO_CARD_CONTENT_PADDING * 2;
 const HERO_CARD_CURRENCY_WIDTH = 126;
 const HERO_CARD_CURRENCY_LEFT = HERO_CARD_WIDTH - HERO_CARD_CONTENT_PADDING - HERO_CARD_CURRENCY_WIDTH;
 const HERO_PRIVATE_COLUMN_LEFT = HERO_CARD_CONTENT_PADDING + 290;
+const LAMPORTS_ICON_IMAGE_SIZE = 43;
+const HIDDEN_AMOUNT_TEXT = '******';
 
 function scaled(value: number, scale: number) {
   return Math.round(value * scale);
@@ -23,6 +26,11 @@ function scaled(value: number, scale: number) {
 export function AssetHeroCard() {
   const { scale } = useHomeResponsiveLayout();
   const styles = createStyles(scale);
+  const [isAmountHidden, setIsAmountHidden] = useState(false);
+
+  const handleToggleAmountVisibility = () => {
+    setIsAmountHidden((currentValue) => !currentValue);
+  };
 
   return (
     <View style={styles.section}>
@@ -36,29 +44,48 @@ export function AssetHeroCard() {
         />
         <View style={styles.topRow}>
           <Text style={styles.assetLabel}>总资产 (SOL)</Text>
-          <MaterialCommunityIcons color="rgba(255,255,255,0.7)" name="eye-outline" size={scaled(30, scale)} />
+          <Pressable
+            accessibilityLabel={isAmountHidden ? '显示金额' : '隐藏金额'}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isAmountHidden }}
+            hitSlop={scaled(12, scale)}
+            onPress={handleToggleAmountVisibility}
+            style={styles.eyeButton}
+          >
+            <MaterialCommunityIcons
+              color="rgba(255,255,255,0.7)"
+              name={isAmountHidden ? 'eye-off-outline' : 'eye-outline'}
+              size={scaled(30, scale)}
+            />
+          </Pressable>
         </View>
         <Pressable accessibilityLabel="选择 SOL 币种" accessibilityRole="button" style={styles.currencyButton}>
           <Text style={styles.currencyText}>{assetSummary.symbol}</Text>
           <MaterialCommunityIcons color="#FFFFFF" name="chevron-down" size={scaled(28, scale)} />
         </Pressable>
         <View style={styles.totalRow}>
-          <Text style={styles.totalIntegerText}>99,999,999</Text>
-          <Text style={styles.totalDecimalText}>.958218</Text>
+          {isAmountHidden ? (
+            <Text style={styles.totalIntegerText}>{HIDDEN_AMOUNT_TEXT}</Text>
+          ) : (
+            <>
+              <Text style={styles.totalIntegerText}>99,999,999</Text>
+              <Text style={styles.totalDecimalText}>.958218</Text>
+            </>
+          )}
         </View>
         <Text style={styles.totalSymbol}>{assetSummary.symbol}</Text>
         <View style={styles.availableColumn}>
           <Text style={styles.smallLabel}>可用资产</Text>
-          <Text style={styles.smallAmount}>{assetSummary.available}</Text>
+          <Text style={styles.smallAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : assetSummary.available}</Text>
           <Text style={styles.smallSymbol}>{assetSummary.symbol}</Text>
         </View>
         <View style={styles.privateColumn}>
           <Text style={styles.smallLabel}>隐私可用</Text>
-          <Text style={styles.smallAmount}>{assetSummary.privateAvailable}</Text>
+          <Text style={styles.smallAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : assetSummary.privateAvailable}</Text>
           <Text style={styles.smallSymbol}>{assetSummary.symbol}</Text>
         </View>
         <View style={styles.firstDivider} />
-        <TokenRow scale={scale} styles={styles} />
+        <TokenRow isAmountHidden={isAmountHidden} scale={scale} styles={styles} />
         <View style={styles.secondDivider} />
         <ContractRow scale={scale} styles={styles} />
       </View>
@@ -66,7 +93,15 @@ export function AssetHeroCard() {
   );
 }
 
-function TokenRow({ scale, styles }: { readonly scale: number; readonly styles: ReturnType<typeof createStyles> }) {
+function TokenRow({
+  isAmountHidden,
+  scale,
+  styles
+}: {
+  readonly isAmountHidden: boolean;
+  readonly scale: number;
+  readonly styles: ReturnType<typeof createStyles>;
+}) {
   return (
     <Pressable accessibilityLabel="查看 LAMPORTS 资产" accessibilityRole="button" style={styles.tokenRow}>
       <LamportsAssetIcon scale={scale} styles={styles} />
@@ -75,7 +110,7 @@ function TokenRow({ scale, styles }: { readonly scale: number; readonly styles: 
         <Text style={styles.tokenSubtitle}>{assetSummary.tokenDescription}</Text>
       </View>
       <View style={styles.tokenAmountBlock}>
-        <Text style={styles.tokenAmount}>{assetSummary.available}</Text>
+        <Text style={styles.tokenAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : assetSummary.available}</Text>
         <Text style={styles.tokenUnit}>{assetSummary.tokenName}</Text>
       </View>
       <MaterialCommunityIcons color="#FFFFFF" name="chevron-right" size={scaled(36, scale)} />
@@ -207,6 +242,12 @@ function createStyles(scale: number) {
       top: scaled(374, scale),
       width: scaled(HERO_CARD_CONTENT_WIDTH, scale)
     },
+    eyeButton: {
+      alignItems: 'center',
+      height: scaled(34, scale),
+      justifyContent: 'center',
+      width: scaled(34, scale)
+    },
     privateColumn: {
       left: scaled(HERO_PRIVATE_COLUMN_LEFT, scale),
       position: 'absolute',
@@ -264,7 +305,7 @@ function createStyles(scale: number) {
     },
     tokenIconSlot: {
       alignItems: 'center',
-      borderColor: 'rgba(255,255,255,0.72)',
+      borderColor: 'rgba(255,255,255,0.42)',
       borderRadius: scaled(16, scale),
       borderWidth: 1,
       height: scaled(72, scale),
@@ -272,8 +313,8 @@ function createStyles(scale: number) {
       width: scaled(72, scale)
     },
     tokenIconImage: {
-      height: scaled(48, scale),
-      width: scaled(48, scale)
+      height: scaled(LAMPORTS_ICON_IMAGE_SIZE, scale),
+      width: scaled(LAMPORTS_ICON_IMAGE_SIZE, scale)
     },
     tokenNameBlock: {
       marginLeft: scaled(24, scale),

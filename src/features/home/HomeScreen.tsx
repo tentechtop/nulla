@@ -10,11 +10,12 @@ import { useHomeResponsiveLayout } from './useHomeResponsiveLayout';
 
 type HomeScreenProps = {
   readonly bottomPadding?: number;
+  readonly onScanPress?: () => void;
   readonly onSendPress?: () => void;
   readonly topPadding?: number;
 };
 
-export function HomeScreen({ bottomPadding, onSendPress, topPadding }: HomeScreenProps) {
+export function HomeScreen({ bottomPadding, onScanPress, onSendPress, topPadding }: HomeScreenProps) {
   const layoutMetrics = useHomeResponsiveLayout();
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
   const resolvedBottomPadding = bottomPadding ?? layoutMetrics.bottomNavHeight;
@@ -24,7 +25,7 @@ export function HomeScreen({ bottomPadding, onSendPress, topPadding }: HomeScree
     <View style={styles.root}>
       <AppShell bottomPadding={resolvedBottomPadding} topPadding={resolvedTopPadding}>
         <AssetHeroCard />
-        <QuickActionBar onSendPress={onSendPress} />
+        <QuickActionBar onScanPress={onScanPress} onSendPress={onSendPress} />
         <NetworkStatusPanel />
         <MarketList />
       </AppShell>

@@ -1,9 +1,12 @@
-import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, ImageSourcePropType, Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { colors, fontFamilies } from '../theme/tokens';
 import { HeaderProfileSvgIcon, HeaderScanSvgIcon } from './HeaderSvgIcons';
 
 export const GLOBAL_HEADER_DESIGN_HEIGHT = 117;
 const brandLogo = require('../../assets/images/home/brand-logo.png') as ImageSourcePropType;
+const webNoFocusOutline = Platform.OS === 'web'
+  ? ({ outlineColor: 'transparent', outlineStyle: 'none', outlineWidth: 0 } as unknown as ViewStyle)
+  : undefined;
 
 type GlobalHeaderTab = 'assets' | 'contract';
 
@@ -57,10 +60,10 @@ export function GlobalHeader({
           <Text style={isContractActive ? styles.activeTabText : styles.inactiveTabText}>合约</Text>
         </Pressable>
       </View>
-      <Pressable accessibilityLabel="扫码" accessibilityRole="button" onPress={onScanPress} style={styles.scanButton}>
+      <Pressable accessibilityLabel="扫码" accessibilityRole="button" focusable={false} onPress={onScanPress} style={[styles.scanButton, webNoFocusOutline]}>
         <HeaderScanSvgIcon size={scaled(56, scale)} />
       </Pressable>
-      <Pressable accessibilityLabel="账户" accessibilityRole="button" onPress={onAccountPress} style={styles.accountButton}>
+      <Pressable accessibilityLabel="账户" accessibilityRole="button" focusable={false} onPress={onAccountPress} style={[styles.accountButton, webNoFocusOutline]}>
         <HeaderProfileSvgIcon size={scaled(48, scale)} />
       </Pressable>
     </View>

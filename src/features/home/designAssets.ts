@@ -2,7 +2,7 @@ import type { ImageSourcePropType } from 'react-native';
 
 export const homeAssetImages = {
   heroBackground: require('../../../design-draft/assets/01-assets-home/hero-card-background.png') as ImageSourcePropType,
-  lamportsTokenIcon: require('../../../design-draft/common/Size=96, Color=color@2x.png') as ImageSourcePropType,
+  lamportsTokenIcon: require('../../../assets/images/home/lamports-token.png') as ImageSourcePropType,
   quickSend: require('../../../assets/images/home/quick-send.png') as ImageSourcePropType,
   quickReceive: require('../../../assets/images/home/quick-receive.png') as ImageSourcePropType,
   quickStake: require('../../../assets/images/home/quick-stake.png') as ImageSourcePropType,

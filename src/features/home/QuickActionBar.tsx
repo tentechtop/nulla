@@ -14,6 +14,7 @@ const quickActionImages: Record<(typeof quickActions)[number]['key'], ImageSourc
 };
 
 type QuickActionBarProps = {
+  readonly onScanPress?: () => void;
   readonly onSendPress?: () => void;
 };
 
@@ -21,13 +22,17 @@ function scaled(value: number, scale: number) {
   return Math.round(value * scale);
 }
 
-export function QuickActionBar({ onSendPress }: QuickActionBarProps) {
+export function QuickActionBar({ onScanPress, onSendPress }: QuickActionBarProps) {
   const { scale } = useHomeResponsiveLayout();
   const styles = createStyles(scale);
 
   const handleActionPress = (actionKey: (typeof quickActions)[number]['key']) => {
     if (actionKey === 'send') {
       onSendPress?.();
+    }
+
+    if (actionKey === 'scan') {
+      onScanPress?.();
     }
   };
 

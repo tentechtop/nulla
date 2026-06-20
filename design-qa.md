@@ -1,13 +1,15 @@
 # Design QA
 
-Source visuals:
-- `design-draft/01-assets-home.png`
-- `design-draft/02-transfer-send.png`
-- `design-draft/07-dpos-overview.png`
+Source visual:
+- `design-draft/13-scan-result.png`
 
-Prototype target: `http://localhost:19017`
+Prototype target: `http://localhost:19018`
 
-Viewport checked: `414 x 896`
+Viewport checked: `426 x 915`
+
+Scope note:
+- Scan result page body, real camera scan entry, global header entry, and shared layout integration were checked.
+- Bottom navigation button artwork is intentionally left to the other agent per user direction.
 
 ## Result
 
@@ -15,15 +17,15 @@ final result: passed
 
 ## Evidence
 
-- The app still opens on the asset homepage.
-- The homepage bottom `DPoS` tab transitions to the DPoS overview page.
-- The DPoS overview page uses `design-draft/assets/07-dpos-overview/background-dpos-card-hd.png` for the black equity card artwork.
-- The DPoS page renders the header, equity card, action bar, validator summary, stake detail card, validator list, and active bottom navigation as code-rendered React Native views.
-- The DPoS action/status SVG shapes from `design-draft/assets/07-dpos-overview` were converted into React Native SVG components.
-- The DPoS bottom tab is active on the DPoS page, and tapping bottom `资产` returns to the homepage.
-- The existing send flow remains available from the homepage quick action.
-- TypeScript and unit tests pass after the DPoS changes.
+- Top scan action opens the scan result page.
+- Page heading, camera scan card, recognition result card, action buttons, and recent scan card match the provided mobile layout coordinates.
+- Scan card uses `expo-camera` with QR scanning enabled and overlays only four scan corners after the camera area loads.
+- Old scan background, grid, and crosshair are removed from the runtime scan card.
+- Waiting-state result card uses skeleton placeholders before any QR payload is scanned.
+- Permission-state screenshot saved at `scan-result-camera-skeleton.png`.
+- TypeScript check passes.
+- Unit tests pass: `39` passed, `0` failed.
 
 ## Remaining P3 Notes
 
-- Web and Android font rasterization can differ slightly; final Android device verification is still recommended before release packaging.
+- Web rendering does not include Android bottom safe-area insets, so final device packaging can shift the shared bottom navigation height slightly.

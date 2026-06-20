@@ -28,7 +28,13 @@
       "backgroundColor": "#FFFFFF"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "允许 SOL 使用相机扫描二维码。"
+        }
+      ]
     ]
   }
 }

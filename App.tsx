@@ -8,11 +8,12 @@ import { GlobalHeader, getGlobalHeaderHeight } from './src/components/GlobalHead
 import { DposOverviewScreen } from './src/features/dposOverview/DposOverviewScreen';
 import { HomeScreen } from './src/features/home/HomeScreen';
 import { useHomeResponsiveLayout } from './src/features/home/useHomeResponsiveLayout';
+import { ScanResultScreen } from './src/features/scanResult/ScanResultScreen';
 import { TransferSendScreen } from './src/features/transferSend/TransferSendScreen';
 
 const NATIVE_SPLASH_HOLD_MS = 600;
 
-type AppRoute = 'home' | 'transferSend' | 'dposOverview';
+type AppRoute = 'home' | 'transferSend' | 'dposOverview' | 'scanResult';
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -53,6 +54,10 @@ function AppContent() {
     setCurrentRoute('dposOverview');
   };
 
+  const handleOpenScanResult = () => {
+    setCurrentRoute('scanResult');
+  };
+
   const handleBackHome = () => {
     setCurrentRoute('home');
   };
@@ -66,6 +71,7 @@ function AppContent() {
             bottomPadding={headerMetrics.bottomNavHeight}
             currentRoute={currentRoute}
             onBackPress={handleBackHome}
+            onScanPress={handleOpenScanResult}
             onSendPress={handleOpenTransferSend}
           />
         </View>
@@ -76,7 +82,7 @@ function AppContent() {
           style={[styles.fixedTopNavigationScrim, { height: contentTopPadding }]}
         />
         <View collapsable={false} renderToHardwareTextureAndroid style={[styles.fixedGlobalHeader, { top: headerMetrics.topSafeArea }]}>
-          <GlobalHeader onAssetsPress={handleBackHome} scale={headerMetrics.scale} />
+          <GlobalHeader onAssetsPress={handleBackHome} onScanPress={handleOpenScanResult} scale={headerMetrics.scale} />
         </View>
         <GlobalBottomNavigation
           activeTab={activeBottomTab}
@@ -95,6 +101,7 @@ type ActiveScreenProps = {
   readonly bottomPadding: number;
   readonly currentRoute: AppRoute;
   readonly onBackPress: () => void;
+  readonly onScanPress: () => void;
   readonly onSendPress: () => void;
 };
 
@@ -102,14 +109,19 @@ function ActiveScreen({
   bottomPadding,
   currentRoute,
   onBackPress,
+  onScanPress,
   onSendPress
 }: ActiveScreenProps) {
   if (currentRoute === 'home') {
-    return <HomeScreen bottomPadding={bottomPadding} onSendPress={onSendPress} topPadding={0} />;
+    return <HomeScreen bottomPadding={bottomPadding} onScanPress={onScanPress} onSendPress={onSendPress} topPadding={0} />;
   }
 
   if (currentRoute === 'transferSend') {
     return <TransferSendScreen bottomPadding={bottomPadding} onBackPress={onBackPress} topPadding={0} />;
+  }
+
+  if (currentRoute === 'scanResult') {
+    return <ScanResultScreen bottomPadding={bottomPadding} onBackPress={onBackPress} topPadding={0} />;
   }
 
   return <DposOverviewScreen bottomPadding={bottomPadding} topPadding={0} />;
