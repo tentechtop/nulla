@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NULLA LOGO Preview</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #111;
+      color: #f7f7f2;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 48px 0;
+    }
+
+    h1 {
+      margin: 0 0 28px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    figure {
+      margin: 0;
+      background: #050505;
+      border: 1px solid #2a2a2a;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+    }
+
+    figcaption {
+      padding: 14px 16px 16px;
+      color: #cfcfc8;
+      font-size: 14px;
+      letter-spacing: 2px;
+      border-top: 1px solid #2a2a2a;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>NULLA LOGO</h1>
+    <section class="grid" aria-label="NULLA logo options">
+      <figure>
+        <img src="./nulla-logo-light-speed-option-a.svg" alt="Option A logo">
+        <figcaption>OPTION A / MOON ARC + LIGHT BEAM</figcaption>
+      </figure>
+      <figure>
+        <img src="./nulla-logo-light-speed-option-b.svg" alt="Option B logo">
+        <figcaption>OPTION B / VISOR + SPEED TRAIL</figcaption>
+      </figure>
+      <figure>
+        <img src="./nulla-logo-light-speed-option-c.svg" alt="Option C logo">
+        <figcaption>OPTION C / ORBIT + N MARK</figcaption>
+      </figure>
+    </section>
+  </main>
+</body>
+</html>

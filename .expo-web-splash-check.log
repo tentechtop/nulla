@@ -1,0 +1,10 @@
+
+> sol@1.0.0 web
+> expo start --web --port 19018
+
+Starting project at F:\workSpace2029\nulla
+Starting Metro Bundler
+Waiting on http://localhost:19018
+Logs for your project will appear below.
+Web Bundled 4011ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (250 modules)
+Web Bundled 9ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (1 module)

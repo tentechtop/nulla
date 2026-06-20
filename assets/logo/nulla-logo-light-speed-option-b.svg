@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title description">
+  <title id="title">NULLA light speed logo option B</title>
+  <desc id="description">A minimal monochrome emblem combining an astronaut visor silhouette with a speed trail and small moon.</desc>
+  <!-- 功能目的：定义深色背景；实现原因：黑白对比能直接表达光穿过暗部的速度感 -->
+  <rect width="1024" height="1024" fill="#050505"/>
+
+  <!-- 功能目的：抽象宇航员头盔；实现原因：来自参考图的头盔侧影，但减少人物叙事保持标志化 -->
+  <path d="M288 358 C288 246 376 166 494 166 H576 C674 166 748 240 748 338 C748 458 656 536 536 536 H288 Z" fill="none" stroke="#f7f7f2" stroke-width="18" stroke-linejoin="round"/>
+  <path d="M322 382 H712 C696 454 628 500 536 500 H322 Z" fill="#f7f7f2"/>
+  <path d="M322 402 H636 C576 450 500 470 322 470 Z" fill="#050505"/>
+
+  <!-- 功能目的：表现高速拖影；实现原因：用不同长度的平行白线形成运动方向而不制造复杂纹理 -->
+  <path d="M132 304 H414" stroke="#f7f7f2" stroke-width="12" stroke-linecap="square" opacity=".84"/>
+  <path d="M96 368 H356" stroke="#f7f7f2" stroke-width="10" stroke-linecap="square" opacity=".62"/>
+  <path d="M132 520 H448" stroke="#f7f7f2" stroke-width="12" stroke-linecap="square" opacity=".44"/>
+  <path d="M188 584 H354" stroke="#f7f7f2" stroke-width="8" stroke-linecap="square" opacity=".35"/>
+
+  <!-- 功能目的：加入月球信号；实现原因：小圆点避免喧宾夺主，同时保留探索主题 -->
+  <circle cx="760" cy="246" r="38" fill="none" stroke="#f7f7f2" stroke-width="8"/>
+  <path d="M738 224 A38 38 0 0 1 782 268" fill="none" stroke="#050505" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- 功能目的：提供紧凑字标；实现原因：适配海报角标、启动页和社交头像组合使用 -->
+  <g fill="#f7f7f2" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="512" y="732" font-size="92" font-weight="700" letter-spacing="34">NULLA</text>
+    <text x="512" y="790" font-size="26" font-weight="400" letter-spacing="10">FOR ALL LIGHT</text>
+  </g>
+</svg>

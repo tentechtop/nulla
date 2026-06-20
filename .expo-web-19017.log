@@ -1,0 +1,11 @@
+Starting project at F:\workSpace2029\nulla
+Metro is running in CI mode, reloads are disabled. Remove CI=true to enable watch mode.
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:19017
+Logs for your project will appear below.
+Web Bundled 3864ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (244 modules)
+Web Bundled 10ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (1 module)
+Web Bundled 12ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (1 module)
+Web Bundled 10ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (1 module)
+Web Bundled 9ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (1 module)

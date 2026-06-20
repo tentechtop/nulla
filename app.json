@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "SOL",
+    "slug": "sol",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/brand/icon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.nulla.dex",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/adaptive-icon.png",
+        "backgroundColor": "#05070B"
+      }
+    },
+    "web": {
+      "favicon": "./assets/brand/icon.png"
+    },
+    "splash": {
+      "image": "./assets/brand/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}

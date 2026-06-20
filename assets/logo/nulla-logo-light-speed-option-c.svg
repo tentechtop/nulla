@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title description">
+  <title id="title">NULLA light speed logo option C</title>
+  <desc id="description">A spare wordmark logo where the N is crossed by a moon orbit and a single beam of light.</desc>
+  <!-- 功能目的：建立纯黑底色；实现原因：让白色轨道与文字成为唯一视觉焦点 -->
+  <rect width="1024" height="1024" fill="#050505"/>
+
+  <!-- 功能目的：构建图形核心；实现原因：用单条斜轨道同时表达月球环绕和速度切割 -->
+  <path d="M196 366 C366 238 614 226 828 330" fill="none" stroke="#f7f7f2" stroke-width="13" stroke-linecap="square"/>
+  <path d="M184 596 C402 428 626 416 840 528" fill="none" stroke="#f7f7f2" stroke-width="13" stroke-linecap="square" opacity=".5"/>
+  <circle cx="512" cy="450" r="144" fill="none" stroke="#f7f7f2" stroke-width="12"/>
+
+  <!-- 功能目的：压缩成几何 N 标；实现原因：小尺寸下比完整图形更容易识别 -->
+  <path d="M384 586 V314 H436 L590 500 V314 H640 V586 H588 L434 400 V586 Z" fill="#f7f7f2"/>
+  <path d="M442 380 L582 548" stroke="#050505" stroke-width="28" stroke-linecap="square"/>
+  <path d="M254 450 H770" stroke="#050505" stroke-width="34" stroke-linecap="square"/>
+  <path d="M268 450 H756" stroke="#f7f7f2" stroke-width="12" stroke-linecap="square"/>
+
+  <!-- 功能目的：给出正式品牌落款；实现原因：字距和细副标题形成克制的航天任务感 -->
+  <g fill="#f7f7f2" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="512" y="742" font-size="98" font-weight="700" letter-spacing="36">NULLA</text>
+    <text x="512" y="802" font-size="24" font-weight="400" letter-spacing="11">BLACK / WHITE / VELOCITY</text>
+  </g>
+</svg>

@@ -1,0 +1,72 @@
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:767:63: warning: Direct call to eval(), but lexical scope is not supported.
+...typeof expo === "undefined" ? eval("require") : function (moduleId) {
+                                 ^~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:3366:16: warning: the variable "SharedArrayBuffer" was not declared in function "from"
+    if (typeof SharedArrayBuffer !== 'undefined' && (isInstance(value, Shared...
+               ^~~~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:7358:18: warning: the variable "DebuggerInternal" was not declared in function "__shouldPauseOnThrow"
+          typeof DebuggerInternal !== 'undefined' &&
+                 ^~~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:19564:7: warning: the variable "setTimeout" was not declared in function "logCapturedError"
+      setTimeout(function () {
+      ^~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:17674:31: warning: the variable "nativeFabricUIManager" was not declared in anonymous function " 376#"
+  var _nativeFabricUIManage = nativeFabricUIManager,
+                              ^~~~~~~~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:17702:21: warning: the variable "clearTimeout" was not declared in anonymous function " 376#"
+    cancelTimeout = clearTimeout;
+                    ^~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:22332:30: warning: the variable "__REACT_DEVTOOLS_GLOBAL_HOOK__" was not declared in anonymous function " 376#"
+  if ("undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__) {
+                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:23887:5: warning: the variable "setImmediate" was not declared in function "handleResolved"
+    setImmediate(function () {
+    ^~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:27920:5: warning: the variable "fetch" was not declared in anonymous function " 590#"
+    fetch,
+    ^~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:27921:5: warning: the variable "Headers" was not declared in anonymous function " 590#"
+    Headers,
+    ^~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:27922:5: warning: the variable "Request" was not declared in anonymous function " 590#"
+    Request,
+    ^~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:27923:5: warning: the variable "Response" was not declared in anonymous function " 590#"
+    Response
+    ^~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:28080:24: warning: the variable "FileReader" was not declared in function "readBlobAsArrayBuffer"
+      var reader = new FileReader();
+                       ^~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:28131:36: warning: the variable "Blob" was not declared in anonymous function " 601#"
+        } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+                                   ^~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:28133:40: warning: the variable "FormData" was not declared in anonymous function " 601#"
+        } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+                                       ^~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:28135:44: warning: the variable "URLSearchParams" was not declared in anonymous function " 601#"
+...e if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body...
+                                 ^~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:28254:26: warning: the variable "AbortController" was not declared in anonymous function " 607#"
+          var ctrl = new AbortController();
+                         ^~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:28388:23: warning: the variable "XMLHttpRequest" was not declared in anonymous function " 611#"
+        var xhr = new XMLHttpRequest();
+                      ^~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:27933:71: warning: the variable "self" was not declared in anonymous function " 593#"
+...undefined' && globalThis || typeof self !== 'undefined' && self ||
+                                      ^~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:31923:27: warning: the variable "performance" was not declared in anonymous function " 768#"
+  if ("object" === typeof performance && "function" === typeof performance.no...
+                          ^~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:31946:26: warning: the variable "navigator" was not declared in anonymous function " 768#"
+  "undefined" !== typeof navigator && undefined !== navigator.scheduling && u...
+                         ^~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:32056:37: warning: the variable "MessageChannel" was not declared in anonymous function " 768#"
+  };else if ("undefined" !== typeof MessageChannel) {
+                                    ^~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:32071:34: warning: the variable "nativeRuntimeScheduler" was not declared in anonymous function " 768#"
+... = "undefined" !== typeof nativeRuntimeScheduler ? nativeRuntimeScheduler....
+                             ^~~~~~~~~~~~~~~~~~~~~~
+android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle:43837:34: warning: the variable "requestAnimationFrame" was not declared in function "start 9#"
+...    this._animationFrame = requestAnimationFrame(this.onUpdate.bind(this));
+                              ^~~~~~~~~~~~~~~~~~~~~
