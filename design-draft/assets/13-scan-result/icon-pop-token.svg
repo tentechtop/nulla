@@ -1,0 +1,19 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="card" x1="10" y1="10" x2="86" y2="86" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6EA8FF"/>
+      <stop offset="0.45" stop-color="#F064C8"/>
+      <stop offset="1" stop-color="#FFE36E"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(31 30) rotate(45) scale(55)">
+      <stop stop-color="#8FFFF1"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="4" y="4" width="88" height="88" rx="18" fill="url(#card)"/>
+  <rect x="4" y="4" width="88" height="88" rx="18" fill="url(#glow)" opacity="0.65"/>
+  <circle cx="68" cy="28" r="6" fill="#6DF0E7" opacity="0.9"/>
+  <circle cx="22" cy="32" r="5" fill="#7BF4E8" opacity="0.75"/>
+  <circle cx="78" cy="62" r="4" fill="#8A5CFF" opacity="0.7"/>
+  <text x="48" y="59" fill="#FFFFFF" stroke="#FF6D86" stroke-width="2.2" paint-order="stroke" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="900" letter-spacing="0">POP</text>
+</svg>

@@ -1,10 +1,13 @@
 # Design QA
 
-Source visual: `design-draft/01-assets-home.png`
+Source visuals:
+- `design-draft/01-assets-home.png`
+- `design-draft/02-transfer-send.png`
+- `design-draft/07-dpos-overview.png`
 
 Prototype target: `http://localhost:19017`
 
-Viewport checked: `393 x 852`
+Viewport checked: `414 x 896`
 
 ## Result
 
@@ -12,29 +15,15 @@ final result: passed
 
 ## Evidence
 
-- The homepage is rendered from exact design slices cropped from the source PNG.
-- The rendered page width equals the viewport width, with no horizontal overflow.
-- Asset card, SOL hologram background, icon buttons, status icons, market icons, and bottom navigation are all sourced from the design image.
-- Transparent touch zones are layered over visible controls so the screen is not just inert chrome.
+- The app still opens on the asset homepage.
+- The homepage bottom `DPoS` tab transitions to the DPoS overview page.
+- The DPoS overview page uses `design-draft/assets/07-dpos-overview/background-dpos-card-hd.png` for the black equity card artwork.
+- The DPoS page renders the header, equity card, action bar, validator summary, stake detail card, validator list, and active bottom navigation as code-rendered React Native views.
+- The DPoS action/status SVG shapes from `design-draft/assets/07-dpos-overview` were converted into React Native SVG components.
+- The DPoS bottom tab is active on the DPoS page, and tapping bottom `资产` returns to the homepage.
+- The existing send flow remains available from the homepage quick action.
+- TypeScript and unit tests pass after the DPoS changes.
 
 ## Remaining P3 Notes
 
-- Text is currently rasterized inside design slices for maximum visual fidelity. A later production pass can replace text with semantic React Native text once all visual coordinates are locked.
-
-## Brand Update
-
-final result: passed
-
-- App display name is now `NULLA`.
-- App icon uses a dedicated NULLA N mark, avoiding SOL brand confusion.
-- Splash image uses a clean hologram platform crop with no SOL text, no asset figures, and no homepage UI residue.
-- Expo config references `assets/brand/icon.png`, `assets/brand/adaptive-icon.png`, and `assets/brand/splash.png`.
-
-## Responsive Update
-
-final result: passed
-
-- Home screen now derives bottom navigation height from the active viewport width.
-- Safe-area top and bottom insets are reserved through `react-native-safe-area-context`.
-- Verified phone viewports: `320 x 693`, `393 x 852`, and `430 x 932`.
-- All checked viewports reported `scrollWidth === clientWidth`, so there is no horizontal overflow.
+- Web and Android font rasterization can differ slightly; final Android device verification is still recommended before release packaging.

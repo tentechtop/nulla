@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 export const colors = {
   background: '#FFFFFF',
   surface: '#FFFFFF',
@@ -17,6 +19,13 @@ export const colors = {
   negative: '#F0162F',
   warning: '#FF7A1A',
   success: '#18C772'
+} as const;
+
+export const fontFamilies = {
+  system: Platform.select({
+    default: 'sans-serif',
+    web: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif'
+  }) as string
 } as const;
 
 export const spacing = {

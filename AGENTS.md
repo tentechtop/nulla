@@ -38,8 +38,10 @@ scripts\build-install-android.ps1
 powershell -ExecutionPolicy Bypass -File scripts\build-install-android.ps1 -DeviceId 设备ID
 ```
 
-需要清理桌面旧图标缓存时执行：
+兼容旧自动化命令且不卸载旧包时执行：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\build-install-android.ps1 -CleanInstall
 ```
+
+该参数只保留兼容性，脚本仍使用 `adb install -r` 覆盖安装，避免手机端卸载确认影响自动化。

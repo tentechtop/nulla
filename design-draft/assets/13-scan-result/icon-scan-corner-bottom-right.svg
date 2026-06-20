@@ -1,0 +1,9 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="corner" x1="56" y1="56" x2="8" y2="8" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9B3DFF"/>
+      <stop offset="1" stop-color="#4E5CFF"/>
+    </linearGradient>
+  </defs>
+  <path d="M56 8V42C56 49.7 49.7 56 42 56H8" stroke="url(#corner)" stroke-width="7" stroke-linecap="round"/>
+</svg>

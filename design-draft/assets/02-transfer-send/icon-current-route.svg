@@ -1,0 +1,11 @@
+<svg width="128" height="48" viewBox="0 0 128 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="routeLine" x1="24" y1="24" x2="104" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B72FF"/>
+      <stop offset="1" stop-color="#9A3DFF"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 24H104" stroke="url(#routeLine)" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="24" cy="24" r="9" fill="white" stroke="#0B72FF" stroke-width="4"/>
+  <circle cx="104" cy="24" r="9" fill="white" stroke="#9A3DFF" stroke-width="4"/>
+</svg>

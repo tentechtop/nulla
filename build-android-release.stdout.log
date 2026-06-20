@@ -66,15 +66,18 @@ Using expo modules
 > Task :react-native-safe-area-context:preBuild UP-TO-DATE
 > Task :react-native-safe-area-context:preReleaseBuild UP-TO-DATE
 > Task :react-native-safe-area-context:writeReleaseAarMetadata UP-TO-DATE
+> Task :react-native-svg:preBuild UP-TO-DATE
+> Task :react-native-svg:preReleaseBuild UP-TO-DATE
+> Task :react-native-svg:writeReleaseAarMetadata UP-TO-DATE
 > Task :app:checkReleaseAarMetadata UP-TO-DATE
 
 > Task :app:createBundleReleaseJsAndAssets
 Starting Metro Bundler
 warning: Bundler cache is empty, rebuilding (this may take a minute)
-Android Bundled 6208ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (570 modules)
+Android Bundled 6565ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (730 modules)
 Writing bundle output to: android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle
 Writing sourcemap output to: android\app\build\intermediates\sourcemaps\react\release\index.android.bundle.packager.map
-Copying 6 asset files
+Copying 32 asset files
 Done writing bundle output
 Done writing sourcemap output
 
@@ -109,11 +112,12 @@ Done writing sourcemap output
 > Task :react-native-safe-area-context:generateReleaseResValues UP-TO-DATE
 > Task :react-native-safe-area-context:generateReleaseResources UP-TO-DATE
 > Task :react-native-safe-area-context:packageReleaseResources UP-TO-DATE
+> Task :react-native-svg:generateReleaseResValues UP-TO-DATE
+> Task :react-native-svg:generateReleaseResources UP-TO-DATE
+> Task :react-native-svg:packageReleaseResources UP-TO-DATE
 > Task :app:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :app:generateReleaseResources UP-TO-DATE
-> Task :app:mergeReleaseResources UP-TO-DATE
-> Task :app:packageReleaseResources UP-TO-DATE
-> Task :app:parseReleaseLocalResources UP-TO-DATE
+> Task :app:packageReleaseResources
 > Task :app:createReleaseCompatibleScreenManifests UP-TO-DATE
 > Task :app:extractDeepLinksRelease UP-TO-DATE
 > Task :expo:extractDeepLinksRelease UP-TO-DATE
@@ -124,6 +128,7 @@ Done writing sourcemap output
 > Task :expo-constants:processReleaseManifest UP-TO-DATE
 > Task :expo-file-system:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-file-system:processReleaseManifest UP-TO-DATE
+> Task :app:parseReleaseLocalResources
 > Task :expo-font:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-font:processReleaseManifest UP-TO-DATE
 > Task :expo-keep-awake:extractDeepLinksRelease UP-TO-DATE
@@ -136,6 +141,8 @@ Done writing sourcemap output
 > Task :expo-splash-screen:processReleaseManifest UP-TO-DATE
 > Task :react-native-safe-area-context:extractDeepLinksRelease UP-TO-DATE
 > Task :react-native-safe-area-context:processReleaseManifest UP-TO-DATE
+> Task :react-native-svg:extractDeepLinksRelease UP-TO-DATE
+> Task :react-native-svg:processReleaseManifest UP-TO-DATE
 > Task :app:processReleaseMainManifest UP-TO-DATE
 > Task :app:processReleaseManifest UP-TO-DATE
 > Task :app:processReleaseManifestForPackage UP-TO-DATE
@@ -169,7 +176,9 @@ Done writing sourcemap output
 > Task :react-native-safe-area-context:compileReleaseLibraryResources UP-TO-DATE
 > Task :react-native-safe-area-context:parseReleaseLocalResources UP-TO-DATE
 > Task :react-native-safe-area-context:generateReleaseRFile UP-TO-DATE
-> Task :app:processReleaseResources UP-TO-DATE
+> Task :react-native-svg:compileReleaseLibraryResources UP-TO-DATE
+> Task :react-native-svg:parseReleaseLocalResources UP-TO-DATE
+> Task :react-native-svg:generateReleaseRFile UP-TO-DATE
 > Task :expo:checkKotlinGradlePluginConfigurationErrors
 > Task :expo:generateReleaseBuildConfig UP-TO-DATE
 > Task :expo-asset:checkKotlinGradlePluginConfigurationErrors
@@ -230,9 +239,11 @@ Done writing sourcemap output
 > Task :react-native-safe-area-context:javaPreCompileRelease UP-TO-DATE
 > Task :react-native-safe-area-context:compileReleaseJavaWithJavac UP-TO-DATE
 > Task :react-native-safe-area-context:bundleLibCompileToJarRelease UP-TO-DATE
-> Task :app:compileReleaseKotlin UP-TO-DATE
+> Task :react-native-svg:generateReleaseBuildConfig UP-TO-DATE
+> Task :react-native-svg:javaPreCompileRelease UP-TO-DATE
+> Task :react-native-svg:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :react-native-svg:bundleLibCompileToJarRelease UP-TO-DATE
 > Task :app:javaPreCompileRelease UP-TO-DATE
-> Task :app:compileReleaseJavaWithJavac UP-TO-DATE
 > Task :app:extractProguardFiles UP-TO-DATE
 > Task :expo:bundleLibRuntimeToJarRelease UP-TO-DATE
 > Task :expo:processReleaseJavaRes UP-TO-DATE
@@ -472,8 +483,29 @@ Done writing sourcemap output
 > Task :react-native-safe-area-context:extractProguardFiles UP-TO-DATE
 > Task :react-native-safe-area-context:writeReleaseLintModelMetadata UP-TO-DATE
 > Task :react-native-safe-area-context:generateReleaseLintModel UP-TO-DATE
-> Task :app:generateReleaseLintVitalReportModel UP-TO-DATE
-> Task :app:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :react-native-svg:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :react-native-svg:processReleaseJavaRes NO-SOURCE
+> Task :react-native-svg:createFullJarRelease UP-TO-DATE
+> Task :react-native-svg:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :react-native-svg:mergeReleaseNativeLibs NO-SOURCE
+> Task :react-native-svg:stripReleaseDebugSymbols NO-SOURCE
+> Task :react-native-svg:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :react-native-svg:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :react-native-svg:extractReleaseAnnotations UP-TO-DATE
+> Task :react-native-svg:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :react-native-svg:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :react-native-svg:mergeReleaseShaders UP-TO-DATE
+> Task :react-native-svg:compileReleaseShaders NO-SOURCE
+> Task :react-native-svg:generateReleaseAssets UP-TO-DATE
+> Task :react-native-svg:packageReleaseAssets UP-TO-DATE
+> Task :react-native-svg:prepareLintJarForPublish UP-TO-DATE
+> Task :react-native-svg:prepareReleaseArtProfile UP-TO-DATE
+> Task :react-native-svg:mergeReleaseJavaResource UP-TO-DATE
+> Task :react-native-svg:syncReleaseLibJars UP-TO-DATE
+> Task :react-native-svg:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :react-native-svg:extractProguardFiles UP-TO-DATE
+> Task :react-native-svg:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :react-native-svg:generateReleaseLintModel UP-TO-DATE
 > Task :expo:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-asset:generateReleaseLintVitalModel UP-TO-DATE
@@ -494,8 +526,8 @@ Done writing sourcemap output
 > Task :expo-splash-screen:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :react-native-safe-area-context:generateReleaseLintVitalModel UP-TO-DATE
 > Task :react-native-safe-area-context:lintVitalAnalyzeRelease UP-TO-DATE
-> Task :app:lintVitalReportRelease UP-TO-DATE
-> Task :app:lintVitalRelease
+> Task :react-native-svg:generateReleaseLintVitalModel UP-TO-DATE
+> Task :react-native-svg:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :app:mergeReleaseJniLibFolders UP-TO-DATE
 > Task :expo:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-asset:copyReleaseJniLibsProjectOnly UP-TO-DATE
@@ -507,34 +539,24 @@ Done writing sourcemap output
 > Task :expo-modules-core:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-splash-screen:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :react-native-safe-area-context:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :react-native-svg:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :app:mergeReleaseNativeLibs UP-TO-DATE
 > Task :app:stripReleaseDebugSymbols UP-TO-DATE
 > Task :app:extractReleaseNativeSymbolTables UP-TO-DATE
 > Task :app:mergeReleaseNativeDebugMetadata UP-TO-DATE
 > Task :app:checkReleaseDuplicateClasses UP-TO-DATE
-> Task :app:dexBuilderRelease UP-TO-DATE
 > Task :app:desugarReleaseFileDependencies UP-TO-DATE
 > Task :app:mergeExtDexRelease UP-TO-DATE
-> Task :app:mergeDexRelease UP-TO-DATE
 > Task :app:mergeReleaseArtProfile UP-TO-DATE
-> Task :app:mergeReleaseGlobalSynthetics UP-TO-DATE
-> Task :app:compileReleaseArtProfile UP-TO-DATE
 > Task :app:mergeReleaseShaders UP-TO-DATE
 > Task :app:compileReleaseShaders NO-SOURCE
 > Task :app:generateReleaseAssets UP-TO-DATE
-> Task :app:mergeReleaseAssets UP-TO-DATE
-> Task :app:compressReleaseAssets UP-TO-DATE
-> Task :app:processReleaseJavaRes UP-TO-DATE
-> Task :app:mergeReleaseJavaResource UP-TO-DATE
-> Task :app:optimizeReleaseResources UP-TO-DATE
+> Task :app:mergeReleaseAssets
 > Task :app:collectReleaseDependencies UP-TO-DATE
 > Task :app:sdkReleaseDependencyData UP-TO-DATE
 > Task :app:validateSigningRelease UP-TO-DATE
 > Task :app:writeReleaseAppMetadata UP-TO-DATE
 > Task :app:writeReleaseSigningConfigVersions UP-TO-DATE
-> Task :app:packageRelease UP-TO-DATE
-> Task :app:createReleaseApkListingFileRedirect UP-TO-DATE
-> Task :app:assembleRelease
 > Task :expo:bundleReleaseAar UP-TO-DATE
 > Task :expo:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo:mergeReleaseResources UP-TO-DATE
@@ -542,6 +564,7 @@ Done writing sourcemap output
 > Task :expo:assembleRelease UP-TO-DATE
 > Task :expo-asset:bundleReleaseAar UP-TO-DATE
 > Task :expo-asset:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :app:compressReleaseAssets
 > Task :expo-asset:mergeReleaseResources UP-TO-DATE
 > Task :expo-asset:verifyReleaseResources UP-TO-DATE
 > Task :expo-asset:assembleRelease UP-TO-DATE
@@ -585,6 +608,29 @@ Done writing sourcemap output
 > Task :react-native-safe-area-context:mergeReleaseResources UP-TO-DATE
 > Task :react-native-safe-area-context:verifyReleaseResources UP-TO-DATE
 > Task :react-native-safe-area-context:assembleRelease UP-TO-DATE
+> Task :react-native-svg:bundleReleaseAar UP-TO-DATE
+> Task :react-native-svg:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :react-native-svg:mergeReleaseResources UP-TO-DATE
+> Task :react-native-svg:verifyReleaseResources UP-TO-DATE
+> Task :react-native-svg:assembleRelease UP-TO-DATE
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseResources
+> Task :app:compileReleaseKotlin
+> Task :app:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:dexBuilderRelease
+> Task :app:mergeReleaseGlobalSynthetics UP-TO-DATE
+> Task :app:processReleaseJavaRes UP-TO-DATE
+> Task :app:mergeReleaseJavaResource UP-TO-DATE
+> Task :app:optimizeReleaseResources
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:lintVitalReportRelease UP-TO-DATE
+> Task :app:lintVitalRelease
+> Task :app:mergeDexRelease
+> Task :app:compileReleaseArtProfile
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleRelease
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
@@ -592,5 +638,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 28s
-473 actionable tasks: 24 executed, 449 up-to-date
+BUILD SUCCESSFUL in 42s
+510 actionable tasks: 38 executed, 472 up-to-date

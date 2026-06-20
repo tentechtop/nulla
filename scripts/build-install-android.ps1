@@ -133,21 +133,6 @@ function Invoke-CheckedAdb {
     throw "$FailureMessage，adb 退出码：$($adbProcess.ExitCode)。输出：$($commandOutput -join ' ')"
 }
 
-function Uninstall-AndroidPackageIfNeeded {
-    param(
-        [string]$TargetDeviceId,
-        [string]$PackageName
-    )
-
-    # 功能目的：按需清理旧版原生资源缓存；实现原因：手机桌面可能继续显示旧图标
-    if (!(Test-AndroidPackageInstalled $TargetDeviceId $PackageName)) {
-        Write-Host "未安装旧包，跳过卸载。"
-        return
-    }
-
-    Invoke-CheckedAdb "卸载旧包失败" @("-s", $TargetDeviceId, "uninstall", $PackageName) | Out-Null
-}
-
 Push-Location $projectRoot
 try {
     # 功能目的：校验打包安装依赖；实现原因：提前失败比 Gradle 中途报错更容易定位
@@ -226,8 +211,9 @@ try {
     }
 
     if ($CleanInstall) {
-        Invoke-Step "卸载旧版 SOL" {
-            Uninstall-AndroidPackageIfNeeded $targetDeviceId $androidPackageName
+        Invoke-Step "跳过卸载旧版 SOL" {
+            # 功能目的：兼容旧 CleanInstall 命令；实现原因：覆盖安装可避免手机端卸载确认
+            Write-Host "CleanInstall 已不再卸载旧包，将继续使用 adb install -r 覆盖安装。"
         }
     }
 

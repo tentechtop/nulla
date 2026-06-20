@@ -1,0 +1,5 @@
+npm warn Unknown user config "home". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+  --non-interactive is not supported, use $CI=1 instead
+Input is required, but 'npx expo' is in non-interactive mode.
+Required input:
+> Use port 19019 instead?
