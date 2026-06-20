@@ -76,8 +76,8 @@ function Save-ScaledSplashLogo {
     $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
     $graphics.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
 
-    $maxLogoWidth = 280 * $Scale
-    $maxLogoHeight = 44 * $Scale
+    $maxLogoWidth = 210 * $Scale
+    $maxLogoHeight = 33 * $Scale
     $scaleRatio = [Math]::Min($maxLogoWidth / $sourceImage.Width, $maxLogoHeight / $sourceImage.Height)
     $drawWidth = [Math]::Round($sourceImage.Width * $scaleRatio)
     $drawHeight = [Math]::Round($sourceImage.Height * $scaleRatio)

@@ -1,0 +1,20 @@
+<svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="1" y="1" width="70" height="70" rx="16" fill="#090B10" stroke="#3A3D46" stroke-width="2"/>
+  <defs>
+    <linearGradient id="topBar" x1="17" y1="19" x2="55" y2="19" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#20F3C4"/>
+      <stop offset="1" stop-color="#1C8DFF"/>
+    </linearGradient>
+    <linearGradient id="middleBar" x1="18" y1="36" x2="55" y2="36" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9C3DFF"/>
+      <stop offset="1" stop-color="#1CAEFF"/>
+    </linearGradient>
+    <linearGradient id="bottomBar" x1="17" y1="53" x2="55" y2="53" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F73FF"/>
+      <stop offset="1" stop-color="#B03DFF"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 18H55L48 26H17L24 18Z" fill="url(#topBar)"/>
+  <path d="M17 32H48L55 40H24L17 32Z" fill="url(#middleBar)"/>
+  <path d="M24 46H55L48 54H17L24 46Z" fill="url(#bottomBar)"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg width="166" height="54" viewBox="0 0 166 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="barTop" x1="3" y1="12" x2="64" y2="12" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#26A7FF"/>
+      <stop offset="1" stop-color="#17F0BF"/>
+    </linearGradient>
+    <linearGradient id="barMiddle" x1="3" y1="27" x2="64" y2="27" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8A3DFF"/>
+      <stop offset="1" stop-color="#1C91FF"/>
+    </linearGradient>
+    <linearGradient id="barBottom" x1="3" y1="42" x2="64" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A540FF"/>
+      <stop offset="1" stop-color="#2F70FF"/>
+    </linearGradient>
+  </defs>
+  <path d="M13 8H64L54 18H3L13 8Z" fill="url(#barTop)"/>
+  <path d="M3 23H54L64 33H13L3 23Z" fill="url(#barMiddle)"/>
+  <path d="M13 38H64L54 48H3L13 38Z" fill="url(#barBottom)"/>
+  <text x="78" y="41" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="800" letter-spacing="0">SOL</text>
+</svg>

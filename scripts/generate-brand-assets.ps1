@@ -176,6 +176,6 @@ $iconLogoSize = [Math]::Round($iconPanelSize * 0.65)
 Save-VisualPng -TargetPath $iconPath -CanvasWidth 1024 -CanvasHeight 1024 -BackgroundBrush $null -PathItems $iconPathItems -MaxLogoWidth $iconLogoSize -MaxLogoHeight $iconLogoSize -DrawIconPanel $true -IconPanelScale $iconPanelScale
 Save-VisualPng -TargetPath $adaptiveIconPath -CanvasWidth 1024 -CanvasHeight 1024 -BackgroundBrush $null -PathItems $iconPathItems -MaxLogoWidth $iconLogoSize -MaxLogoHeight $iconLogoSize -DrawIconPanel $true -IconPanelScale $iconPanelScale
 Save-VisualPng -TargetPath $splashLogoPath -CanvasWidth 646 -CanvasHeight 97 -BackgroundBrush $null -PathItems $splashPathItems -MaxLogoWidth 646 -MaxLogoHeight 97 -DrawIconPanel $false
-Save-VisualPng -TargetPath $splashPath -CanvasWidth 1242 -CanvasHeight 2688 -BackgroundBrush ([System.Windows.Media.Brushes]::White) -PathItems $splashPathItems -MaxLogoWidth 760 -MaxLogoHeight 114 -DrawIconPanel $false
+Save-VisualPng -TargetPath $splashPath -CanvasWidth 1242 -CanvasHeight 2688 -BackgroundBrush ([System.Windows.Media.Brushes]::White) -PathItems $splashPathItems -MaxLogoWidth 570 -MaxLogoHeight 86 -DrawIconPanel $false
 
 Get-ChildItem -File $assetDirectory | Select-Object FullName, Length
