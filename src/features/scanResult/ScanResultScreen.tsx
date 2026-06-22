@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CameraView, type BarcodeScanningResult, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
@@ -33,6 +33,7 @@ const recentRows = [
 type ResultIconKey = 'hash' | 'source' | 'network';
 type RecentIconKey = (typeof recentRows)[number]['icon'];
 type ScanKind = 'address' | 'deploy' | 'transfer' | 'unknown' | 'waiting';
+type CameraPermissionRequestSource = 'auto' | 'manual';
 
 type ResultRow = {
   readonly icon: ResultIconKey;
@@ -140,13 +141,86 @@ export function ScanResultScreen({ bottomPadding, onBackPress, topPadding }: Sca
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
   const resolvedBottomPadding = bottomPadding ?? layoutMetrics.bottomNavHeight;
   const resolvedTopPadding = topPadding ?? layoutMetrics.topSafeArea + headerHeight;
+  const permissionRequestStartedRef = useRef(false);
   const scanLockRef = useRef(false);
-  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission, getCameraPermission] = useCameraPermissions();
   const [cameraError, setCameraError] = useState('');
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isScannerActive, setIsScannerActive] = useState(true);
   const [scannedPayload, setScannedPayload] = useState<string | null>(null);
   const scanSummary = createScanSummary(scannedPayload);
+
+  const requestCameraAccess = useCallback((requestSource: CameraPermissionRequestSource) => {
+    if (cameraPermission?.granted) {
+      setCameraError('');
+      return;
+    }
+
+    if (cameraPermission?.canAskAgain === false) {
+      setCameraError('相机权限已关闭，请在系统设置中允许 SOL 使用相机');
+
+      if (requestSource === 'manual') {
+        void Linking.openSettings().catch((error: unknown) => {
+          setCameraError(error instanceof Error ? error.message : '无法打开系统权限设置');
+        });
+      }
+
+      return;
+    }
+
+    if (requestSource === 'auto' && permissionRequestStartedRef.current) {
+      return;
+    }
+
+    // 功能目的：主动申请运行时相机权限；实现原因：扫码页必须由系统授权后才能打开真实摄像头。
+    permissionRequestStartedRef.current = true;
+    setCameraError('');
+    console.info('[scan-result] camera permission requested', { requestSource });
+
+    void requestCameraPermission()
+      .then((nextPermission) => {
+        if (!nextPermission.granted) {
+          setCameraError(nextPermission.canAskAgain ? '请允许相机权限后继续扫码' : '相机权限已关闭，请在系统设置中允许 SOL 使用相机');
+        }
+
+        console.info('[scan-result] camera permission result', {
+          canAskAgain: nextPermission.canAskAgain,
+          granted: nextPermission.granted,
+          status: nextPermission.status
+        });
+      })
+      .catch((error: unknown) => {
+        setCameraError(error instanceof Error ? error.message : '相机权限请求失败');
+        console.info('[scan-result] camera permission request failed');
+      });
+  }, [cameraPermission, requestCameraPermission]);
+
+  useEffect(() => {
+    requestCameraAccess('auto');
+  }, [requestCameraAccess]);
+
+  useEffect(() => {
+    // 功能目的：刷新从系统设置返回后的权限；实现原因：用户手动开启相机后需要立即加载预览。
+    const appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState !== 'active') {
+        return;
+      }
+
+      void getCameraPermission().catch((error: unknown) => {
+        setCameraError(error instanceof Error ? error.message : '相机权限状态刷新失败');
+      });
+    });
+
+    return () => {
+      appStateSubscription.remove();
+    };
+  }, [getCameraPermission]);
+
+  useEffect(() => {
+    if (cameraPermission?.granted) {
+      setCameraError('');
+    }
+  }, [cameraPermission]);
 
   const handleConfirmPress = () => {
     console.info('[scan-result] confirm requested', {
@@ -172,6 +246,10 @@ export function ScanResultScreen({ bottomPadding, onBackPress, topPadding }: Sca
 
   const handleShowAllPress = () => {
     console.info('[scan-result] recent history requested');
+  };
+
+  const handleRequestCameraPermission = () => {
+    requestCameraAccess('manual');
   };
 
   const handleCameraReady = () => {
@@ -216,19 +294,22 @@ export function ScanResultScreen({ bottomPadding, onBackPress, topPadding }: Sca
             paddingTop: resolvedTopPadding
           }
         ]}
+        overScrollMode="never"
         showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
       >
         <View style={styles.canvas}>
           <PageHeading onBackPress={onBackPress} scale={layoutMetrics.scale} styles={styles} />
           <ScanPreviewCard
             cameraError={cameraError}
+            cameraPermissionCanAskAgain={cameraPermission?.canAskAgain !== false}
             cameraPermissionGranted={cameraPermission?.granted === true}
             isCameraReady={isCameraReady}
             isScannerActive={isScannerActive}
             onBarcodeScanned={handleBarcodeScanned}
             onCameraError={handleCameraError}
             onCameraReady={handleCameraReady}
-            onRequestCameraPermission={requestCameraPermission}
+            onRequestCameraPermission={handleRequestCameraPermission}
             scale={layoutMetrics.scale}
             styles={styles}
           />
@@ -269,6 +350,7 @@ function PageHeading({
 
 function ScanPreviewCard({
   cameraError,
+  cameraPermissionCanAskAgain,
   cameraPermissionGranted,
   isCameraReady,
   isScannerActive,
@@ -280,6 +362,7 @@ function ScanPreviewCard({
   styles
 }: {
   readonly cameraError: string;
+  readonly cameraPermissionCanAskAgain: boolean;
   readonly cameraPermissionGranted: boolean;
   readonly isCameraReady: boolean;
   readonly isScannerActive: boolean;
@@ -305,9 +388,11 @@ function ScanPreviewCard({
       ) : (
         <View style={styles.cameraStatePanel}>
           <Text style={styles.cameraStateTitle}>需要相机权限</Text>
-          <Text style={styles.cameraStateText}>授权后即可实时扫描二维码</Text>
+          <Text style={styles.cameraStateText}>
+            {cameraError.length > 0 ? cameraError : '授权后即可实时扫描二维码'}
+          </Text>
           <Pressable accessibilityRole="button" onPress={onRequestCameraPermission} style={styles.cameraPermissionButton}>
-            <Text style={styles.cameraPermissionText}>开启相机</Text>
+            <Text style={styles.cameraPermissionText}>{cameraPermissionCanAskAgain ? '开启相机' : '去设置'}</Text>
           </Pressable>
         </View>
       )}
@@ -570,6 +655,7 @@ function createStyles(scale: number) {
       width: scaled(64, scale)
     },
     canvas: {
+      backgroundColor: colors.background,
       height: scaledBelowTopNavigation(1692, scale),
       position: 'relative',
       width: '100%'
@@ -907,6 +993,9 @@ function createStyles(scale: number) {
       ...textBase
     },
     scrollContent: {
+      backgroundColor: colors.background
+    },
+    scrollView: {
       backgroundColor: colors.background
     },
     secondaryButtonText: {

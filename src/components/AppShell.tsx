@@ -12,10 +12,12 @@ type AppShellProps = {
 export function AppShell({ bottomPadding, children, topPadding }: AppShellProps) {
   return (
     <View style={styles.root}>
-      <StatusBar style="dark" />
+      <StatusBar backgroundColor="#FFFFFF" style="dark" translucent={false} />
       <ScrollView
         bounces={false}
+        overScrollMode="never"
         showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
           {
@@ -35,5 +37,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     flex: 1
   },
-  content: {}
+  content: {
+    backgroundColor: colors.background
+  },
+  scrollView: {
+    backgroundColor: colors.background
+  }
 });

@@ -8,12 +8,26 @@ const scanResultSource = readFileSync(new URL('../src/features/scanResult/ScanRe
 const scanResultIconsSource = readFileSync(new URL('../src/features/scanResult/ScanResultSvgIcons.tsx', import.meta.url), 'utf8');
 
 test('scan result page uses the real Expo camera QR scanner', () => {
+  assert.match(scanResultSource, /import \{ useCallback, useEffect, useRef, useState \} from 'react'/);
+  assert.match(scanResultSource, /import \{ AppState, Linking, Pressable, ScrollView, StyleSheet, Text, View \} from 'react-native'/);
   assert.match(scanResultSource, /import \{ CameraView, type BarcodeScanningResult, useCameraPermissions \} from 'expo-camera'/);
   assert.match(scanResultSource, /<CameraView/);
   assert.match(scanResultSource, /barcodeScannerSettings=\{\{ barcodeTypes: \['qr'\] \}\}/);
   assert.match(scanResultSource, /onBarcodeScanned=\{isScannerActive \? onBarcodeScanned : undefined\}/);
   assert.match(scanResultSource, /sanitizeScanPayload/);
   assert.doesNotMatch(scanResultSource, /scanResultImages\.scanPlatform/);
+});
+
+test('scan result page requests camera permission automatically before opening camera', () => {
+  assert.match(scanResultSource, /const permissionRequestStartedRef = useRef\(false\)/);
+  assert.match(scanResultSource, /const \[cameraPermission, requestCameraPermission, getCameraPermission\] = useCameraPermissions\(\)/);
+  assert.match(scanResultSource, /const requestCameraAccess = useCallback/);
+  assert.match(scanResultSource, /requestCameraAccess\('auto'\)/);
+  assert.match(scanResultSource, /void requestCameraPermission\(\)/);
+  assert.match(scanResultSource, /Linking\.openSettings\(\)/);
+  assert.match(scanResultSource, /AppState\.addEventListener\('change'/);
+  assert.match(scanResultSource, /getCameraPermission\(\)/);
+  assert.match(scanResultSource, /onRequestCameraPermission=\{handleRequestCameraPermission\}/);
 });
 
 test('scan result page keeps only scan corners over the camera preview', () => {

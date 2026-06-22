@@ -78,10 +78,10 @@ Using expo modules
 > Task :app:createBundleReleaseJsAndAssets
 Starting Metro Bundler
 warning: Bundler cache is empty, rebuilding (this may take a minute)
-Android Bundled 5141ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (748 modules)
+Android Bundled 6486ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (741 modules)
 Writing bundle output to: android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle
 Writing sourcemap output to: android\app\build\intermediates\sourcemaps\react\release\index.android.bundle.packager.map
-Copying 34 asset files
+Copying 33 asset files
 Done writing bundle output
 Done writing sourcemap output
 
@@ -623,8 +623,8 @@ Done writing sourcemap output
 > Task :expo:assembleRelease UP-TO-DATE
 > Task :expo-asset:bundleReleaseAar UP-TO-DATE
 > Task :expo-asset:mapReleaseSourceSetPaths UP-TO-DATE
-> Task :app:compressReleaseAssets
 > Task :expo-asset:mergeReleaseResources UP-TO-DATE
+> Task :app:compressReleaseAssets
 > Task :expo-asset:verifyReleaseResources UP-TO-DATE
 > Task :expo-asset:assembleRelease UP-TO-DATE
 > Task :expo-camera:bundleReleaseAar UP-TO-DATE
@@ -687,5 +687,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 30s
+BUILD SUCCESSFUL in 33s
 550 actionable tasks: 28 executed, 522 up-to-date

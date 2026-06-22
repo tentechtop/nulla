@@ -40,6 +40,7 @@ type ModeOptionKey = (typeof modeOptions)[number]['key'];
 type TransferSendScreenProps = {
   readonly bottomPadding?: number;
   readonly onBackPress?: () => void;
+  readonly onScanPress?: () => void;
   readonly topPadding?: number;
 };
 
@@ -59,7 +60,7 @@ function sanitizeLamportsInput(nextValue: string) {
   return nextValue.replace(/[^\d]/g, '').slice(0, 18);
 }
 
-export function TransferSendScreen({ bottomPadding, onBackPress, topPadding }: TransferSendScreenProps) {
+export function TransferSendScreen({ bottomPadding, onBackPress, onScanPress, topPadding }: TransferSendScreenProps) {
   const layoutMetrics = useTransferSendResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
@@ -109,7 +110,9 @@ export function TransferSendScreen({ bottomPadding, onBackPress, topPadding }: T
           }
         ]}
         keyboardShouldPersistTaps="handled"
+        overScrollMode="never"
         showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
       >
         <View style={styles.canvas}>
           <Header onBackPress={onBackPress} scale={layoutMetrics.scale} styles={styles} />
@@ -120,6 +123,7 @@ export function TransferSendScreen({ bottomPadding, onBackPress, topPadding }: T
             onAddressChange={handleAddressChange}
             onAmountChange={handleAmountChange}
             onModeChange={setSelectedMode}
+            onScanPress={onScanPress}
             onUseAllBalance={handleUseAllBalance}
             scale={layoutMetrics.scale}
             selectedMode={selectedMode}
@@ -229,6 +233,7 @@ function TransferFormCard({
   onAddressChange,
   onAmountChange,
   onModeChange,
+  onScanPress,
   onUseAllBalance,
   scale,
   selectedMode,
@@ -239,6 +244,7 @@ function TransferFormCard({
   readonly onAddressChange: (nextValue: string) => void;
   readonly onAmountChange: (nextValue: string) => void;
   readonly onModeChange: (nextValue: ModeOptionKey) => void;
+  readonly onScanPress?: () => void;
   readonly onUseAllBalance: () => void;
   readonly scale: number;
   readonly selectedMode: ModeOptionKey;
@@ -265,7 +271,7 @@ function TransferFormCard({
           <AddressContactIcon size={scaled(48, scale)} />
         </Pressable>
         <View style={styles.addressActionDivider} />
-        <Pressable accessibilityLabel="扫码输入地址" accessibilityRole="button" style={styles.addressScanButton}>
+        <Pressable accessibilityLabel="扫码输入地址" accessibilityRole="button" onPress={onScanPress} style={styles.addressScanButton}>
           <HeaderScanSvgIcon size={scaled(48, scale)} />
         </Pressable>
       </View>
@@ -504,6 +510,7 @@ function createStyles(scale: number) {
       width: scaled(56, scale)
     },
     canvas: {
+      backgroundColor: colors.background,
       height: scaledBelowTopNavigation(1712, scale),
       position: 'relative',
       width: '100%'
@@ -993,6 +1000,9 @@ function createStyles(scale: number) {
       top: scaled(35, scale)
     },
     scrollContent: {
+      backgroundColor: colors.background
+    },
+    scrollView: {
       backgroundColor: colors.background
     },
     subtitle: {

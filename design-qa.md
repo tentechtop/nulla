@@ -1,15 +1,15 @@
 # Design QA
 
 Source visual:
-- `design-draft/13-scan-result.png`
+- `design-draft/03-privacy-home.png`
 
-Prototype target: `http://localhost:19018`
+Prototype target: `http://localhost:19019`
 
-Viewport checked: `426 x 915`
+Viewport checked: `393 x 852`
 
 Scope note:
-- Scan result page body, real camera scan entry, global header entry, and shared layout integration were checked.
-- Bottom navigation button artwork is intentionally left to the other agent per user direction.
+- Privacy home body, supplied privacy card background, SVG icon geometry, shared top header, and bottom privacy tab routing were checked.
+- Page is implemented as native React Native sections, not by using the full-page design image as a cutout.
 
 ## Result
 
@@ -17,15 +17,14 @@ final result: passed
 
 ## Evidence
 
-- Top scan action opens the scan result page.
-- Page heading, camera scan card, recognition result card, action buttons, and recent scan card match the provided mobile layout coordinates.
-- Scan card uses `expo-camera` with QR scanning enabled and overlays only four scan corners after the camera area loads.
-- Old scan background, grid, and crosshair are removed from the runtime scan card.
-- Waiting-state result card uses skeleton placeholders before any QR payload is scanned.
-- Permission-state screenshot saved at `scan-result-camera-skeleton.png`.
+- Bottom `隐私` tab opens the new privacy account page and becomes the active tab.
+- Header/title, privacy balance card, action row, status card, route preview card, and empty record card are present and aligned to the mobile design scale.
+- `background-privacy-card-hd.png` is used only for the card artwork; text and UI structure are rendered natively.
+- Supplied SVG icon geometry is recreated as reusable React Native SVG components.
+- Screenshot saved at `privacy-home-web-qa.png`.
 - TypeScript check passes.
-- Unit tests pass: `39` passed, `0` failed.
+- Unit tests pass: `50` passed, `0` failed.
 
 ## Remaining P3 Notes
 
-- Web rendering does not include Android bottom safe-area insets, so final device packaging can shift the shared bottom navigation height slightly.
+- Web preview does not include Android status bar and safe-area rendering exactly; final visual should be judged on the installed Android build.

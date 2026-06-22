@@ -33,6 +33,10 @@ allprojects {
             // Android JSC is installed from npm
             url(new File(['node', '--print', "require.resolve('jsc-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim(), '../dist'))
         }
+        maven {
+            // 功能目的：解析 expo-camera 内置 CameraView AAR；实现原因：Release classpath 需要从 App 仓库读取传递依赖。
+            url(new File(['node', '--print', "require.resolve('expo-camera/package.json')"].execute(null, rootDir).text.trim(), '../android/maven'))
+        }
 
         google()
         mavenCentral()

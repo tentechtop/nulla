@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { colors, fontFamilies } from '../../theme/tokens';
+import { getSensitiveAmountParts, getSensitiveAmountText } from '../../utils/sensitiveDisplay';
 import { dposOverviewImages } from './designAssets';
 import {
   ActionClaimIcon,
@@ -69,6 +71,7 @@ function scaled(value: number, scale: number) {
 }
 
 export function DposOverviewScreen({ bottomPadding, topPadding }: DposOverviewScreenProps) {
+  const [isStakeAmountVisible, setIsStakeAmountVisible] = useState(true);
   const layoutMetrics = useDposOverviewResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
@@ -77,6 +80,10 @@ export function DposOverviewScreen({ bottomPadding, topPadding }: DposOverviewSc
 
   const handleActionPress = (actionKey: ActionKey) => {
     console.info('[dpos-overview] action requested', { actionKey });
+  };
+
+  const handleToggleStakeAmount = () => {
+    setIsStakeAmountVisible((currentValue) => !currentValue);
   };
 
   return (
@@ -90,14 +97,21 @@ export function DposOverviewScreen({ bottomPadding, topPadding }: DposOverviewSc
             paddingTop: resolvedTopPadding
           }
         ]}
+        overScrollMode="never"
         showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
       >
         <View style={styles.canvas}>
           <PageHeading styles={styles} />
-          <OverviewCard scale={layoutMetrics.scale} styles={styles} />
+          <OverviewCard
+            isAmountVisible={isStakeAmountVisible}
+            onToggleAmountVisibility={handleToggleStakeAmount}
+            scale={layoutMetrics.scale}
+            styles={styles}
+          />
           <ActionCard onActionPress={handleActionPress} scale={layoutMetrics.scale} styles={styles} />
           <ValidatorSummaryCard scale={layoutMetrics.scale} styles={styles} />
-          <StakeDetailCard scale={layoutMetrics.scale} styles={styles} />
+          <StakeDetailCard isAmountVisible={isStakeAmountVisible} scale={layoutMetrics.scale} styles={styles} />
           <ValidatorListCard scale={layoutMetrics.scale} styles={styles} />
         </View>
       </ScrollView>
@@ -115,27 +129,44 @@ function PageHeading({ styles }: { readonly styles: ReturnType<typeof createStyl
 }
 
 function OverviewCard({
+  isAmountVisible,
+  onToggleAmountVisibility,
   scale,
   styles
 }: {
+  readonly isAmountVisible: boolean;
+  readonly onToggleAmountVisibility: () => void;
   readonly scale: number;
   readonly styles: ReturnType<typeof createStyles>;
 }) {
+  const totalAmountParts = getSensitiveAmountParts('10,000,000', 'lamports', isAmountVisible);
+
   return (
     <View style={styles.overviewCard}>
       <Image resizeMode="cover" source={dposOverviewImages.overviewArtwork} style={styles.overviewArtwork} />
       <View style={styles.overviewArtworkShade} />
       <Text style={styles.totalLabel}>总质押权益</Text>
-      <View style={styles.eyeIconWrap}>
+      <Pressable
+        accessibilityLabel={isAmountVisible ? '隐藏DPoS金额' : '显示DPoS金额'}
+        accessibilityRole="button"
+        accessibilityState={{ selected: !isAmountVisible }}
+        hitSlop={scaled(12, scale)}
+        onPress={onToggleAmountVisibility}
+        style={styles.eyeButton}
+      >
         <EyeIcon size={scaled(36, scale)} />
-      </View>
-      <Text style={styles.totalValue}>10,000,000</Text>
-      <Text style={styles.totalUnit}>lamports</Text>
+      </Pressable>
+      <Text adjustsFontSizeToFit minimumFontScale={0.78} numberOfLines={1} style={styles.totalValue}>
+        {totalAmountParts.amountText}
+      </Text>
+      <Text style={styles.totalUnit}>{totalAmountParts.unitText}</Text>
       {summaryItems.map((item, index) => (
         <View key={item.label} style={[styles.summaryColumn, { left: scaled(38 + index * 200, scale) }]}>
           {index > 0 ? <View style={styles.summaryDivider} /> : null}
           <Text style={styles.summaryLabel}>{item.label}</Text>
-          <Text style={styles.summaryValue}>{item.value}</Text>
+          <Text adjustsFontSizeToFit minimumFontScale={0.76} numberOfLines={1} style={styles.summaryValue}>
+            {getSensitiveAmountText(item.value, isAmountVisible)}
+          </Text>
           <Text style={styles.summaryUnit}>{item.unit}</Text>
         </View>
       ))}
@@ -212,7 +243,15 @@ function ValidatorSummaryCard({ scale, styles }: { readonly scale: number; reado
   );
 }
 
-function StakeDetailCard({ scale, styles }: { readonly scale: number; readonly styles: ReturnType<typeof createStyles> }) {
+function StakeDetailCard({
+  isAmountVisible,
+  scale,
+  styles
+}: {
+  readonly isAmountVisible: boolean;
+  readonly scale: number;
+  readonly styles: ReturnType<typeof createStyles>;
+}) {
   return (
     <View style={styles.detailCard}>
       {detailRows.map((row, index) => (
@@ -221,7 +260,9 @@ function StakeDetailCard({ scale, styles }: { readonly scale: number; readonly s
             <DetailIcon rowKey={row.key} size={scaled(48, scale)} />
           </View>
           <Text style={styles.detailLabel}>{row.label}</Text>
-          <Text style={styles.detailValue}>{row.value}</Text>
+          <Text adjustsFontSizeToFit minimumFontScale={0.76} numberOfLines={1} style={styles.detailValue}>
+            {getSensitiveAmountText(row.value, isAmountVisible)}
+          </Text>
           <Text style={styles.detailUnit}>{row.unit}</Text>
           <Text style={row.tone === 'primary' ? styles.detailStatusPrimary : styles.detailStatusMuted}>{row.status}</Text>
           <View style={styles.detailChevron}>
@@ -369,6 +410,7 @@ function createStyles(scale: number) {
       ...textBase
     },
     canvas: {
+      backgroundColor: colors.background,
       height: scaled(1595, scale),
       position: 'relative',
       width: '100%'
@@ -476,10 +518,14 @@ function createStyles(scale: number) {
       width: scaled(192, scale),
       ...textBase
     },
-    eyeIconWrap: {
-      left: scaled(174, scale),
+    eyeButton: {
+      alignItems: 'center',
+      height: scaled(46, scale),
+      justifyContent: 'center',
+      left: scaled(170, scale),
       position: 'absolute',
-      top: scaled(51, scale)
+      top: scaled(44, scale),
+      width: scaled(46, scale)
     },
     heightLabel: {
       color: colors.textMuted,
@@ -609,6 +655,9 @@ function createStyles(scale: number) {
     scrollContent: {
       backgroundColor: colors.background
     },
+    scrollView: {
+      backgroundColor: colors.background
+    },
     summaryColumn: {
       height: scaled(110, scale),
       position: 'absolute',
@@ -648,6 +697,7 @@ function createStyles(scale: number) {
       lineHeight: scaled(36, scale),
       position: 'absolute',
       top: scaled(38, scale),
+      width: scaled(150, scale),
       ...textBase
     },
     totalLabel: {
@@ -678,6 +728,7 @@ function createStyles(scale: number) {
       lineHeight: scaled(69, scale),
       position: 'absolute',
       top: scaled(100, scale),
+      width: scaled(378, scale),
       ...textBase
     },
     validatorAvatar: {

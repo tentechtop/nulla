@@ -4,7 +4,14 @@
     <item name="android:editTextStyle">@style/ResetEditText</item>
     <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
     <item name="colorPrimary">@color/colorPrimary</item>
+    <!-- 功能目的：统一 Activity 窗口底色；实现原因：避免 React 渲染前和安全区边缘露出系统灰底。 -->
+    <item name="android:windowBackground">#FFFFFF</item>
     <item name="android:statusBarColor">#FFFFFF</item>
+    <item name="android:navigationBarColor">#FFFFFF</item>
+    <item name="android:forceDarkAllowed">false</item>
+    <item name="android:windowLightStatusBar">true</item>
+    <item name="android:windowLightNavigationBar">true</item>
+    <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
   </style>
   <style name="ResetEditText" parent="@android:style/Widget.EditText">
     <item name="android:padding">0dp</item>

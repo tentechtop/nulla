@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { BackHandler, StyleSheet, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -8,12 +8,14 @@ import { GlobalHeader, getGlobalHeaderHeight } from './src/components/GlobalHead
 import { DposOverviewScreen } from './src/features/dposOverview/DposOverviewScreen';
 import { HomeScreen } from './src/features/home/HomeScreen';
 import { useHomeResponsiveLayout } from './src/features/home/useHomeResponsiveLayout';
+import { PrivacyHomeScreen } from './src/features/privacyHome/PrivacyHomeScreen';
 import { ScanResultScreen } from './src/features/scanResult/ScanResultScreen';
 import { TransferSendScreen } from './src/features/transferSend/TransferSendScreen';
 
 const NATIVE_SPLASH_HOLD_MS = 600;
 
-type AppRoute = 'home' | 'transferSend' | 'dposOverview' | 'scanResult';
+type AppRoute = 'home' | 'transferSend' | 'dposOverview' | 'privacyHome' | 'scanResult';
+const INITIAL_ROUTE_STACK: readonly AppRoute[] = ['home'];
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -27,11 +29,45 @@ export default function App() {
 
 function AppContent() {
   const nativeSplashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [currentRoute, setCurrentRoute] = useState<AppRoute>('home');
+  const routeStackRef = useRef<readonly AppRoute[]>(INITIAL_ROUTE_STACK);
+  const [routeStack, setRouteStack] = useState<readonly AppRoute[]>(INITIAL_ROUTE_STACK);
+  const currentRoute = routeStack[routeStack.length - 1] ?? 'home';
   const headerMetrics = useHomeResponsiveLayout();
   const headerHeight = getGlobalHeaderHeight(headerMetrics.scale);
   const contentTopPadding = headerMetrics.topSafeArea + headerHeight;
-  const activeBottomTab: GlobalBottomTabKey = currentRoute === 'dposOverview' ? 'dpos' : 'assets';
+  const activeBottomTab: GlobalBottomTabKey = currentRoute === 'dposOverview' ? 'dpos' : currentRoute === 'privacyHome' ? 'privacy' : 'assets';
+
+  const replaceRouteStack = useCallback((nextRouteStack: readonly AppRoute[]) => {
+    routeStackRef.current = nextRouteStack;
+    setRouteStack(nextRouteStack);
+  }, []);
+
+  const openRoute = useCallback((nextRoute: AppRoute) => {
+    const currentRouteStack = routeStackRef.current;
+    const currentTopRoute = currentRouteStack[currentRouteStack.length - 1] ?? 'home';
+
+    if (currentTopRoute === nextRoute) {
+      return;
+    }
+
+    if (nextRoute === 'home') {
+      replaceRouteStack(INITIAL_ROUTE_STACK);
+      return;
+    }
+
+    replaceRouteStack([...currentRouteStack, nextRoute]);
+  }, [replaceRouteStack]);
+
+  const goBackOneRoute = useCallback(() => {
+    const currentRouteStack = routeStackRef.current;
+
+    if (currentRouteStack.length <= 1) {
+      return false;
+    }
+
+    replaceRouteStack(currentRouteStack.slice(0, -1));
+    return true;
+  }, [replaceRouteStack]);
 
   useEffect(() => {
     // 功能目的：延迟关闭原生启动页；实现原因：避免原生页和 React 页切换闪烁。
@@ -46,50 +82,65 @@ function AppContent() {
     };
   }, []);
 
+  useEffect(() => {
+    // 功能目的：接管 Android 侧滑/返回键；实现原因：单页路由需要先回退应用内历史栈。
+    const backSubscription = BackHandler.addEventListener('hardwareBackPress', goBackOneRoute);
+
+    return () => {
+      backSubscription.remove();
+    };
+  }, [goBackOneRoute]);
+
   const handleOpenTransferSend = () => {
-    setCurrentRoute('transferSend');
+    openRoute('transferSend');
   };
 
   const handleOpenDposOverview = () => {
-    setCurrentRoute('dposOverview');
+    openRoute('dposOverview');
+  };
+
+  const handleOpenPrivacyHome = () => {
+    openRoute('privacyHome');
   };
 
   const handleOpenScanResult = () => {
-    setCurrentRoute('scanResult');
+    openRoute('scanResult');
   };
 
-  const handleBackHome = () => {
-    setCurrentRoute('home');
+  const handleOpenHome = () => {
+    openRoute('home');
+  };
+
+  const handleBackRoute = () => {
+    if (!goBackOneRoute()) {
+      openRoute('home');
+    }
   };
 
   return (
     <>
-      <StatusBar hidden={false} style="dark" />
+      <StatusBar backgroundColor="#FFFFFF" hidden={false} style="dark" translucent={false} />
       <View style={styles.appRoot}>
         <View collapsable={false} style={[styles.screenLayer, { top: contentTopPadding }]}>
           <ActiveScreen
             bottomPadding={headerMetrics.bottomNavHeight}
             currentRoute={currentRoute}
-            onBackPress={handleBackHome}
+            onBackPress={handleBackRoute}
             onScanPress={handleOpenScanResult}
             onSendPress={handleOpenTransferSend}
           />
         </View>
-        <View
-          collapsable={false}
-          pointerEvents="none"
-          renderToHardwareTextureAndroid
-          style={[styles.fixedTopNavigationScrim, { height: contentTopPadding }]}
-        />
-        <View collapsable={false} renderToHardwareTextureAndroid style={[styles.fixedGlobalHeader, { top: headerMetrics.topSafeArea }]}>
-          <GlobalHeader onAssetsPress={handleBackHome} onScanPress={handleOpenScanResult} scale={headerMetrics.scale} />
+        <View collapsable={false} pointerEvents="none" style={[styles.fixedTopNavigationScrim, { height: contentTopPadding }]} />
+        <View collapsable={false} style={[styles.fixedGlobalHeader, { top: headerMetrics.topSafeArea }]}>
+          <GlobalHeader onAssetsPress={handleOpenHome} onScanPress={handleOpenScanResult} scale={headerMetrics.scale} />
         </View>
         <GlobalBottomNavigation
           activeTab={activeBottomTab}
           bottomNavHeight={headerMetrics.bottomNavHeight}
           bottomNavSliceHeight={headerMetrics.bottomNavSliceHeight}
-          onAssetsPress={handleBackHome}
+          onAssetsPress={handleOpenHome}
           onDposPress={handleOpenDposOverview}
+          onPrivacyPress={handleOpenPrivacyHome}
           scale={headerMetrics.scale}
         />
       </View>
@@ -117,11 +168,15 @@ function ActiveScreen({
   }
 
   if (currentRoute === 'transferSend') {
-    return <TransferSendScreen bottomPadding={bottomPadding} onBackPress={onBackPress} topPadding={0} />;
+    return <TransferSendScreen bottomPadding={bottomPadding} onBackPress={onBackPress} onScanPress={onScanPress} topPadding={0} />;
   }
 
   if (currentRoute === 'scanResult') {
     return <ScanResultScreen bottomPadding={bottomPadding} onBackPress={onBackPress} topPadding={0} />;
+  }
+
+  if (currentRoute === 'privacyHome') {
+    return <PrivacyHomeScreen bottomPadding={bottomPadding} topPadding={0} />;
   }
 
   return <DposOverviewScreen bottomPadding={bottomPadding} topPadding={0} />;
@@ -129,12 +184,12 @@ function ActiveScreen({
 
 const styles = StyleSheet.create({
   appRoot: {
+    backgroundColor: '#FFFFFF',
     flex: 1,
     overflow: 'hidden',
     position: 'relative'
   },
   fixedGlobalHeader: {
-    elevation: 30,
     left: 0,
     position: 'absolute',
     right: 0,
@@ -142,7 +197,6 @@ const styles = StyleSheet.create({
   },
   fixedTopNavigationScrim: {
     backgroundColor: '#FFFFFF',
-    elevation: 20,
     left: 0,
     position: 'absolute',
     right: 0,
