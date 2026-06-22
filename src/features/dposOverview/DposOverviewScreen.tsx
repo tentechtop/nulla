@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
-import { colors, fontFamilies } from '../../theme/tokens';
+import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
 import { getSensitiveAmountParts, getSensitiveAmountText } from '../../utils/sensitiveDisplay';
 import { dposOverviewImages } from './designAssets';
 import {
@@ -621,7 +621,7 @@ function createStyles(scale: number) {
     pageTitle: {
       color: colors.text,
       fontSize: scaled(54, scale),
-      fontWeight: '800',
+      fontWeight: fontWeights.pageTitle,
       left: scaled(34, scale),
       lineHeight: scaled(65, scale),
       position: 'absolute',

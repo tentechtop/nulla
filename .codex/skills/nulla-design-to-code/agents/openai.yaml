@@ -1,0 +1,4 @@
+interface:
+  display_name: "Nulla Design To Code"
+  short_description: "从 Nulla 设计稿和静态资源高保真还原项目页面。"
+  default_prompt: "Use $nulla-design-to-code to implement a Nulla page from a design draft and static assets in this project."

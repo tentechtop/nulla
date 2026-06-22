@@ -3,7 +3,7 @@ import { AppState, Linking, Pressable, ScrollView, StyleSheet, Text, View } from
 import { CameraView, type BarcodeScanningResult, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
-import { colors, fontFamilies } from '../../theme/tokens';
+import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
 import {
   BackChevronIcon,
   ChevronRightIcon,
@@ -806,7 +806,7 @@ function createStyles(scale: number) {
     pageTitle: {
       color: colors.text,
       fontSize: scaled(42, scale),
-      fontWeight: '800',
+      fontWeight: fontWeights.pageTitle,
       left: scaled(106, scale),
       lineHeight: scaled(51, scale),
       position: 'absolute',

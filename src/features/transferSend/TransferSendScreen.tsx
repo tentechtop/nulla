@@ -11,7 +11,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { HeaderScanSvgIcon } from '../../components/HeaderSvgIcons';
-import { colors, fontFamilies } from '../../theme/tokens';
+import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
 import { transferSendImages } from './designAssets';
 import {
   AddressContactIcon,
@@ -1018,7 +1018,7 @@ function createStyles(scale: number) {
     title: {
       color: colors.text,
       fontSize: scaled(41, scale),
-      fontWeight: '800',
+      fontWeight: fontWeights.pageTitle,
       left: scaled(111, scale),
       lineHeight: scaled(49, scale),
       position: 'absolute',
