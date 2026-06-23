@@ -61,7 +61,7 @@ test('account summary status row keeps unlock badge and RPC state on one baselin
 
   assert.match(accountHomeSource, /<View style=\{styles\.summaryStatusRow\}>/);
   assert.match(accountHomeSource, /<View style=\{styles\.summaryRpcStatus\}>/);
-  assert.match(unlockBadgeBlock, /minWidth: scaled\(132, scale\)/);
+  assert.match(unlockBadgeBlock, /minWidth: scaled\(124, scale\)/);
   assert.doesNotMatch(unlockBadgeBlock, /position: 'absolute'|left:|top:/);
   assert.doesNotMatch(rpcDotBlock, /position: 'absolute'|left:|top:/);
 });

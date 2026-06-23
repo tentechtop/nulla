@@ -234,7 +234,9 @@ function PrivacyStatusCard({ scale, styles }: { readonly scale: number; readonly
             <StatusRowIcon iconKey={row.icon} size={scaled(32, scale)} />
           </View>
           <Text style={styles.statusRowLabel}>{row.label}</Text>
-          <Text style={styles.statusRowValue}>{row.value}</Text>
+          <Text style={[styles.statusRowValue, row.hasChevron ? styles.statusRowValueWithChevron : null]}>
+            {row.value}
+          </Text>
           {row.hasChevron ? (
             <View style={styles.statusRowChevron}>
               <ChevronRightIcon size={scaled(34, scale)} />
@@ -705,7 +707,7 @@ function createStyles(scale: number) {
       height: scaled(42, scale),
       justifyContent: 'center',
       position: 'absolute',
-      right: scaled(-8, scale),
+      right: scaled(4, scale),
       top: scaled(8, scale),
       width: scaled(42, scale)
     },
@@ -743,6 +745,9 @@ function createStyles(scale: number) {
       top: scaled(14, scale),
       width: scaled(160, scale),
       ...textBase
+    },
+    statusRowValueWithChevron: {
+      right: scaled(56, scale)
     },
     titleShieldIcon: {
       left: scaled(229, scale),

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -11,7 +11,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { HeaderScanSvgIcon } from '../../components/HeaderSvgIcons';
+import { OperationTipDialog } from '../../components/OperationTipDialog';
 import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
+import type { ScannedSendDraft } from '../transferFlow';
 import { transferSendImages } from './designAssets';
 import {
   AddressContactIcon,
@@ -41,6 +43,7 @@ type TransferSendScreenProps = {
   readonly bottomPadding?: number;
   readonly onBackPress?: () => void;
   readonly onScanPress?: () => void;
+  readonly scannedDraft?: ScannedSendDraft | null;
   readonly topPadding?: number;
 };
 
@@ -60,7 +63,7 @@ function sanitizeLamportsInput(nextValue: string) {
   return nextValue.replace(/[^\d]/g, '').slice(0, 18);
 }
 
-export function TransferSendScreen({ bottomPadding, onBackPress, onScanPress, topPadding }: TransferSendScreenProps) {
+export function TransferSendScreen({ bottomPadding, onBackPress, onScanPress, scannedDraft, topPadding }: TransferSendScreenProps) {
   const layoutMetrics = useTransferSendResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
@@ -68,7 +71,20 @@ export function TransferSendScreen({ bottomPadding, onBackPress, onScanPress, to
   const resolvedTopPadding = topPadding ?? layoutMetrics.topSafeArea + headerHeight;
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
+  const [isSendResultVisible, setIsSendResultVisible] = useState(false);
   const [selectedMode, setSelectedMode] = useState<ModeOptionKey>('auto');
+
+  useEffect(() => {
+    if (scannedDraft === null || scannedDraft === undefined) {
+      return;
+    }
+
+    // 功能目的：应用扫码发送草稿；实现原因：二维码识别后必须直接进入可确认的发送表单。
+    setAddress(sanitizeAddressInput(scannedDraft.address));
+    if (scannedDraft.amount.length > 0) {
+      setAmount(sanitizeLamportsInput(scannedDraft.amount));
+    }
+  }, [scannedDraft]);
 
   const handleAddressChange = (nextValue: string) => {
     setAddress(sanitizeAddressInput(nextValue));
@@ -94,6 +110,19 @@ export function TransferSendScreen({ bottomPadding, onBackPress, onScanPress, to
     console.info('[transfer-send] confirm send requested', {
       hasAddress: address.length > 0,
       hasAmount: amount.length > 0,
+      mode: selectedMode
+    });
+    setIsSendResultVisible(true);
+  };
+
+  const handleCloseSendResult = () => {
+    setIsSendResultVisible(false);
+  };
+
+  const handleOpenSendDetail = () => {
+    console.info('[transfer-send] send detail requested', {
+      addressLength: address.length,
+      amountLength: amount.length,
       mode: selectedMode
     });
   };
@@ -152,6 +181,12 @@ export function TransferSendScreen({ bottomPadding, onBackPress, onScanPress, to
           </Pressable>
         </View>
       </ScrollView>
+      <OperationTipDialog
+        onClose={handleCloseSendResult}
+        onDetailPress={handleOpenSendDetail}
+        scale={layoutMetrics.scale}
+        visible={isSendResultVisible}
+      />
     </View>
   );
 }

@@ -29,6 +29,42 @@ final result: passed
 
 - Web preview does not include Android status bar and safe-area rendering exactly; final visual should be judged on the installed Android build.
 
+---
+
+# Design QA
+
+Source visual:
+- `design-draft/16-tip-dialog.png`
+- `design-draft/assets/16-tip-dialog`
+
+Prototype target: `http://localhost:19020`
+
+Viewport intended: `393 x 852`
+
+Scope note:
+- Scan result now parses supported QR send payloads and routes them into the transfer send screen.
+- Transfer send now applies scanned address/amount drafts and opens a native send result dialog after confirmation.
+- Dialog icons are converted from `design-draft/assets/16-tip-dialog` SVG assets into typed React Native SVG components.
+- The full `16-tip-dialog.png` image is not referenced as a UI cutout.
+
+## Result
+
+final result: blocked
+
+## Evidence
+
+- Expo web server responds with HTTP 200 at `http://localhost:19020`.
+- Dialog card geometry is locked to the detected source coordinates normalized to the project scale: `x=161`, `y=599`, `w=535`, `h=652`.
+- Primary icon size, primary button position, detail link position, and bottom result pills were recalibrated from the local crop of `16-tip-dialog.png`.
+- TypeScript check passes: `npx tsc --noEmit`.
+- Unit tests pass: `85` passed, `0` failed.
+- Android Release build passes: `android\gradlew.bat assembleRelease --console=plain`.
+- Browser screenshot capture is blocked because this environment exposes no Browser MCP control and no local Chrome/Edge executable is available for headless capture.
+
+## Remaining P2 Notes
+
+- Capture the real dialog at `393 x 852` on web or Android device and compare against `design-draft/16-tip-dialog.png` before final visual sign-off.
+
 # Design QA
 
 Source visual:

@@ -1,5 +1,5 @@
 const DESIGN_WIDTH = 852;
-const DESIGN_CONTENT_HEIGHT = 1607;
+const DESIGN_CONTENT_HEIGHT = 1590;
 const DESIGN_BOTTOM_NAV_HEIGHT = 123;
 
 function assertNonNegativeFinite(value, fieldName) {

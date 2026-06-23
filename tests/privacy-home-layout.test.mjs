@@ -58,3 +58,13 @@ test('privacy home uses the supplied SVG icon geometry as component icons', () =
   assert.match(privacyIconsSource, /M25 8L41 15V26\.5/);
   assert.match(privacyIconsSource, /M8 10H18C21\.3 10 24 12\.7/);
 });
+
+test('privacy status row reserves right space for chevron rows', () => {
+  const statusRowChevronBlock = privacyHomeSource.match(/statusRowChevron: \{[\s\S]*?\n    \}/)?.[0] ?? '';
+  const statusRowValueWithChevronBlock = privacyHomeSource.match(/statusRowValueWithChevron: \{[\s\S]*?\n    \}/)?.[0] ?? '';
+
+  assert.match(privacyHomeSource, /row\.hasChevron \? styles\.statusRowValueWithChevron : null/);
+  assert.match(statusRowChevronBlock, /right: scaled\(4, scale\)/);
+  assert.doesNotMatch(statusRowChevronBlock, /right: scaled\(-/);
+  assert.match(statusRowValueWithChevronBlock, /right: scaled\(56, scale\)/);
+});

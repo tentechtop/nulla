@@ -4,6 +4,7 @@ import { CameraView, type BarcodeScanningResult, useCameraPermissions } from 'ex
 import { LinearGradient } from 'expo-linear-gradient';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
+import { MAX_SCANNED_SEND_PAYLOAD_LENGTH, parseScannedSendPayload, type ScannedSendDraft } from '../transferFlow';
 import {
   BackChevronIcon,
   ChevronRightIcon,
@@ -22,7 +23,6 @@ import {
 import { useScanResultResponsiveLayout } from './useScanResultResponsiveLayout';
 
 const TOP_NAVIGATION_DESIGN_HEIGHT = 117;
-const MAX_SCAN_PAYLOAD_LENGTH = 256;
 
 const recentRows = [
   { key: 'address', icon: 'address', title: '收款地址', detail: '3GT9QRAu2L...TcZjT5S', time: '18:11:32' },
@@ -55,6 +55,7 @@ type ScanSummary = {
 type ScanResultScreenProps = {
   readonly bottomPadding?: number;
   readonly onBackPress?: () => void;
+  readonly onSendDraft?: (draft: ScannedSendDraft) => void;
   readonly topPadding?: number;
 };
 
@@ -68,7 +69,7 @@ function scaledBelowTopNavigation(value: number, scale: number) {
 
 function sanitizeScanPayload(payload: string) {
   // 功能目的：清理扫码输入；实现原因：阻断控制字符和超长内容污染界面。
-  return payload.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, MAX_SCAN_PAYLOAD_LENGTH);
+  return payload.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, MAX_SCANNED_SEND_PAYLOAD_LENGTH);
 }
 
 function compactScanPayload(payload: string) {
@@ -135,7 +136,7 @@ function createScanSummary(payload: string | null): ScanSummary {
   };
 }
 
-export function ScanResultScreen({ bottomPadding, onBackPress, topPadding }: ScanResultScreenProps) {
+export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topPadding }: ScanResultScreenProps) {
   const layoutMetrics = useScanResultResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
@@ -223,9 +224,17 @@ export function ScanResultScreen({ bottomPadding, onBackPress, topPadding }: Sca
   }, [cameraPermission]);
 
   const handleConfirmPress = () => {
+    const sendDraft = scannedPayload === null ? null : parseScannedSendPayload(scannedPayload);
+
+    if (sendDraft !== null && onSendDraft !== undefined) {
+      onSendDraft(sendDraft);
+      return;
+    }
+
     console.info('[scan-result] confirm requested', {
       hasPayload: scannedPayload !== null,
-      resultType: scanSummary.kind
+      resultType: scanSummary.kind,
+      sendDraftAvailable: sendDraft !== null
     });
   };
 

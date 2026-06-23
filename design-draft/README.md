@@ -50,6 +50,18 @@
 - `44-stablecoin-mint-redeem.png`：稳定币铸造 / 赎回
 - `45-identity-kyc.png`：身份 / KYC 中心
 - `46-authorization-management.png`：授权管理
+- `47-market-stock-token-workspace-draft.png`：股票代币交易工作台草稿
+- `48-market-home-multi-asset-draft.png`：多资产市场首页草稿
+- `49-wallet-workspace-shared-nav-draft.png`：钱包工作台共享导航草稿
+- `50-market-workspace-trading-nav-draft.png`：市场交易工作台导航草稿
+- `51-workspace-switch-market-guide.png`：工作台切换市场引导
+- `52-wallet-home-correct-bottom-nav-draft.png`：钱包首页正确底部导航草稿
+- `53-market-home-correct-bottom-nav-draft.png`：市场首页正确底部导航草稿
+- `54-wallet-home-chain-only.png`：钱包链上资产首页
+- `55-market-home-stock-trading-hero.png`：市场首页股票交易主视觉
+- `56-wallet-create-mnemonic-entry.png`：创建钱包 / 助记词入口
+- `57-wallet-mnemonic-backup-12words.png`：12 词助记词备份
+- `58-wallet-switch-account.png`：切换钱包
 
 ## 统一视觉约束
 

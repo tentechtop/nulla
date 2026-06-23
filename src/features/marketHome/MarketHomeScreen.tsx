@@ -1,7 +1,7 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
-import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
+import { colors, fontFamilies } from '../../theme/tokens';
 import { marketHomeImages } from './designAssets';
 import {
   ChevronRightIcon,
@@ -20,17 +20,17 @@ import { useMarketHomeResponsiveLayout } from './useMarketHomeResponsiveLayout';
 const TOP_NAVIGATION_DESIGN_HEIGHT = 117;
 
 const categoryTabs = [
-  { key: 'crypto', label: '虚拟货币', left: 32, width: 172, iconSize: 56, active: true },
-  { key: 'stockToken', label: '股票代币', left: 219, width: 171, iconSize: 40, active: false },
-  { key: 'cfd', label: 'CFD', left: 406, width: 128, iconSize: 40, active: false },
-  { key: 'futures', label: '期货', left: 552, width: 127, iconSize: 44, active: false },
-  { key: 'metal', label: '金属', left: 697, width: 123, iconSize: 44, active: false }
+  { key: 'crypto', label: '虚拟货币', left: 32, width: 168, iconSize: 42, active: true },
+  { key: 'stockToken', label: '股票代币', left: 212, width: 170, iconSize: 34, active: false },
+  { key: 'cfd', label: 'CFD', left: 394, width: 128, iconSize: 34, active: false },
+  { key: 'futures', label: '期货', left: 540, width: 128, iconSize: 36, active: false },
+  { key: 'metal', label: '金属', left: 692, width: 128, iconSize: 36, active: false }
 ] as const;
 
 const heroModeTabs = [
-  { label: '现货', left: 65, width: 94, active: true },
-  { label: '股票代币', left: 176, width: 128, active: false },
-  { label: '永续', left: 321, width: 88, active: false }
+  { label: '现货', left: 52, width: 94, active: true },
+  { label: '股票代币', left: 163, width: 128, active: false },
+  { label: '永续', left: 308, width: 88, active: false }
 ] as const;
 
 const actionItems = [
@@ -151,15 +151,6 @@ export function MarketHomeScreen({ bottomPadding, topPadding }: MarketHomeScreen
   );
 }
 
-function PageHeading({ styles }: { readonly styles: ReturnType<typeof createStyles> }) {
-  return (
-    <View style={styles.pageHeading}>
-      <Text style={styles.pageTitle}>市场</Text>
-      <Text style={styles.pageSubtitle}>行情、交易、去中心化市场</Text>
-    </View>
-  );
-}
-
 function SearchBar({ scale, styles }: { readonly scale: number; readonly styles: ReturnType<typeof createStyles> }) {
   return (
     <Pressable accessibilityRole="search" style={styles.searchBar}>
@@ -264,7 +255,7 @@ function ActionPanel({
           onPress={() => onActionPress(item.key)}
           style={[styles.actionButton, { left: scaled(index * 197, scale) }]}
         >
-          <MarketActionIcon iconKey={item.key as MarketActionIconKey} size={scaled(64, scale)} />
+          <MarketActionIcon iconKey={item.key as MarketActionIconKey} size={scaled(50, scale)} />
           <Text style={styles.actionLabel}>{item.label}</Text>
         </Pressable>
       ))}
@@ -279,7 +270,7 @@ function TodayFocusCard({ scale, styles }: { readonly scale: number; readonly st
       <View style={styles.focusDividerOne} />
       <View style={styles.focusDividerTwo} />
       {focusRows.map((row, index) => (
-        <FocusRow key={row.symbol} row={row} scale={scale} styles={styles} top={63 + index * 93} />
+        <FocusRow key={row.symbol} row={row} scale={scale} styles={styles} top={64 + index * 96} />
       ))}
     </View>
   );
@@ -298,7 +289,7 @@ function FocusRow({
 }) {
   return (
     <Pressable accessibilityRole="button" style={[styles.focusRow, { top: scaled(top, scale) }]}>
-      <MarketAssetIcon iconKey={row.iconKey as MarketAssetIconKey} size={scaled(64, scale)} />
+      <MarketAssetIcon iconKey={row.iconKey as MarketAssetIconKey} size={scaled(59, scale)} />
       <Text style={styles.focusSymbol}>{row.symbol}</Text>
       <View style={[styles.focusBadge, { left: scaled(row.badgeLeft, scale), width: scaled(row.badgeWidth, scale) }]}>
         <Text style={styles.focusBadgeText}>{row.badge}</Text>
@@ -342,7 +333,7 @@ function MarketTable({ scale, styles }: { readonly scale: number; readonly style
         <Text style={styles.tableVolumeHeader}>24h成交额</Text>
       </View>
       {marketRows.map((row, index) => (
-        <MarketRow key={row.symbol} row={row} scale={scale} styles={styles} top={120 + index * 76} />
+        <MarketRow key={row.symbol} row={row} scale={scale} styles={styles} top={126 + index * 82} />
       ))}
     </View>
   );
@@ -361,7 +352,7 @@ function MarketRow({
 }) {
   return (
     <Pressable accessibilityRole="button" style={[styles.marketRow, { top: scaled(top, scale) }]}>
-      <MarketAssetIcon iconKey={row.iconKey as MarketAssetIconKey} size={scaled(56, scale)} />
+      <MarketAssetIcon iconKey={row.iconKey as MarketAssetIconKey} size={scaled(52, scale)} />
       <View style={styles.marketNameBlock}>
         <Text style={styles.marketSymbol}>{row.symbol}</Text>
         <Text numberOfLines={1} style={styles.marketName}>{row.name}</Text>
@@ -389,9 +380,9 @@ function createStyles(scale: number) {
   return StyleSheet.create({
     actionButton: {
       alignItems: 'center',
-      height: scaled(121, scale),
+      height: scaled(136, scale),
       justifyContent: 'flex-start',
-      paddingTop: scaled(19, scale),
+      paddingTop: scaled(20, scale),
       position: 'absolute',
       top: 0,
       width: scaled(197, scale)
@@ -401,34 +392,39 @@ function createStyles(scale: number) {
       borderColor: colors.border,
       borderRadius: scaled(20, scale),
       borderWidth: 1,
-      height: scaled(121, scale),
+      elevation: 0,
+      height: scaled(136, scale),
       left: scaled(32, scale),
       position: 'absolute',
-      top: scaledBelowTopNavigation(762, scale),
+      shadowColor: '#151824',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.015,
+      shadowRadius: 8,
+      top: scaledBelowTopNavigation(645, scale),
       width: scaled(788, scale)
     },
     actionDividerOne: {
       backgroundColor: colors.border,
-      height: scaled(76, scale),
+      height: scaled(78, scale),
       left: scaled(197, scale),
       position: 'absolute',
-      top: scaled(23, scale),
+      top: scaled(29, scale),
       width: 1
     },
     actionDividerThree: {
       backgroundColor: colors.border,
-      height: scaled(76, scale),
+      height: scaled(78, scale),
       left: scaled(591, scale),
       position: 'absolute',
-      top: scaled(23, scale),
+      top: scaled(29, scale),
       width: 1
     },
     actionDividerTwo: {
       backgroundColor: colors.border,
-      height: scaled(76, scale),
+      height: scaled(78, scale),
       left: scaled(394, scale),
       position: 'absolute',
-      top: scaled(23, scale),
+      top: scaled(29, scale),
       width: 1
     },
     actionLabel: {
@@ -436,7 +432,7 @@ function createStyles(scale: number) {
       fontSize: scaled(23, scale),
       fontWeight: '500',
       lineHeight: scaled(30, scale),
-      marginTop: scaled(4, scale),
+      marginTop: scaled(7, scale),
       ...textBase
     },
     activeCategoryChip: {
@@ -472,7 +468,7 @@ function createStyles(scale: number) {
     },
     canvas: {
       backgroundColor: colors.background,
-      height: scaled(1607, scale),
+      height: scaled(1590, scale),
       position: 'relative',
       width: '100%'
     },
@@ -481,16 +477,16 @@ function createStyles(scale: number) {
       borderRadius: scaled(18, scale),
       borderWidth: 1,
       flexDirection: 'row',
-      height: scaled(64, scale),
+      height: scaled(58, scale),
       justifyContent: 'center',
       position: 'absolute',
       top: 0
     },
     categoryStrip: {
-      height: scaled(64, scale),
+      height: scaled(58, scale),
       left: 0,
       position: 'absolute',
-      top: scaledBelowTopNavigation(363, scale),
+      top: scaledBelowTopNavigation(246, scale),
       width: '100%'
     },
     categoryText: {
@@ -531,10 +527,15 @@ function createStyles(scale: number) {
       borderColor: colors.border,
       borderRadius: scaled(21, scale),
       borderWidth: 1,
-      height: scaled(324, scale),
+      elevation: 0,
+      height: scaled(350, scale),
       left: scaled(32, scale),
       position: 'absolute',
-      top: scaledBelowTopNavigation(897, scale),
+      shadowColor: '#151824',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.015,
+      shadowRadius: 8,
+      top: scaledBelowTopNavigation(795, scale),
       width: scaled(788, scale)
     },
     focusChange: {
@@ -543,7 +544,7 @@ function createStyles(scale: number) {
       fontWeight: '500',
       lineHeight: scaled(34, scale),
       position: 'absolute',
-      right: scaled(83, scale),
+      right: scaled(105, scale),
       textAlign: 'right',
       top: scaled(18, scale),
       width: scaled(105, scale),
@@ -563,7 +564,7 @@ function createStyles(scale: number) {
       height: 1,
       left: scaled(104, scale),
       position: 'absolute',
-      top: scaled(136, scale),
+      top: scaled(144, scale),
       width: scaled(652, scale)
     },
     focusDividerTwo: {
@@ -571,7 +572,7 @@ function createStyles(scale: number) {
       height: 1,
       left: scaled(104, scale),
       position: 'absolute',
-      top: scaled(229, scale),
+      top: scaled(240, scale),
       width: scaled(652, scale)
     },
     focusName: {
@@ -595,7 +596,7 @@ function createStyles(scale: number) {
     focusPriceBlock: {
       alignItems: 'flex-end',
       position: 'absolute',
-      right: scaled(228, scale),
+      right: scaled(260, scale),
       top: scaled(12, scale),
       width: scaled(128, scale)
     },
@@ -663,10 +664,15 @@ function createStyles(scale: number) {
       borderColor: colors.border,
       borderRadius: scaled(21, scale),
       borderWidth: 1,
-      height: scaled(488, scale),
+      elevation: 0,
+      height: scaled(540, scale),
       left: scaled(32, scale),
       position: 'absolute',
-      top: scaledBelowTopNavigation(1236, scale),
+      shadowColor: '#151824',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.015,
+      shadowRadius: 8,
+      top: scaledBelowTopNavigation(1167, scale),
       width: scaled(788, scale)
     },
     marketChevron: {
@@ -696,7 +702,7 @@ function createStyles(scale: number) {
       color: colors.negative,
       fontSize: scaled(23, scale),
       fontWeight: '400',
-      left: scaled(506, scale),
+      left: scaled(484, scale),
       lineHeight: scaled(30, scale),
       position: 'absolute',
       textAlign: 'right',
@@ -708,7 +714,7 @@ function createStyles(scale: number) {
       color: colors.primary,
       fontSize: scaled(23, scale),
       fontWeight: '400',
-      left: scaled(506, scale),
+      left: scaled(484, scale),
       lineHeight: scaled(30, scale),
       position: 'absolute',
       textAlign: 'right',
@@ -726,7 +732,7 @@ function createStyles(scale: number) {
     },
     marketPriceBlock: {
       alignItems: 'flex-end',
-      left: scaled(314, scale),
+      left: scaled(292, scale),
       position: 'absolute',
       top: scaled(4, scale),
       width: scaled(135, scale)
@@ -741,7 +747,7 @@ function createStyles(scale: number) {
       ...textBase
     },
     marketRow: {
-      height: scaled(60, scale),
+      height: scaled(64, scale),
       left: scaled(22, scale),
       position: 'absolute',
       width: scaled(744, scale)
@@ -759,32 +765,10 @@ function createStyles(scale: number) {
       fontWeight: '400',
       lineHeight: scaled(28, scale),
       position: 'absolute',
-      right: scaled(38, scale),
+      right: scaled(56, scale),
       textAlign: 'right',
       top: scaled(11, scale),
       width: scaled(112, scale),
-      ...textBase
-    },
-    pageHeading: {
-      height: scaled(80, scale),
-      left: scaled(46, scale),
-      position: 'absolute',
-      top: scaledBelowTopNavigation(175, scale),
-      width: scaled(430, scale)
-    },
-    pageSubtitle: {
-      color: '#687184',
-      fontSize: scaled(25, scale),
-      fontWeight: '400',
-      lineHeight: scaled(33, scale),
-      marginTop: scaled(12, scale),
-      ...textBase
-    },
-    pageTitle: {
-      color: colors.text,
-      fontSize: scaled(43, scale),
-      fontWeight: fontWeights.pageTitle,
-      lineHeight: scaled(49, scale),
       ...textBase
     },
     root: {
@@ -802,11 +786,16 @@ function createStyles(scale: number) {
       borderColor: colors.borderStrong,
       borderRadius: scaled(19, scale),
       borderWidth: 1,
+      elevation: 0,
       height: scaled(72, scale),
-      left: scaled(46, scale),
+      left: scaled(32, scale),
       position: 'absolute',
-      top: scaledBelowTopNavigation(270, scale),
-      width: scaled(760, scale)
+      shadowColor: '#151824',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.01,
+      shadowRadius: 6,
+      top: scaledBelowTopNavigation(153, scale),
+      width: scaled(788, scale)
     },
     searchIcon: {
       alignItems: 'center',
@@ -841,7 +830,7 @@ function createStyles(scale: number) {
       color: colors.textMuted,
       fontSize: scaled(18, scale),
       fontWeight: '400',
-      left: scaled(495, scale),
+      left: scaled(473, scale),
       lineHeight: scaled(23, scale),
       position: 'absolute',
       top: 0,
@@ -877,7 +866,7 @@ function createStyles(scale: number) {
       color: colors.textMuted,
       fontSize: scaled(18, scale),
       fontWeight: '400',
-      left: scaled(310, scale),
+      left: scaled(288, scale),
       lineHeight: scaled(23, scale),
       position: 'absolute',
       top: 0,
@@ -916,7 +905,7 @@ function createStyles(scale: number) {
       color: colors.textMuted,
       fontSize: scaled(18, scale),
       fontWeight: '400',
-      left: scaled(627, scale),
+      left: scaled(604, scale),
       lineHeight: scaled(23, scale),
       position: 'absolute',
       top: 0,
@@ -932,7 +921,7 @@ function createStyles(scale: number) {
     volumeAmountRow: {
       alignItems: 'baseline',
       flexDirection: 'row',
-      left: scaled(65, scale),
+      left: scaled(52, scale),
       position: 'absolute',
       top: scaled(81, scale)
     },
@@ -950,14 +939,14 @@ function createStyles(scale: number) {
       left: scaled(32, scale),
       overflow: 'hidden',
       position: 'absolute',
-      top: scaledBelowTopNavigation(448, scale),
+      top: scaledBelowTopNavigation(331, scale),
       width: scaled(788, scale)
     },
     volumeChange: {
       color: colors.primary,
       fontSize: scaled(29, scale),
       fontWeight: '800',
-      left: scaled(65, scale),
+      left: scaled(52, scale),
       lineHeight: scaled(37, scale),
       position: 'absolute',
       top: scaled(161, scale),
@@ -974,7 +963,7 @@ function createStyles(scale: number) {
       color: '#C7CBD6',
       fontSize: scaled(28, scale),
       fontWeight: '400',
-      left: scaled(176, scale),
+      left: scaled(163, scale),
       lineHeight: scaled(36, scale),
       position: 'absolute',
       top: scaled(162, scale),
@@ -990,7 +979,7 @@ function createStyles(scale: number) {
     volumeTitleRow: {
       alignItems: 'center',
       flexDirection: 'row',
-      left: scaled(65, scale),
+      left: scaled(52, scale),
       position: 'absolute',
       top: scaled(32, scale)
     },

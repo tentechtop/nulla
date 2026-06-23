@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { BackHandler, StyleSheet, View } from 'react-native';
+import { AppState, BackHandler, StyleSheet, View, type AppStateStatus } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -18,11 +18,13 @@ import { MarketHomeScreen } from './src/features/marketHome/MarketHomeScreen';
 import { PrivacyHomeScreen } from './src/features/privacyHome/PrivacyHomeScreen';
 import { ScanResultScreen } from './src/features/scanResult/ScanResultScreen';
 import { TransferSendScreen } from './src/features/transferSend/TransferSendScreen';
+import type { ScannedSendDraft } from './src/features/transferFlow';
 
 const NATIVE_SPLASH_HOLD_MS = 600;
 
 type AppRoute = 'home' | 'transferSend' | 'marketHome' | 'contractsList' | 'dposOverview' | 'privacyHome' | 'accountHome' | 'scanResult';
-const INITIAL_ROUTE_STACK: readonly AppRoute[] = ['home'];
+const LAUNCH_ROUTE_STACK: readonly AppRoute[] = ['marketHome'];
+const WALLET_HOME_ROUTE_STACK: readonly AppRoute[] = ['home'];
 
 function getWorkspaceForRoute(route: AppRoute): GlobalBottomNavigationWorkspace {
   return route === 'marketHome' || route === 'contractsList' ? 'market' : 'wallet';
@@ -39,10 +41,12 @@ export default function App() {
 }
 
 function AppContent() {
+  const appStateRef = useRef<AppStateStatus>(AppState.currentState);
   const nativeSplashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const routeStackRef = useRef<readonly AppRoute[]>(INITIAL_ROUTE_STACK);
-  const [routeStack, setRouteStack] = useState<readonly AppRoute[]>(INITIAL_ROUTE_STACK);
-  const currentRoute = routeStack[routeStack.length - 1] ?? 'home';
+  const routeStackRef = useRef<readonly AppRoute[]>(LAUNCH_ROUTE_STACK);
+  const [routeStack, setRouteStack] = useState<readonly AppRoute[]>(LAUNCH_ROUTE_STACK);
+  const [scannedSendDraft, setScannedSendDraft] = useState<ScannedSendDraft | null>(null);
+  const currentRoute = routeStack[routeStack.length - 1] ?? 'marketHome';
   const headerMetrics = useHomeResponsiveLayout();
   const headerHeight = getGlobalHeaderHeight(headerMetrics.scale);
   const contentTopPadding = headerMetrics.topSafeArea + headerHeight;
@@ -76,11 +80,15 @@ function AppContent() {
     }
 
     if (nextRoute === 'home') {
-      replaceRouteStack(INITIAL_ROUTE_STACK);
+      replaceRouteStack(WALLET_HOME_ROUTE_STACK);
       return;
     }
 
     replaceRouteStack([...currentRouteStack, nextRoute]);
+  }, [replaceRouteStack]);
+
+  const resetToLaunchRoute = useCallback(() => {
+    replaceRouteStack(LAUNCH_ROUTE_STACK);
   }, [replaceRouteStack]);
 
   const goBackOneRoute = useCallback(() => {
@@ -116,7 +124,24 @@ function AppContent() {
     };
   }, [goBackOneRoute]);
 
+  useEffect(() => {
+    // 功能目的：恢复前台时回到市场首页；实现原因：避免系统保留上次退出页面造成启动入口不一致。
+    const appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+      const previousAppState = appStateRef.current;
+      appStateRef.current = nextAppState;
+
+      if (previousAppState === 'background' && nextAppState === 'active') {
+        resetToLaunchRoute();
+      }
+    });
+
+    return () => {
+      appStateSubscription.remove();
+    };
+  }, [resetToLaunchRoute]);
+
   const handleOpenTransferSend = () => {
+    setScannedSendDraft(null);
     openRoute('transferSend');
   };
 
@@ -144,6 +169,17 @@ function AppContent() {
     openRoute('scanResult');
   };
 
+  const handleOpenTransferSendFromScan = (draft: ScannedSendDraft) => {
+    const currentRouteStack = routeStackRef.current;
+    const currentTopRoute = currentRouteStack[currentRouteStack.length - 1] ?? 'home';
+    const baseRouteStack = currentTopRoute === 'scanResult' ? currentRouteStack.slice(0, -1) : currentRouteStack;
+    const baseTopRoute = baseRouteStack[baseRouteStack.length - 1];
+    const nextRouteStack = baseTopRoute === 'transferSend' ? baseRouteStack : [...baseRouteStack, 'transferSend' as const];
+
+    setScannedSendDraft(draft);
+    replaceRouteStack(nextRouteStack.length > 0 ? nextRouteStack : ['transferSend']);
+  };
+
   const handleOpenHome = () => {
     openRoute('home');
   };
@@ -164,7 +200,9 @@ function AppContent() {
             currentRoute={currentRoute}
             onBackPress={handleBackRoute}
             onScanPress={handleOpenScanResult}
+            onScannedSendDraft={handleOpenTransferSendFromScan}
             onSendPress={handleOpenTransferSend}
+            scannedSendDraft={scannedSendDraft}
           />
         </View>
         <View collapsable={false} pointerEvents="none" style={[styles.fixedTopNavigationScrim, { height: contentTopPadding }]} />
@@ -205,7 +243,9 @@ type ActiveScreenProps = {
   readonly currentRoute: AppRoute;
   readonly onBackPress: () => void;
   readonly onScanPress: () => void;
+  readonly onScannedSendDraft: (draft: ScannedSendDraft) => void;
   readonly onSendPress: () => void;
+  readonly scannedSendDraft: ScannedSendDraft | null;
 };
 
 function ActiveScreen({
@@ -213,18 +253,28 @@ function ActiveScreen({
   currentRoute,
   onBackPress,
   onScanPress,
-  onSendPress
+  onScannedSendDraft,
+  onSendPress,
+  scannedSendDraft
 }: ActiveScreenProps) {
   if (currentRoute === 'home') {
     return <HomeScreen bottomPadding={bottomPadding} onScanPress={onScanPress} onSendPress={onSendPress} topPadding={0} />;
   }
 
   if (currentRoute === 'transferSend') {
-    return <TransferSendScreen bottomPadding={bottomPadding} onBackPress={onBackPress} onScanPress={onScanPress} topPadding={0} />;
+    return (
+      <TransferSendScreen
+        bottomPadding={bottomPadding}
+        onBackPress={onBackPress}
+        onScanPress={onScanPress}
+        scannedDraft={scannedSendDraft}
+        topPadding={0}
+      />
+    );
   }
 
   if (currentRoute === 'scanResult') {
-    return <ScanResultScreen bottomPadding={bottomPadding} onBackPress={onBackPress} topPadding={0} />;
+    return <ScanResultScreen bottomPadding={bottomPadding} onBackPress={onBackPress} onSendDraft={onScannedSendDraft} topPadding={0} />;
   }
 
   if (currentRoute === 'privacyHome') {

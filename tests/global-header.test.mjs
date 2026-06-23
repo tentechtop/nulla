@@ -31,8 +31,8 @@ test('top navigation is provided by one shared GlobalHeader mounted at App level
   assert.match(globalHeaderSource, />钱包<\/Text>/);
   assert.doesNotMatch(globalHeaderSource, />资产<\/Text>|>合约<\/Text>/);
   assert.doesNotMatch(globalHeaderSource, /segmentedDivider/);
-  assert.match(appSource, /<TransferSendScreen bottomPadding=\{bottomPadding\} onBackPress=\{onBackPress\} onScanPress=\{onScanPress\} topPadding=\{0\} \/>/);
-  assert.match(appSource, /<ScanResultScreen bottomPadding=\{bottomPadding\} onBackPress=\{onBackPress\} topPadding=\{0\} \/>/);
+  assert.match(appSource, /<TransferSendScreen[\s\S]+bottomPadding=\{bottomPadding\}[\s\S]+onBackPress=\{onBackPress\}[\s\S]+onScanPress=\{onScanPress\}[\s\S]+scannedDraft=\{scannedSendDraft\}[\s\S]+topPadding=\{0\}/);
+  assert.match(appSource, /<ScanResultScreen bottomPadding=\{bottomPadding\} onBackPress=\{onBackPress\} onSendDraft=\{onScannedSendDraft\} topPadding=\{0\} \/>/);
 });
 
 test('feature screens do not mount their own top navigation', () => {
@@ -92,13 +92,21 @@ test('global scan actions route to the scan result page', () => {
 });
 
 test('android side back returns to the previous app route before exiting', () => {
-  assert.match(appSource, /import \{ BackHandler, StyleSheet, View \} from 'react-native'/);
-  assert.match(appSource, /const routeStackRef = useRef<readonly AppRoute\[\]>\(INITIAL_ROUTE_STACK\)/);
-  assert.match(appSource, /const \[routeStack, setRouteStack\] = useState<readonly AppRoute\[\]>\(INITIAL_ROUTE_STACK\)/);
-  assert.match(appSource, /const currentRoute = routeStack\[routeStack\.length - 1\] \?\? 'home'/);
+  assert.match(appSource, /import \{ AppState, BackHandler, StyleSheet, View, type AppStateStatus \} from 'react-native'/);
+  assert.match(appSource, /const routeStackRef = useRef<readonly AppRoute\[\]>\(LAUNCH_ROUTE_STACK\)/);
+  assert.match(appSource, /const \[routeStack, setRouteStack\] = useState<readonly AppRoute\[\]>\(LAUNCH_ROUTE_STACK\)/);
+  assert.match(appSource, /const currentRoute = routeStack\[routeStack\.length - 1\] \?\? 'marketHome'/);
   assert.match(appSource, /BackHandler\.addEventListener\('hardwareBackPress', goBackOneRoute\)/);
   assert.match(appSource, /currentRouteStack\.slice\(0, -1\)/);
   assert.match(appSource, /if \(currentRouteStack\.length <= 1\) \{\s+return false;/);
+});
+
+test('app launch and foreground restore always open market home', () => {
+  assert.match(appSource, /const LAUNCH_ROUTE_STACK: readonly AppRoute\[\] = \['marketHome'\]/);
+  assert.match(appSource, /const WALLET_HOME_ROUTE_STACK: readonly AppRoute\[\] = \['home'\]/);
+  assert.match(appSource, /const appStateRef = useRef<AppStateStatus>\(AppState\.currentState\)/);
+  assert.match(appSource, /if \(nextRoute === 'home'\) \{\s+replaceRouteStack\(WALLET_HOME_ROUTE_STACK\);/);
+  assert.match(appSource, /if \(previousAppState === 'background' && nextAppState === 'active'\) \{\s+resetToLaunchRoute\(\);/);
 });
 
 test('app background is pinned to white across react and native shells', () => {
@@ -129,7 +137,7 @@ test('scrolling screens keep the content plane the same white as the global head
 
 test('send page address scan button opens the real scanner route', () => {
   assert.match(transferSendSource, /readonly onScanPress\?: \(\) => void;/);
-  assert.match(transferSendSource, /export function TransferSendScreen\(\{ bottomPadding, onBackPress, onScanPress, topPadding \}/);
+  assert.match(transferSendSource, /export function TransferSendScreen\(\{ bottomPadding, onBackPress, onScanPress, scannedDraft, topPadding \}/);
   assert.match(transferSendSource, /onScanPress=\{onScanPress\}/);
   assert.match(transferSendSource, /accessibilityLabel="扫码输入地址" accessibilityRole="button" onPress=\{onScanPress\}/);
 });

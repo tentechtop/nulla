@@ -135,7 +135,7 @@ function AccountSummaryCard({
       </Pressable>
       <View style={styles.summaryStatusRow}>
         <View style={styles.unlockBadge}>
-          <CardUnlockBadgeIcon size={scaled(32, scale)} />
+          <CardUnlockBadgeIcon size={scaled(28, scale)} />
           <Text style={styles.unlockBadgeText}>已解锁</Text>
         </View>
         <View style={styles.summaryRpcStatus}>
@@ -615,7 +615,7 @@ function createStyles(scale: number) {
       alignItems: 'center',
       flexDirection: 'row',
       height: scaled(48, scale),
-      marginLeft: scaled(26, scale)
+      marginLeft: scaled(20, scale)
     },
     summaryStatusRow: {
       alignItems: 'center',
@@ -629,20 +629,20 @@ function createStyles(scale: number) {
       alignItems: 'center',
       backgroundColor: '#0E3B26CC',
       borderColor: '#1CBF72',
-      borderRadius: scaled(24, scale),
+      borderRadius: scaled(22, scale),
       borderWidth: 1,
       flexDirection: 'row',
-      height: scaled(48, scale),
+      height: scaled(44, scale),
       justifyContent: 'center',
-      minWidth: scaled(132, scale),
-      paddingHorizontal: scaled(14, scale)
+      minWidth: scaled(124, scale),
+      paddingHorizontal: scaled(12, scale)
     },
     unlockBadgeText: {
       color: '#38E38E',
-      fontSize: scaled(24, scale),
+      fontSize: scaled(23, scale),
       fontWeight: '700',
-      lineHeight: scaled(31, scale),
-      marginLeft: scaled(6, scale),
+      lineHeight: scaled(29, scale),
+      marginLeft: scaled(5, scale),
       ...textBase
     },
     walletCard: {

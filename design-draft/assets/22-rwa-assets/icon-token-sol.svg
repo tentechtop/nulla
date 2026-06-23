@@ -1,0 +1,20 @@
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="28" cy="28" r="28" fill="#050507"/>
+  <defs>
+    <linearGradient id="topBar" x1="17" y1="19" x2="42" y2="19" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#20F3C4"/>
+      <stop offset="1" stop-color="#1B8DFF"/>
+    </linearGradient>
+    <linearGradient id="middleBar" x1="17" y1="28" x2="42" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#218CFF"/>
+      <stop offset="1" stop-color="#465AFF"/>
+    </linearGradient>
+    <linearGradient id="bottomBar" x1="17" y1="37" x2="42" y2="37" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#336DFF"/>
+      <stop offset="1" stop-color="#8D43FF"/>
+    </linearGradient>
+  </defs>
+  <path d="M20.5 18H42L36.5 24.5H15L20.5 18Z" fill="url(#topBar)"/>
+  <path d="M15 26.5H36.5L42 33H20.5L15 26.5Z" fill="url(#middleBar)"/>
+  <path d="M20.5 35H42L36.5 41.5H15L20.5 35Z" fill="url(#bottomBar)"/>
+</svg>

@@ -14,9 +14,9 @@ test('getMarketHomeLayoutMetrics scales the 50 market home canvas by viewport wi
   const source = getMarketHomeLayoutMetrics(852, 0, 0);
 
   assert.equal(compact.scale, 0.5);
-  assert.equal(compact.contentHeight, 804);
+  assert.equal(compact.contentHeight, 795);
   assert.equal(compact.bottomNavSliceHeight, 62);
-  assert.equal(source.contentHeight, 1607);
+  assert.equal(source.contentHeight, 1590);
   assert.equal(source.bottomNavSliceHeight, 123);
 });
 
@@ -37,6 +37,7 @@ test('getMarketHomeLayoutMetrics rejects unsafe viewport inputs', () => {
 test('market workspace recreates the 50 market trading navigation draft with native sections', () => {
   assert.match(appSource, /import \{ MarketHomeScreen \}/);
   assert.match(marketAssetsSource, /background-market-volume-card-hd\.png/);
+  assert.doesNotMatch(marketHomeSource, /PageHeading|pageHeading|pageSubtitle|pageTitle/);
   assert.match(marketHomeSource, /搜索币种 \/ 股票 \/ 金属 \/ 合约/);
   assert.match(marketHomeSource, /虚拟货币/);
   assert.match(marketHomeSource, /全市场成交额/);
@@ -45,12 +46,24 @@ test('market workspace recreates the 50 market trading navigation draft with nat
   assert.match(marketHomeSource, /今日关注/);
   assert.match(marketHomeSource, /XAUx/);
   assert.match(marketHomeSource, /NAS100/);
-  assert.match(marketHomeSource, /height: scaled\(1607, scale\)/);
-  assert.match(marketHomeSource, /top: scaledBelowTopNavigation\(448, scale\)/);
+  assert.match(marketHomeSource, /height: scaled\(1590, scale\)/);
+  assert.match(marketHomeSource, /searchBar: \{[\s\S]*?left: scaled\(32, scale\)[\s\S]*?width: scaled\(788, scale\)/);
+  assert.match(marketHomeSource, /iconSize: 42/);
+  assert.match(marketHomeSource, /<MarketActionIcon iconKey=\{item\.key as MarketActionIconKey\} size=\{scaled\(50, scale\)\}/);
+  assert.match(marketHomeSource, /<MarketAssetIcon iconKey=\{row\.iconKey as MarketAssetIconKey\} size=\{scaled\(59, scale\)\}/);
+  assert.match(marketHomeSource, /<MarketAssetIcon iconKey=\{row\.iconKey as MarketAssetIconKey\} size=\{scaled\(52, scale\)\}/);
+  assert.match(marketHomeSource, /focusPriceBlock: \{[\s\S]*?right: scaled\(260, scale\)/);
+  assert.match(marketHomeSource, /marketPriceBlock: \{[\s\S]*?left: scaled\(292, scale\)/);
+  assert.match(marketHomeSource, /marketVolume: \{[\s\S]*?right: scaled\(56, scale\)/);
+  assert.match(marketHomeSource, /tablePriceHeader: \{[\s\S]*?left: scaled\(288, scale\)/);
+  assert.match(marketHomeSource, /volumeAmountRow: \{[\s\S]*?left: scaled\(52, scale\)/);
+  assert.match(marketHomeSource, /\{ label: '现货', left: 52, width: 94, active: true \}/);
+  assert.doesNotMatch(marketHomeSource, /elevation: 1/);
+  assert.match(marketHomeSource, /top: scaledBelowTopNavigation\(331, scale\)/);
   assert.match(marketHomeSource, /height: scaled\(297, scale\)/);
-  assert.match(marketHomeSource, /top: scaledBelowTopNavigation\(897, scale\)/);
-  assert.match(marketHomeSource, /top: scaledBelowTopNavigation\(1236, scale\)/);
-  assert.match(marketHomeSource, /top=\{120 \+ index \* 76\}/);
+  assert.match(marketHomeSource, /top: scaledBelowTopNavigation\(795, scale\)/);
+  assert.match(marketHomeSource, /top: scaledBelowTopNavigation\(1167, scale\)/);
+  assert.match(marketHomeSource, /top=\{126 \+ index \* 82\}/);
   assert.match(marketHomeSource, /width: scaled\(788, scale\)/);
   assert.doesNotMatch(marketHomeSource, /股票代币交易|代币化证券 · 链上结算|BID|ASK|HeroShieldIcon/);
   assert.doesNotMatch(marketHomeSource, /<MarketList \/>/);
