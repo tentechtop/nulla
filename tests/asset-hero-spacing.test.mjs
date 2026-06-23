@@ -28,7 +28,8 @@ test('asset hero LAMPORTS row uses prototype token image with centered bordered 
 
 test('asset hero visibility button toggles all balance amounts', () => {
   assert.match(assetHeroSource, /const \[isAmountHidden, setIsAmountHidden\] = useState\(false\)/);
-  assert.match(assetHeroSource, /const HIDDEN_AMOUNT_TEXT = '\*\*\*\*\*\*'/);
+  assert.match(assetHeroSource, /import \{ HIDDEN_AMOUNT_TEXT \} from '\.\.\/\.\.\/utils\/sensitiveDisplay'/);
+  assert.doesNotMatch(assetHeroSource, /const HIDDEN_AMOUNT_TEXT =/);
   assert.match(assetHeroSource, /accessibilityLabel=\{isAmountHidden \? '显示金额' : '隐藏金额'\}/);
   assert.match(assetHeroSource, /onPress=\{handleToggleAmountVisibility\}/);
   assert.match(assetHeroSource, /name=\{isAmountHidden \? 'eye-off-outline' : 'eye-outline'\}/);

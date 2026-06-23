@@ -8,14 +8,14 @@ const webNoFocusOutline = Platform.OS === 'web'
   ? ({ outlineColor: 'transparent', outlineStyle: 'none', outlineWidth: 0 } as unknown as ViewStyle)
   : undefined;
 
-type GlobalHeaderTab = 'assets' | 'contract';
+type GlobalHeaderWorkspace = 'market' | 'wallet';
 
 type GlobalHeaderProps = {
-  readonly activeTab?: GlobalHeaderTab;
+  readonly activeWorkspace?: GlobalHeaderWorkspace;
   readonly onAccountPress?: () => void;
-  readonly onAssetsPress?: () => void;
-  readonly onContractPress?: () => void;
+  readonly onMarketPress?: () => void;
   readonly onScanPress?: () => void;
+  readonly onWalletPress?: () => void;
   readonly scale: number;
 };
 
@@ -28,16 +28,16 @@ export function getGlobalHeaderHeight(scale: number) {
 }
 
 export function GlobalHeader({
-  activeTab = 'assets',
+  activeWorkspace = 'wallet',
   onAccountPress,
-  onAssetsPress,
-  onContractPress,
+  onMarketPress,
   onScanPress,
+  onWalletPress,
   scale
 }: GlobalHeaderProps) {
   const styles = createStyles(scale);
-  const isAssetsActive = activeTab === 'assets';
-  const isContractActive = activeTab === 'contract';
+  const isMarketActive = activeWorkspace === 'market';
+  const isWalletActive = activeWorkspace === 'wallet';
 
   return (
     <View style={styles.header}>
@@ -45,19 +45,21 @@ export function GlobalHeader({
       <View style={styles.segmentedTabs}>
         <Pressable
           accessibilityRole="tab"
-          accessibilityState={{ selected: isAssetsActive }}
-          onPress={onAssetsPress}
-          style={isAssetsActive ? styles.activeTab : styles.assetsTab}
+          accessibilityState={{ selected: isMarketActive }}
+          focusable={false}
+          onPress={onMarketPress}
+          style={[isMarketActive ? styles.activeTab : styles.marketTab, webNoFocusOutline]}
         >
-          <Text style={isAssetsActive ? styles.activeTabText : styles.inactiveTabText}>资产</Text>
+          <Text style={isMarketActive ? styles.activeTabText : styles.inactiveTabText}>市场</Text>
         </Pressable>
         <Pressable
           accessibilityRole="tab"
-          accessibilityState={{ selected: isContractActive }}
-          onPress={onContractPress}
-          style={isContractActive ? styles.activeContractTab : styles.contractTab}
+          accessibilityState={{ selected: isWalletActive }}
+          focusable={false}
+          onPress={onWalletPress}
+          style={[isWalletActive ? styles.activeWalletTab : styles.walletTab, webNoFocusOutline]}
         >
-          <Text style={isContractActive ? styles.activeTabText : styles.inactiveTabText}>合约</Text>
+          <Text style={isWalletActive ? styles.activeTabText : styles.inactiveTabText}>钱包</Text>
         </Pressable>
       </View>
       <Pressable accessibilityLabel="扫码" accessibilityRole="button" focusable={false} onPress={onScanPress} style={[styles.scanButton, webNoFocusOutline]}>
@@ -86,16 +88,16 @@ function createStyles(scale: number) {
       top: scaled(25, scale),
       width: scaled(70, scale)
     },
-    activeContractTab: {
+    activeWalletTab: {
       alignItems: 'center',
       backgroundColor: colors.black,
       borderRadius: scaled(36, scale),
       height: scaled(70, scale),
       justifyContent: 'center',
-      left: scaled(152, scale),
+      left: scaled(163, scale),
       position: 'absolute',
       top: 0,
-      width: scaled(174, scale)
+      width: scaled(163, scale)
     },
     activeTab: {
       alignItems: 'center',
@@ -106,7 +108,7 @@ function createStyles(scale: number) {
       left: 0,
       position: 'absolute',
       top: 0,
-      width: scaled(174, scale)
+      width: scaled(163, scale)
     },
     activeTabText: {
       color: '#FFFFFF',
@@ -115,30 +117,30 @@ function createStyles(scale: number) {
       lineHeight: scaled(34, scale),
       ...textBase
     },
-    assetsTab: {
+    marketTab: {
       alignItems: 'center',
       height: scaled(70, scale),
       justifyContent: 'center',
       left: 0,
       position: 'absolute',
       top: 0,
-      width: scaled(152, scale)
+      width: scaled(163, scale)
     },
     brandLogo: {
-      height: scaled(48, scale),
-      left: scaled(43, scale),
+      height: scaled(44, scale),
+      left: scaled(31, scale),
       position: 'absolute',
-      top: scaled(39, scale),
-      width: scaled(155, scale)
+      top: scaled(32, scale),
+      width: scaled(136, scale)
     },
-    contractTab: {
+    walletTab: {
       alignItems: 'center',
       height: scaled(70, scale),
       justifyContent: 'center',
-      left: scaled(174, scale),
+      left: scaled(163, scale),
       position: 'absolute',
       top: 0,
-      width: scaled(152, scale)
+      width: scaled(163, scale)
     },
     header: {
       backgroundColor: colors.background,
@@ -168,7 +170,7 @@ function createStyles(scale: number) {
       borderRadius: scaled(36, scale),
       borderWidth: 1,
       height: scaled(70, scale),
-      left: scaled(249, scale),
+      left: scaled(262, scale),
       overflow: 'hidden',
       position: 'absolute',
       top: scaled(25, scale),

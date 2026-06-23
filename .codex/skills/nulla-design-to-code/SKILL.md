@@ -102,8 +102,9 @@ For a new bottom-tab page:
 5. Render the feature from `ActiveScreen` with `bottomPadding={bottomPadding}` and `topPadding={0}`.
 
 For a page that needs top segmented state:
-- Use the shared `GlobalHeader` and `activeHeaderTab`.
-- Keep the project-wide rule: `contractsList` selects `contract`; every other page selects `assets`.
+- Use the shared `GlobalHeader` and `activeHeaderWorkspace`.
+- Keep the project-wide rule: market discovery/trading/application pages select `market`; wallet/asset/privacy/DPoS/account pages select `wallet`.
+- The visible top labels are `市场 / 钱包`, not implementation terms such as `资产 / 合约`.
 - Do not add page-specific inactive segmented states to the global header.
 
 ## Test Requirements

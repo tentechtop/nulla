@@ -44,6 +44,9 @@ test('privacy home recreates the provided design with native sections and assets
   assert.match(privacyHomeSource, /隐私路径预览/);
   assert.match(privacyHomeSource, /隐私记录/);
   assert.match(privacyHomeSource, /暂无隐私活动/);
+  assert.match(privacyHomeSource, /emptyRecordState/);
+  assert.match(privacyHomeSource, /<EmptyPrivacyActivityIcon size=\{scaled\(128, scale\)\}/);
+  assert.doesNotMatch(privacyHomeSource, /emptyRecordIcon/);
   assert.doesNotMatch(privacyHomeSource, /03-privacy-home\.png/);
 });
 

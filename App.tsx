@@ -3,19 +3,30 @@ import { BackHandler, StyleSheet, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { GlobalBottomNavigation, type GlobalBottomTabKey } from './src/components/GlobalBottomNavigation';
+import {
+  GlobalBottomNavigation,
+  type GlobalBottomNavigationWorkspace,
+  type GlobalBottomTabKey
+} from './src/components/GlobalBottomNavigation';
 import { GlobalHeader, getGlobalHeaderHeight } from './src/components/GlobalHeader';
+import { AccountHomeScreen } from './src/features/accountHome/AccountHomeScreen';
+import { ContractsListScreen } from './src/features/contractsList/ContractsListScreen';
 import { DposOverviewScreen } from './src/features/dposOverview/DposOverviewScreen';
 import { HomeScreen } from './src/features/home/HomeScreen';
 import { useHomeResponsiveLayout } from './src/features/home/useHomeResponsiveLayout';
+import { MarketHomeScreen } from './src/features/marketHome/MarketHomeScreen';
 import { PrivacyHomeScreen } from './src/features/privacyHome/PrivacyHomeScreen';
 import { ScanResultScreen } from './src/features/scanResult/ScanResultScreen';
 import { TransferSendScreen } from './src/features/transferSend/TransferSendScreen';
 
 const NATIVE_SPLASH_HOLD_MS = 600;
 
-type AppRoute = 'home' | 'transferSend' | 'dposOverview' | 'privacyHome' | 'scanResult';
+type AppRoute = 'home' | 'transferSend' | 'marketHome' | 'contractsList' | 'dposOverview' | 'privacyHome' | 'accountHome' | 'scanResult';
 const INITIAL_ROUTE_STACK: readonly AppRoute[] = ['home'];
+
+function getWorkspaceForRoute(route: AppRoute): GlobalBottomNavigationWorkspace {
+  return route === 'marketHome' || route === 'contractsList' ? 'market' : 'wallet';
+}
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -35,7 +46,21 @@ function AppContent() {
   const headerMetrics = useHomeResponsiveLayout();
   const headerHeight = getGlobalHeaderHeight(headerMetrics.scale);
   const contentTopPadding = headerMetrics.topSafeArea + headerHeight;
-  const activeBottomTab: GlobalBottomTabKey = currentRoute === 'dposOverview' ? 'dpos' : currentRoute === 'privacyHome' ? 'privacy' : 'assets';
+  const activeHeaderWorkspace = getWorkspaceForRoute(currentRoute);
+  const activeBottomTab: GlobalBottomTabKey | undefined =
+    currentRoute === 'marketHome'
+      ? 'marketQuotes'
+      : currentRoute === 'contractsList'
+        ? 'marketContracts'
+        : currentRoute === 'transferSend'
+          ? 'walletTrade'
+          : currentRoute === 'dposOverview'
+            ? 'walletDpos'
+            : currentRoute === 'privacyHome'
+              ? 'walletPrivacy'
+              : currentRoute === 'home'
+                ? 'walletHome'
+                : undefined;
 
   const replaceRouteStack = useCallback((nextRouteStack: readonly AppRoute[]) => {
     routeStackRef.current = nextRouteStack;
@@ -103,6 +128,18 @@ function AppContent() {
     openRoute('privacyHome');
   };
 
+  const handleOpenMarketHome = () => {
+    openRoute('marketHome');
+  };
+
+  const handleOpenContractsList = () => {
+    openRoute('contractsList');
+  };
+
+  const handleOpenAccountHome = () => {
+    openRoute('accountHome');
+  };
+
   const handleOpenScanResult = () => {
     openRoute('scanResult');
   };
@@ -132,16 +169,31 @@ function AppContent() {
         </View>
         <View collapsable={false} pointerEvents="none" style={[styles.fixedTopNavigationScrim, { height: contentTopPadding }]} />
         <View collapsable={false} style={[styles.fixedGlobalHeader, { top: headerMetrics.topSafeArea }]}>
-          <GlobalHeader onAssetsPress={handleOpenHome} onScanPress={handleOpenScanResult} scale={headerMetrics.scale} />
+          <GlobalHeader
+            activeWorkspace={activeHeaderWorkspace}
+            onAccountPress={handleOpenAccountHome}
+            onMarketPress={handleOpenMarketHome}
+            onScanPress={handleOpenScanResult}
+            onWalletPress={handleOpenHome}
+            scale={headerMetrics.scale}
+          />
         </View>
         <GlobalBottomNavigation
           activeTab={activeBottomTab}
           bottomNavHeight={headerMetrics.bottomNavHeight}
           bottomNavSliceHeight={headerMetrics.bottomNavSliceHeight}
-          onAssetsPress={handleOpenHome}
-          onDposPress={handleOpenDposOverview}
-          onPrivacyPress={handleOpenPrivacyHome}
+          onMarketContractsPress={handleOpenContractsList}
+          onMarketMorePress={handleOpenMarketHome}
+          onMarketOrdersPress={handleOpenMarketHome}
+          onMarketQuotesPress={handleOpenMarketHome}
+          onMarketTradePress={handleOpenMarketHome}
+          onWalletAssetsPress={handleOpenHome}
+          onWalletDposPress={handleOpenDposOverview}
+          onWalletHomePress={handleOpenHome}
+          onWalletPrivacyPress={handleOpenPrivacyHome}
+          onWalletTradePress={handleOpenTransferSend}
           scale={headerMetrics.scale}
+          workspace={activeHeaderWorkspace}
         />
       </View>
     </>
@@ -177,6 +229,18 @@ function ActiveScreen({
 
   if (currentRoute === 'privacyHome') {
     return <PrivacyHomeScreen bottomPadding={bottomPadding} topPadding={0} />;
+  }
+
+  if (currentRoute === 'marketHome') {
+    return <MarketHomeScreen bottomPadding={bottomPadding} topPadding={0} />;
+  }
+
+  if (currentRoute === 'contractsList') {
+    return <ContractsListScreen bottomPadding={bottomPadding} topPadding={0} />;
+  }
+
+  if (currentRoute === 'accountHome') {
+    return <AccountHomeScreen bottomPadding={bottomPadding} topPadding={0} />;
   }
 
   return <DposOverviewScreen bottomPadding={bottomPadding} topPadding={0} />;

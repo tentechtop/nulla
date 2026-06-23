@@ -1,0 +1,7 @@
+<svg width="152" height="56" viewBox="0 0 152 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M21 18H47C49.2 18 51 19.8 51 22V38C51 40.2 49.2 42 47 42H21C18.8 42 17 40.2 17 38V21C17 19.3 18.3 18 20 18H47" stroke="#7B8494" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M25 18V14C25 12.9 25.9 12 27 12H48" stroke="#7B8494" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M42 28H54V35H42C40.1 35 38.5 33.4 38.5 31.5C38.5 29.6 40.1 28 42 28Z" stroke="#7B8494" stroke-width="2.6" stroke-linejoin="round"/>
+  <circle cx="43.8" cy="31.5" r="1.4" fill="#7B8494"/>
+  <text x="76" y="35" fill="#5F6675" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="20" font-weight="500">钱包</text>
+</svg>

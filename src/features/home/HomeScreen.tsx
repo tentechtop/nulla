@@ -3,7 +3,6 @@ import { AppShell } from '../../components/AppShell';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { colors } from '../../theme/tokens';
 import { AssetHeroCard } from './AssetHeroCard';
-import { MarketList } from './MarketList';
 import { NetworkStatusPanel } from './NetworkStatusPanel';
 import { QuickActionBar } from './QuickActionBar';
 import { useHomeResponsiveLayout } from './useHomeResponsiveLayout';
@@ -27,7 +26,6 @@ export function HomeScreen({ bottomPadding, onScanPress, onSendPress, topPadding
         <AssetHeroCard />
         <QuickActionBar onScanPress={onScanPress} onSendPress={onSendPress} />
         <NetworkStatusPanel />
-        <MarketList />
       </AppShell>
     </View>
   );

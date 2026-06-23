@@ -1,0 +1,18 @@
+<svg width="320" height="72" viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="1" y="1" width="318" height="70" rx="14" fill="#FFFFFF" stroke="#ECEEF4" stroke-width="2"/>
+  <g fill="#C8CDD8" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="11" text-anchor="middle">
+    <text x="55" y="52">资产</text>
+    <text x="110" y="52">隐私</text>
+    <text x="165" y="52">合约</text>
+    <text x="220" y="52">DPoS</text>
+    <text x="275" y="52">账户</text>
+  </g>
+  <path d="M43 29L55 19L67 29" stroke="#C8CDD8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M47 28V39H63V28" stroke="#C8CDD8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M110 17L124 23V32C124 41 119 46 110 49C101 46 96 41 96 32V23L110 17Z" stroke="#C8CDD8" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M158 18H155C152.8 18 151 19.8 151 22V28C151 30.5 150 31.5 147.5 31.5" stroke="#C8CDD8" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M172 18H175C177.2 18 179 19.8 179 22V28C179 30.5 180 31.5 182.5 31.5" stroke="#C8CDD8" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="220" cy="31" r="8" stroke="#C8CDD8" stroke-width="2.4" stroke-dasharray="3 4"/>
+  <circle cx="275" cy="23" r="6" stroke="#C8CDD8" stroke-width="2.4"/>
+  <path d="M263 42C265.2 35.5 269.2 32.5 275 32.5C280.8 32.5 284.8 35.5 287 42" stroke="#C8CDD8" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

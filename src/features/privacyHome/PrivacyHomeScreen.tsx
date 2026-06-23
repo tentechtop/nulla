@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
-import { colors, fontFamilies } from '../../theme/tokens';
+import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
 import { getSensitiveAmountParts } from '../../utils/sensitiveDisplay';
 import { privacyHomeImages } from './designAssets';
 import {
@@ -304,10 +304,10 @@ function PrivacyRecordCard({ scale, styles }: { readonly scale: number; readonly
         <PrivacyRecordClockIcon size={scaled(32, scale)} />
       </View>
       <Text style={styles.sectionTitle}>隐私记录</Text>
-      <View style={styles.emptyRecordIcon}>
-        <EmptyPrivacyActivityIcon size={scaled(160, scale)} />
+      <View style={styles.emptyRecordState}>
+        <EmptyPrivacyActivityIcon size={scaled(128, scale)} />
+        <Text style={styles.emptyRecordText}>暂无隐私活动</Text>
       </View>
-      <Text style={styles.emptyRecordText}>暂无隐私活动</Text>
     </View>
   );
 }
@@ -518,21 +518,20 @@ function createStyles(scale: number) {
       top: scaled(279, scale),
       ...textBase
     },
-    emptyRecordIcon: {
-      left: scaled(329, scale),
+    emptyRecordState: {
+      alignItems: 'center',
+      left: 0,
       position: 'absolute',
-      top: scaled(90, scale)
+      right: 0,
+      top: scaled(77, scale)
     },
     emptyRecordText: {
       color: '#8B909D',
       fontSize: scaled(25, scale),
       fontWeight: '400',
-      left: 0,
       lineHeight: scaled(33, scale),
-      position: 'absolute',
-      right: 0,
+      marginTop: scaled(-12, scale),
       textAlign: 'center',
-      top: scaled(202, scale),
       ...textBase
     },
     pageHeading: {
@@ -554,7 +553,7 @@ function createStyles(scale: number) {
     pageTitle: {
       color: colors.text,
       fontSize: scaled(44, scale),
-      fontWeight: '800',
+      fontWeight: fontWeights.pageTitle,
       left: scaled(30, scale),
       lineHeight: scaled(55, scale),
       position: 'absolute',

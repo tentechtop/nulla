@@ -1,0 +1,13 @@
+<svg width="152" height="56" viewBox="0 0 152 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="market" x1="18" y1="38" x2="54" y2="16" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#176BFF"/>
+      <stop offset="1" stop-color="#6A52FF"/>
+    </linearGradient>
+  </defs>
+  <path d="M20 38V28" stroke="url(#market)" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M30 38V18" stroke="url(#market)" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M40 38V24" stroke="url(#market)" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M50 38V13" stroke="url(#market)" stroke-width="3.2" stroke-linecap="round"/>
+  <text x="76" y="35" fill="#176BFF" font-family="Microsoft YaHei, PingFang SC, Arial, sans-serif" font-size="20" font-weight="600">市场</text>
+</svg>

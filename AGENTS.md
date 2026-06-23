@@ -7,6 +7,16 @@
 - 全链路 UTF-8 编码。
 - 不修改 `openapi.yml`。
 
+## 项目专属技能
+
+当用户提供 `design-draft` 下的设计稿图片和 `design-draft\assets` 下的静态资源，并要求“一比一”“高保真”“还原页面”“实现页面”时，优先读取并遵循：
+
+```powershell
+.codex\skills\nulla-design-to-code\SKILL.md
+```
+
+该技能仅适用于本项目，用于把设计稿和静态资源实现为可维护的 React Native/Expo 页面代码。禁止把整张设计稿作为页面切图使用。
+
 ## 打包安装到 Android 手机
 
 当用户说“帮我打包安装”“打包安装到手机”“安装到我的手机”时，直接执行：

@@ -1,4 +1,4 @@
-const HIDDEN_AMOUNT_TEXT = '••••••';
+const HIDDEN_AMOUNT_TEXT = '******';
 const SAFE_AMOUNT_PATTERN = /^[\p{L}\p{N}\s.,:%$+_\-/()]+$/u;
 const SAFE_UNIT_PATTERN = /^[A-Za-z][A-Za-z0-9-]{0,16}$/;
 

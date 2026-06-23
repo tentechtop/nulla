@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { assetSummary } from '../../data/home';
 import { colors, fontFamilies } from '../../theme/tokens';
+import { HIDDEN_AMOUNT_TEXT } from '../../utils/sensitiveDisplay';
 import { homeAssetImages } from './designAssets';
 import { useHomeResponsiveLayout } from './useHomeResponsiveLayout';
 
@@ -17,7 +18,6 @@ const HERO_CARD_CURRENCY_WIDTH = 126;
 const HERO_CARD_CURRENCY_LEFT = HERO_CARD_WIDTH - HERO_CARD_CONTENT_PADDING - HERO_CARD_CURRENCY_WIDTH;
 const HERO_PRIVATE_COLUMN_LEFT = HERO_CARD_CONTENT_PADDING + 290;
 const LAMPORTS_ICON_IMAGE_SIZE = 43;
-const HIDDEN_AMOUNT_TEXT = '******';
 
 function scaled(value: number, scale: number) {
   return Math.round(value * scale);

@@ -44,7 +44,7 @@ function Save-ScaledPng {
 function Set-AndroidIconBackgroundColor {
     param([string]$ColorValue)
 
-    # 功能目的：同步 adaptive icon 背景色；实现原因：前景图透明区域需要与源图黑底无缝一致
+    # 功能目的：同步 adaptive icon 背景色；实现原因：前景图透明区域需要显示白色底色
     Assert-FileExists $colorsPath
     [xml]$colorsXml = Get-Content -LiteralPath $colorsPath -Encoding UTF8
     $iconBackgroundNode = $colorsXml.resources.color | Where-Object { $_.name -eq "iconBackground" } | Select-Object -First 1

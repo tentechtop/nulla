@@ -16,7 +16,7 @@
       "package": "com.nulla.dex",
       "adaptiveIcon": {
         "foregroundImage": "./assets/brand/adaptive-icon.png",
-        "backgroundColor": "#05070B"
+        "backgroundColor": "#FFFFFF"
       }
     },
     "web": {

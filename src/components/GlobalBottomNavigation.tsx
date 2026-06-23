@@ -1,17 +1,36 @@
 import { Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { colors, fontFamilies } from '../theme/tokens';
 
-export type GlobalBottomTabKey = 'assets' | 'privacy' | 'contract' | 'dpos' | 'account';
+export type GlobalBottomNavigationWorkspace = 'market' | 'wallet';
+export type GlobalBottomTabKey =
+  | 'marketContracts'
+  | 'marketMore'
+  | 'marketOrders'
+  | 'marketQuotes'
+  | 'marketTrade'
+  | 'walletAssets'
+  | 'walletDpos'
+  | 'walletHome'
+  | 'walletPrivacy'
+  | 'walletTrade';
 
 type GlobalBottomNavigationProps = {
-  readonly activeTab: GlobalBottomTabKey;
+  readonly activeTab?: GlobalBottomTabKey;
   readonly bottomNavHeight: number;
   readonly bottomNavSliceHeight: number;
-  readonly onAssetsPress?: () => void;
-  readonly onDposPress?: () => void;
-  readonly onPrivacyPress?: () => void;
+  readonly onMarketContractsPress?: () => void;
+  readonly onMarketMorePress?: () => void;
+  readonly onMarketOrdersPress?: () => void;
+  readonly onMarketQuotesPress?: () => void;
+  readonly onMarketTradePress?: () => void;
+  readonly onWalletAssetsPress?: () => void;
+  readonly onWalletDposPress?: () => void;
+  readonly onWalletHomePress?: () => void;
+  readonly onWalletPrivacyPress?: () => void;
+  readonly onWalletTradePress?: () => void;
   readonly scale: number;
+  readonly workspace: GlobalBottomNavigationWorkspace;
 };
 
 type BottomTabConfig = {
@@ -26,17 +45,25 @@ type BottomIconProps = {
 };
 
 const ASSETS_TAB_ICON_PATH =
-  'M932.693333 762.026667q5.973333 0 10.666667 5.12 4.266667 5.546667 4.266667 10.666666t-4.693334 14.08l-13.653333 19.626667-18.346667 22.613333-18.773333 21.333334q-8.96 10.666667-16.213333 17.92l-9.386667 9.813333q-24.746667 22.613333-57.173333 44.373333-32.426667 21.76-68.266667 38.826667-36.693333 17.066667-74.24 27.306667t-71.253333 10.24q-38.4 0-72.106667-11.946667-34.133333-11.946667-63.146667-33.28-29.013333-21.333333-52.053333-49.92-22.613333-28.16-39.253333-61.44-16.213333-32.853333-24.746667-68.266667-8.533333-35.413333-8.533333-71.253333 0-42.666667 13.653333-83.626667 14.08-41.386667 37.12-76.8 5.973333 40.533333 23.466667 75.52 17.493333 34.986667 43.52 64 25.6 29.013333 58.88 51.626667 33.28 23.04 69.973333 38.4 36.693333 15.36 75.52 23.893333 39.253333 8.533333 76.8 8.533334 47.786667 0 93.013333-10.24 45.226667-9.813333 87.893334-30.72l8.533333-4.266667 8.533333-2.133333z m-661.333333-54.186667q0 46.933333 11.52 91.733333 11.52 45.226667 33.28 86.613334 21.76 40.96 52.906667 75.52 31.573333 34.986667 70.826666 59.733333-62.72-8.533333-119.466666-31.573333-56.746667-23.466667-105.813334-58.453334-49.066667-35.413333-88.746666-81.066666-39.253333-45.653333-67.413334-99.413334T15.36 637.44Q0 577.706667 0 514.56q0-34.56 13.653333-63.573333 13.226667-29.013333 35.413334-52.48 22.613333-23.466667 51.2-40.96 28.16-17.066667 57.6-28.16 31.573333-11.52 64-16.64 33.28-5.12 66.133333-5.12 29.866667 0 60.586667 4.266666 30.72 5.12 59.733333 14.933334 29.013333 9.813333 56.32 24.32 26.88 14.933333 49.493333 35.413333-14.933333 0-29.866666 2.986667-14.08 2.986667-27.733334 9.813333v-0.853333q-26.88 11.946667-51.2 31.573333-24.32 19.626667-44.8 44.373333-20.48 24.746667-37.12 53.76-16.213333 28.586667-27.733333 59.306667-11.52 30.293333-17.92 61.44-6.4 30.72-6.4 58.88zM510.293333 2.56q72.533333 0 142.08 16.64 69.546667 16.213333 130.986667 49.066667 61.013333 32.853333 111.786667 82.346666 50.346667 49.493333 84.48 115.2 20.906667 40.106667 32.426666 83.626667 11.946667 42.666667 11.946667 88.746667 0 37.973333-9.813333 72.533333-10.24 34.133333-29.44 63.146667-19.2 29.013333-46.933334 52.053333-27.306667 22.613333-61.866666 37.546667-23.04 10.24-47.36 15.36-24.746667 5.546667-49.493334 5.546666-17.92 0-41.386666-1.28-23.04-1.28-46.933334-5.12-23.466667-4.266667-44.8-11.946666-21.333333-8.106667-35.84-21.333334-5.12-3.84-9.813333-10.24-4.266667-6.826667-4.266667-14.08 0-6.4 6.826667-14.933333 6.826667-8.533333 14.933333-21.333333 8.533333-11.946667 15.36-29.013334 6.826667-17.066667 6.826667-40.533333 0-45.226667-17.066667-83.626667-17.066667-38.826667-45.226666-69.973333-28.16-31.573333-64.853334-54.613333-36.693333-23.466667-76.373333-37.973334-35.84-12.8-73.386667-18.773333-37.12-5.973333-75.093333-5.973333-66.133333 0-130.56 19.2T40.106667 322.133333q30.293333-74.24 77.226666-133.546666 46.933333-58.88 107.52-100.266667Q285.013333 46.933333 357.12 24.746667q72.533333-22.186667 152.746667-22.186667z';
+  'M972.8 395.008L512 51.2 51.2 400.384l35.2256 47.7696 67.4304-49.5616v469.1456c0 32.9728 26.7264 59.6992 59.6992 59.6992h596.8896c32.9728 0 59.6992-26.7264 59.6992-59.6992V390.2464l68.608 51.3024 34.048-46.5408z m-162.3552 472.7296H213.5552V353.28L512 125.7984l298.4448 220.8768v521.0624z';
 const webNoFocusOutline = Platform.OS === 'web'
   ? ({ outlineColor: 'transparent', outlineStyle: 'none', outlineWidth: 0 } as unknown as ViewStyle)
   : undefined;
 
-const bottomTabs: readonly BottomTabConfig[] = [
-  { key: 'assets', label: '资产' },
-  { key: 'privacy', label: '隐私' },
-  { key: 'contract', label: '合约' },
-  { key: 'dpos', label: 'DPoS' },
-  { key: 'account', label: '账户' }
+const walletNavigationItems: readonly BottomTabConfig[] = [
+  { key: 'walletHome', label: '主页' },
+  { key: 'walletTrade', label: '交易' },
+  { key: 'walletDpos', label: 'DPoS' },
+  { key: 'walletPrivacy', label: '隐私' },
+  { key: 'walletAssets', label: '资产' }
+];
+
+const marketNavigationItems: readonly BottomTabConfig[] = [
+  { key: 'marketQuotes', label: '行情' },
+  { key: 'marketTrade', label: '交易' },
+  { key: 'marketContracts', label: '合约' },
+  { key: 'marketOrders', label: '订单' },
+  { key: 'marketMore', label: '更多' }
 ];
 
 function scaled(value: number, scale: number) {
@@ -47,39 +74,85 @@ export function GlobalBottomNavigation({
   activeTab,
   bottomNavHeight,
   bottomNavSliceHeight,
-  onAssetsPress,
-  onDposPress,
-  onPrivacyPress,
-  scale
+  onMarketContractsPress,
+  onMarketMorePress,
+  onMarketOrdersPress,
+  onMarketQuotesPress,
+  onMarketTradePress,
+  onWalletAssetsPress,
+  onWalletDposPress,
+  onWalletHomePress,
+  onWalletPrivacyPress,
+  onWalletTradePress,
+  scale,
+  workspace
 }: GlobalBottomNavigationProps) {
   const styles = createStyles(scale, bottomNavHeight, bottomNavSliceHeight);
+  const navigationItems = workspace === 'market' ? marketNavigationItems : walletNavigationItems;
+
+  const handleTabPress = (tabKey: GlobalBottomTabKey) => {
+    if (tabKey === 'walletHome') {
+      onWalletHomePress?.();
+      return;
+    }
+
+    if (tabKey === 'walletTrade') {
+      onWalletTradePress?.();
+      return;
+    }
+
+    if (tabKey === 'walletDpos') {
+      onWalletDposPress?.();
+      return;
+    }
+
+    if (tabKey === 'walletPrivacy') {
+      onWalletPrivacyPress?.();
+      return;
+    }
+
+    if (tabKey === 'walletAssets') {
+      onWalletAssetsPress?.();
+      return;
+    }
+
+    if (tabKey === 'marketQuotes') {
+      onMarketQuotesPress?.();
+      return;
+    }
+
+    if (tabKey === 'marketTrade') {
+      onMarketTradePress?.();
+      return;
+    }
+
+    if (tabKey === 'marketContracts') {
+      onMarketContractsPress?.();
+      return;
+    }
+
+    if (tabKey === 'marketOrders') {
+      onMarketOrdersPress?.();
+      return;
+    }
+
+    if (tabKey === 'marketMore') {
+      onMarketMorePress?.();
+    }
+  };
 
   return (
     <View style={styles.nav}>
-      {bottomTabs.map((tab, index) => {
-        const isActive = tab.key === activeTab;
+      {navigationItems.map((tab, index) => {
+        const isActive = activeTab === tab.key;
         const color = isActive ? colors.primary : colors.textMuted;
-
-        const handlePress = () => {
-          if (tab.key === 'assets') {
-            onAssetsPress?.();
-          }
-
-          if (tab.key === 'privacy') {
-            onPrivacyPress?.();
-          }
-
-          if (tab.key === 'dpos') {
-            onDposPress?.();
-          }
-        };
 
         return (
           <Pressable
             accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
             key={tab.key}
-            onPress={handlePress}
+            onPress={() => handleTabPress(tab.key)}
             style={[styles.tab, { left: scaled(index * 170, scale) }, webNoFocusOutline]}
           >
             <BottomTabIcon color={color} isActive={isActive} size={scaled(52, scale)} tabKey={tab.key} />
@@ -99,55 +172,68 @@ function BottomTabIcon({
 }: BottomIconProps & {
   readonly tabKey: GlobalBottomTabKey;
 }) {
-  if (tabKey === 'assets') {
-    return <AssetsTabIcon color={color} isActive={isActive} size={size} />;
+  if (tabKey === 'walletHome') {
+    return <HomeTabIcon color={color} isActive={isActive} size={size} />;
   }
 
-  if (tabKey === 'privacy') {
-    return <PrivacyTabIcon color={color} isActive={isActive} size={size} />;
+  if (tabKey === 'marketTrade') {
+    return <MarketTradeTabIcon color={color} size={size} />;
   }
 
-  if (tabKey === 'contract') {
-    return <ContractTabIcon color={color} isActive={isActive} size={size} />;
+  if (tabKey === 'walletTrade') {
+    return <TradeTabIcon color={color} isActive={isActive} size={size} />;
   }
 
-  if (tabKey === 'dpos') {
+  if (tabKey === 'walletDpos') {
     return <DposTabIcon color={color} isActive={isActive} size={size} />;
   }
 
-  return <AccountTabIcon color={color} isActive={isActive} size={size} />;
+  if (tabKey === 'walletPrivacy') {
+    return <PrivacyTabIcon color={color} isActive={isActive} size={size} />;
+  }
+
+  if (tabKey === 'marketQuotes') {
+    return <MarketQuotesTabIcon color={color} size={size} />;
+  }
+
+  if (tabKey === 'marketContracts') {
+    return <MarketContractTabIcon color={color} size={size} />;
+  }
+
+  if (tabKey === 'marketOrders') {
+    return <MarketOrdersTabIcon color={color} size={size} />;
+  }
+
+  if (tabKey === 'marketMore') {
+    return <MarketMoreTabIcon color={color} size={size} />;
+  }
+
+  return <AssetsTabIcon color={color} isActive={isActive} size={size} />;
 }
 
-function AssetsTabIcon({ color, size }: BottomIconProps) {
-  return (
-    <Svg height={size} viewBox="0 0 1024 1024" width={size}>
-      <Path d={ASSETS_TAB_ICON_PATH} fill={color} />
-    </Svg>
-  );
-}
-
-function PrivacyTabIcon({ color, isActive, size }: BottomIconProps) {
+function HomeTabIcon({ color, isActive, size }: BottomIconProps) {
   if (isActive) {
     return (
       <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
-        <Path d="M28 7L46 15V28.4C46 41.3 38.7 48.8 28 53C17.3 48.8 10 41.3 10 28.4V15L28 7Z" fill="#1E6BFF" />
-        <Path d="M20.5 28.5L25.8 33.8L36.5 22.5" stroke="#FFFFFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
+        <Path d="M9 27.5L28 11L47 27.5V49H35V34H21V49H9V27.5Z" fill={color} />
       </Svg>
     );
   }
 
   return (
     <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
-      <Path d="M28 8L45 15.5V28.4C45 41.2 37.6 48.3 28 52C18.4 48.3 11 41.2 11 28.4V15.5L28 8Z" stroke={color} strokeLinejoin="round" strokeWidth="3.6" />
+      <Path d="M9 27.5L28 11L47 27.5V49H35V34H21V49H9V27.5Z" stroke={color} strokeLinejoin="round" strokeWidth="3.6" />
     </Svg>
   );
 }
 
-function ContractTabIcon({ color, size }: BottomIconProps) {
+function TradeTabIcon({ color, size }: BottomIconProps) {
   return (
     <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
-      <Path d="M20 9C15.8 9 13.5 11.6 13.5 16V22C13.5 25.4 11.8 27.6 8.5 28C11.8 28.4 13.5 30.6 13.5 34V40C13.5 44.4 15.8 47 20 47" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.8" />
-      <Path d="M36 9C40.2 9 42.5 11.6 42.5 16V22C42.5 25.4 44.2 27.6 47.5 28C44.2 28.4 42.5 30.6 42.5 34V40C42.5 44.4 40.2 47 36 47" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.8" />
+      <Path d="M12 20H42" stroke={color} strokeLinecap="round" strokeWidth="3.6" />
+      <Path d="M34 12L42 20L34 28" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.6" />
+      <Path d="M44 36H14" stroke={color} strokeLinecap="round" strokeWidth="3.6" />
+      <Path d="M22 28L14 36L22 44" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.6" />
     </Svg>
   );
 }
@@ -163,16 +249,98 @@ function DposTabIcon({ color, size }: BottomIconProps) {
   );
 }
 
-function AccountTabIcon({ color, size }: BottomIconProps) {
+function PrivacyTabIcon({ color, isActive, size }: BottomIconProps) {
+  if (isActive) {
+    return (
+      <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
+        <Path d="M28 7L46 15V28.4C46 41.3 38.7 48.8 28 53C17.3 48.8 10 41.3 10 28.4V15L28 7Z" fill={color} />
+        <Path d="M20.5 28.5L25.8 33.8L36.5 22.5" stroke="#FFFFFF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
+      </Svg>
+    );
+  }
+
   return (
     <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
-      <Circle cx="28" cy="18" r="9" stroke={color} strokeWidth="3.6" />
-      <Path d="M12 48C13.8 38.8 19.5 34 28 34C36.5 34 42.2 38.8 44 48" stroke={color} strokeLinecap="round" strokeWidth="3.6" />
+      <Path d="M28 8L45 15.5V28.4C45 41.2 37.6 48.3 28 52C18.4 48.3 11 41.2 11 28.4V15.5L28 8Z" stroke={color} strokeLinejoin="round" strokeWidth="3.6" />
+    </Svg>
+  );
+}
+
+function MarketQuotesTabIcon({ color, size }: Pick<BottomIconProps, 'color' | 'size'>) {
+  return (
+    <Svg fill="none" height={size} viewBox="0 0 48 48" width={size}>
+      <Path d="M10 38V27" stroke={color} strokeLinecap="round" strokeWidth="4" />
+      <Path d="M20 38V18" stroke={color} strokeLinecap="round" strokeWidth="4" />
+      <Path d="M30 38V23" stroke={color} strokeLinecap="round" strokeWidth="4" />
+      <Path d="M40 38V12" stroke={color} strokeLinecap="round" strokeWidth="4" />
+    </Svg>
+  );
+}
+
+function MarketTradeTabIcon({ color, size }: Pick<BottomIconProps, 'color' | 'size'>) {
+  return (
+    <Svg fill="none" height={size} viewBox="0 0 48 48" width={size}>
+      <Path d="M13 17H35" stroke={color} strokeLinecap="round" strokeWidth="3" />
+      <Path d="M28 10L35 17L28 24" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
+      <Path d="M35 31H13" stroke={color} strokeLinecap="round" strokeWidth="3" />
+      <Path d="M20 24L13 31L20 38" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
+    </Svg>
+  );
+}
+
+function MarketContractTabIcon({ color, size }: Pick<BottomIconProps, 'color' | 'size'>) {
+  return (
+    <Svg fill="none" height={size} viewBox="0 0 48 48" width={size}>
+      <Path d="M18 8H15C12.8 8 11 9.8 11 12V19C11 21.8 9.8 23.2 7 23.2" stroke={color} strokeLinecap="round" strokeWidth="3" />
+      <Path d="M18 40H15C12.8 40 11 38.2 11 36V29C11 26.2 9.8 24.8 7 24.8" stroke={color} strokeLinecap="round" strokeWidth="3" />
+      <Path d="M30 8H33C35.2 8 37 9.8 37 12V19C37 21.8 38.2 23.2 41 23.2" stroke={color} strokeLinecap="round" strokeWidth="3" />
+      <Path d="M30 40H33C35.2 40 37 38.2 37 36V29C37 26.2 38.2 24.8 41 24.8" stroke={color} strokeLinecap="round" strokeWidth="3" />
+    </Svg>
+  );
+}
+
+function MarketOrdersTabIcon({ color, size }: Pick<BottomIconProps, 'color' | 'size'>) {
+  return (
+    <Svg fill="none" height={size} viewBox="0 0 48 48" width={size}>
+      <Path d="M14 7H30L38 15V39C38 40.1 37.1 41 36 41H14C12.9 41 12 40.1 12 39V9C12 7.9 12.9 7 14 7Z" stroke={color} strokeLinejoin="round" strokeWidth="3" />
+      <Path d="M30 7V15H38" stroke={color} strokeLinejoin="round" strokeWidth="3" />
+      <Path d="M18 24H31" stroke={color} strokeLinecap="round" strokeWidth="3" />
+      <Path d="M18 32H28" stroke={color} strokeLinecap="round" strokeWidth="3" />
+    </Svg>
+  );
+}
+
+function MarketMoreTabIcon({ color, size }: Pick<BottomIconProps, 'color' | 'size'>) {
+  return (
+    <Svg fill="none" height={size} viewBox="0 0 48 48" width={size}>
+      <Rect height="11" rx="3" stroke={color} strokeWidth="3" width="11" x="10" y="10" />
+      <Rect height="11" rx="3" stroke={color} strokeWidth="3" width="11" x="27" y="10" />
+      <Rect height="11" rx="3" stroke={color} strokeWidth="3" width="11" x="10" y="27" />
+      <Rect height="11" rx="3" stroke={color} strokeWidth="3" width="11" x="27" y="27" />
+    </Svg>
+  );
+}
+
+function AssetsTabIcon({ color, isActive, size }: BottomIconProps) {
+  if (isActive) {
+    return (
+      <Svg height={size} viewBox="0 0 1024 1024" width={size}>
+        <Path d={ASSETS_TAB_ICON_PATH} fill={color} />
+      </Svg>
+    );
+  }
+
+  return (
+    <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
+      <Path d="M14 18H43C46 18 48 20 48 23V41C48 44 46 46 43 46H14C10.7 46 8 43.3 8 40V16C8 12.7 10.7 10 14 10H41" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.6" />
+      <Path d="M8 18H44" stroke={color} strokeLinecap="round" strokeWidth="3.6" />
+      <Circle cx="39" cy="32" r="3.5" stroke={color} strokeWidth="3" />
     </Svg>
   );
 }
 
 function createStyles(scale: number, bottomNavHeight: number, bottomNavSliceHeight: number) {
+  // 功能目的：根据工作区切换底部菜单；实现原因：市场与钱包的一层功能不同，不能复用同一组标签。
   const textBase = {
     fontFamily: fontFamilies.system,
     includeFontPadding: false

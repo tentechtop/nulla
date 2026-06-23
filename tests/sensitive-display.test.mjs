@@ -7,6 +7,7 @@ import {
 } from '../src/utils/sensitiveDisplay.js';
 
 test('getSensitiveAmountText masks amount without changing visible values', () => {
+  assert.equal(HIDDEN_AMOUNT_TEXT, '******');
   assert.equal(getSensitiveAmountText('10,000,000', true), '10,000,000');
   assert.equal(getSensitiveAmountText('10,000,000', false), HIDDEN_AMOUNT_TEXT);
 });
@@ -20,6 +21,10 @@ test('getSensitiveAmountParts keeps DPoS and privacy units while hidden', () => 
     amountText: HIDDEN_AMOUNT_TEXT,
     unitText: 'lamports'
   });
+});
+
+test('getSensitiveAmountText never uses dot bullets for hidden amounts', () => {
+  assert.notEqual(getSensitiveAmountText('10,000,000', false), '••••••');
 });
 
 test('getSensitiveAmountParts rejects unsafe display values', () => {

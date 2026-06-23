@@ -8,7 +8,7 @@ test('app branding points to generated premium icon assets', () => {
   assert.equal(appConfig.expo.name, 'SOL');
   assert.equal(appConfig.expo.icon, './assets/brand/icon.png');
   assert.equal(appConfig.expo.android.adaptiveIcon.foregroundImage, './assets/brand/adaptive-icon.png');
-  assert.equal(appConfig.expo.android.adaptiveIcon.backgroundColor, '#05070B');
+  assert.equal(appConfig.expo.android.adaptiveIcon.backgroundColor, '#FFFFFF');
 });
 
 test('native splash remains static white with centered black logo asset', () => {

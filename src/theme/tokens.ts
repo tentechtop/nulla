@@ -28,6 +28,10 @@ export const fontFamilies = {
   }) as string
 } as const;
 
+export const fontWeights = {
+  pageTitle: '700'
+} as const;
+
 export const spacing = {
   page: 18,
   card: 20,
