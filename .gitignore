@@ -1,1 +1,30 @@
+# 功能目的：忽略依赖目录；实现原因：依赖可通过 npm install 还原且文件量极大
 /node_modules/
+
+# 功能目的：忽略 Expo 本地缓存；实现原因：缓存和设备状态由本机运行环境生成
+/.expo/
+/.expo-*/
+
+# 功能目的：忽略 IDE 本地配置；实现原因：开发者私有配置不应进入项目状态
+/.idea/
+
+# 功能目的：忽略 Android 构建产物；实现原因：Gradle 输出体积大且可重复生成
+/android/.gradle/
+/android/build/
+/android/app/build/
+
+# 功能目的：忽略根目录运行日志；实现原因：日志频繁变化且会拖慢状态检查
+/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 功能目的：忽略根目录视觉验收截图；实现原因：临时截图体积大且不属于源码
+/*-qa.png
+/*-compare.png
+/*-comparison.png
+/*-layout.png
+/device-current.png
+/scan-result*.png
+/splash-capture*.png
+/account-home-*.png
