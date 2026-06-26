@@ -1,39 +1,69 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { CameraView, type BarcodeScanningResult, useCameraPermissions } from 'expo-camera';
+import { AppState, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { CameraView, scanFromURLAsync, type BarcodeScanningResult, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
+import { submitRegisterValidatorIdentityTransaction } from '../../utils/chainOperations';
+import { JsonRpcClient } from '../../utils/chainRpc';
+import { getSystemAddressKind, isSystemAddress } from '../../utils/addressSpec';
+import { copyTextToClipboard } from '../../utils/clipboard';
+import { isDeployRequestQRCode } from '../../utils/deployRequest';
+import { scanImageUriForPayload } from '../../utils/imageQrScan';
+import {
+  MAX_VALIDATOR_PAIRING_PAYLOAD_LENGTH,
+  MINIMUM_VALIDATOR_STAKE_LAMPORTS,
+  VALIDATOR_PAIRING_MODE_BOOTSTRAP,
+  compactValidatorPairingValue,
+  completeValidatorPairing,
+  getValidatorPairingStatus,
+  isValidatorPairingPayload,
+  parseValidatorPairingPayload,
+  signBootstrapPairingAuthorization,
+  type ValidatorPairingPayload
+} from '../validatorPairing/validatorPairing';
 import { MAX_SCANNED_SEND_PAYLOAD_LENGTH, parseScannedSendPayload, type ScannedSendDraft } from '../transferFlow';
+import { scanResultImages } from './designAssets';
 import {
   BackChevronIcon,
   ChevronRightIcon,
   CodeHashIcon,
   CopyContentIcon,
+  DeployRequestResultIcon,
   HashVerifiedIcon,
+  ImageLibraryIcon,
   NetworkNodesIcon,
-  PopTokenIcon,
   RecentAddressIcon,
   RecentDeployIcon,
   RecentTransferIcon,
   RescanIcon,
   ScanCornerFrameIcon,
-  SourceFileIcon
+  SolAddressResultIcon,
+  SourceFileIcon,
+  TransferRequestResultIcon,
+  UnknownScanResultIcon,
+  ValidatorNodeIcon,
+  ValidatorPairingIcon,
+  WalletLinkIcon
 } from './ScanResultSvgIcons';
 import { useScanResultResponsiveLayout } from './useScanResultResponsiveLayout';
 
 const TOP_NAVIGATION_DESIGN_HEIGHT = 117;
+const MAX_SCAN_PAYLOAD_LENGTH = Math.max(MAX_SCANNED_SEND_PAYLOAD_LENGTH, MAX_VALIDATOR_PAIRING_PAYLOAD_LENGTH);
 
 const recentRows = [
-  { key: 'address', icon: 'address', title: '收款地址', detail: '3GT9QRAu2L...TcZjT5S', time: '18:11:32' },
+  { key: 'address', icon: 'address', title: '收款地址', detail: 'TGT9QRAu2L...TcZjT5S', time: '18:11:32' },
   { key: 'deploy', icon: 'deploy', title: '部署请求', detail: 'POP 泡泡币（ERC20-like）', time: '18:09:21' },
-  { key: 'transfer', icon: 'transfer', title: '交易请求', detail: '转账 1,000,000 lamports', time: '18:05:44' }
+  { key: 'validator', icon: 'validator', title: '验证者绑定', detail: '节点钱包配对请求', time: '18:02:16' }
 ] as const;
 
-type ResultIconKey = 'hash' | 'source' | 'network';
+type ResultIconKey = 'hash' | 'source' | 'network' | 'validator' | 'wallet';
 type RecentIconKey = (typeof recentRows)[number]['icon'];
-type ScanKind = 'address' | 'deploy' | 'transfer' | 'unknown' | 'waiting';
+type ScanKind = 'address' | 'deploy' | 'transfer' | 'unknown' | 'validatorPairing' | 'waiting';
+type ScanPayloadSource = 'camera' | 'image' | null;
 type CameraPermissionRequestSource = 'auto' | 'manual';
+type ValidatorPairingBindingState = 'completed' | 'failed' | 'idle' | 'needsSignature' | 'registering';
 
 type ResultRow = {
   readonly icon: ResultIconKey;
@@ -54,9 +84,24 @@ type ScanSummary = {
 
 type ScanResultScreenProps = {
   readonly bottomPadding?: number;
+  readonly currentWalletAddress?: string | null;
+  readonly currentWalletSigningSeed?: string | null;
   readonly onBackPress?: () => void;
+  readonly onDeployRequest?: (payload: string) => void;
+  readonly onEnsureWalletForValidatorPairing?: () => Promise<ValidatorPairingWalletCredential>;
   readonly onSendDraft?: (draft: ScannedSendDraft) => void;
   readonly topPadding?: number;
+};
+
+type ValidatorPairingWalletCredential = {
+  readonly address: string;
+  readonly signingSeed: string;
+};
+
+type ValidatorPairingParseState = {
+  readonly error: string;
+  readonly isPairing: boolean;
+  readonly payload: ValidatorPairingPayload | null;
 };
 
 function scaled(value: number, scale: number) {
@@ -69,7 +114,7 @@ function scaledBelowTopNavigation(value: number, scale: number) {
 
 function sanitizeScanPayload(payload: string) {
   // 功能目的：清理扫码输入；实现原因：阻断控制字符和超长内容污染界面。
-  return payload.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, MAX_SCANNED_SEND_PAYLOAD_LENGTH);
+  return payload.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, MAX_SCAN_PAYLOAD_LENGTH);
 }
 
 function compactScanPayload(payload: string) {
@@ -80,16 +125,32 @@ function compactScanPayload(payload: string) {
   return `${payload.slice(0, 18)}...${payload.slice(-16)}`;
 }
 
-function getScanKind(payload: string | null): ScanKind {
+function getAddressResultText(payload: string | null) {
+  if (payload === null || !isSystemAddress(payload)) {
+    return { name: '系统地址', standard: 'Address' };
+  }
+
+  const addressKind = getSystemAddressKind(payload);
+  return addressKind === 'transparent'
+    ? { name: 'T 地址', standard: 'T Address' }
+    : { name: 'Z 地址', standard: 'Z Address' };
+}
+
+function getScanKind(payload: string | null, validatorPairing: ValidatorPairingParseState): ScanKind {
   if (payload === null) {
     return 'waiting';
   }
 
-  if (/^(solana:|sol:)/i.test(payload) || /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(payload)) {
-    return 'address';
+  if (validatorPairing.isPairing) {
+    return 'validatorPairing';
   }
 
-  if (/^(deploy:|bytecode:)/i.test(payload) || /^[a-f0-9]{32,}$/i.test(payload)) {
+  const sendDraft = parseScannedSendPayload(payload);
+  if (sendDraft !== null) {
+    return payload === sendDraft.address ? 'address' : 'transfer';
+  }
+
+  if (isDeployRequestQRCode(payload) || /^(deploy:|bytecode:)/i.test(payload) || /^[a-f0-9]{32,}$/i.test(payload)) {
     return 'deploy';
   }
 
@@ -100,10 +161,88 @@ function getScanKind(payload: string | null): ScanKind {
   return 'unknown';
 }
 
-function createScanSummary(payload: string | null): ScanSummary {
-  const kind = getScanKind(payload);
+function parseValidatorPairingScanState(payload: string | null): ValidatorPairingParseState {
+  if (payload === null || !isValidatorPairingPayload(payload)) {
+    return { error: '', isPairing: false, payload: null };
+  }
+
+  try {
+    return { error: '', isPairing: true, payload: parseValidatorPairingPayload(payload) };
+  } catch (error: unknown) {
+    return {
+      error: error instanceof Error ? error.message : '验证者绑定二维码无效',
+      isPairing: true,
+      payload: null
+    };
+  }
+}
+
+function getValidatorPairingCompletion(value: unknown) {
+  if (value === null || typeof value !== 'object') {
+    return null;
+  }
+
+  return (value as { readonly completed?: unknown }).completed ?? value;
+}
+
+function buildValidatorPairingRestartNotice(value: unknown) {
+  const completion = getValidatorPairingCompletion(value);
+  if (completion === null || typeof completion !== 'object') {
+    return '';
+  }
+
+  const restartRequired = Boolean((completion as { readonly restart_required?: unknown; readonly restartRequired?: unknown }).restart_required ?? (completion as { readonly restartRequired?: unknown }).restartRequired);
+  return restartRequired ? '，请重启节点使验证者身份生效' : '';
+}
+
+function getValidatorPairingStandard(pairingPayload: ValidatorPairingPayload | null) {
+  if (pairingPayload === null) {
+    return 'PoS';
+  }
+
+  if (pairingPayload.chainID.length > 0) {
+    return pairingPayload.chainID;
+  }
+
+  if (pairingPayload.mode === VALIDATOR_PAIRING_MODE_BOOTSTRAP) {
+    return 'Bootstrap Join';
+  }
+
+  return 'PoS';
+}
+
+function getValidatorPairingStatusText(bindingState: ValidatorPairingBindingState, isBootstrapPairing: boolean) {
+  if (bindingState === 'completed') {
+    return '已提交绑定';
+  }
+
+  if (bindingState === 'registering') {
+    return isBootstrapPairing ? '正在授权节点' : '正在注册验证者';
+  }
+
+  if (bindingState === 'needsSignature') {
+    return '正在确认节点';
+  }
+
+  if (bindingState === 'failed') {
+    return '需要处理异常';
+  }
+
+  return '待确认绑定';
+}
+
+function createScanSummary(
+  payload: string | null,
+  validatorPairing: ValidatorPairingParseState,
+  bindingState: ValidatorPairingBindingState,
+  currentWalletAddress?: string | null,
+  payloadSource: ScanPayloadSource = null
+): ScanSummary {
+  const kind = getScanKind(payload, validatorPairing);
   const displayValue = payload === null ? '等待二维码进入扫描框' : compactScanPayload(payload);
+  const addressResultText = getAddressResultText(payload);
   const firstLabel = kind === 'deploy' ? 'Bytecode Hash' : '扫码内容';
+  const recognizedSourceValue = payloadSource === 'image' ? '本地图片识别' : '摄像头扫码';
 
   if (kind === 'waiting') {
     return {
@@ -112,7 +251,7 @@ function createScanSummary(payload: string | null): ScanSummary {
       name: '等待扫码',
       rows: [
         { key: 'payload', icon: 'hash', label: firstLabel, value: displayValue },
-        { key: 'source', icon: 'source', label: '来源', value: '摄像头' },
+        { key: 'source', icon: 'source', label: '来源', value: '摄像头 / 相册' },
         { key: 'network', icon: 'network', label: '网络', value: '自动识别' }
       ],
       standard: 'Camera',
@@ -121,22 +260,94 @@ function createScanSummary(payload: string | null): ScanSummary {
     };
   }
 
+  if (kind === 'validatorPairing') {
+    const pairingPayload = validatorPairing.payload;
+    const isBootstrapPairing = pairingPayload?.mode === VALIDATOR_PAIRING_MODE_BOOTSTRAP;
+    const pairingStandard = getValidatorPairingStandard(pairingPayload);
+    const statusText = getValidatorPairingStatusText(bindingState, isBootstrapPairing);
+
+    return {
+      isVerified: pairingPayload !== null && !pairingPayload.isExpired && validatorPairing.error.length === 0,
+      kind,
+      name: '验证者节点绑定',
+      rows: [
+        {
+          key: 'node',
+          icon: 'validator',
+          label: '节点',
+          value: pairingPayload === null ? validatorPairing.error : compactValidatorPairingValue(pairingPayload.nodePeerID, 11, 8)
+        },
+        {
+          key: 'wallet',
+          icon: 'wallet',
+          label: '钱包',
+          value: currentWalletAddress === null || currentWalletAddress === undefined ? '扫码后自动创建' : compactValidatorPairingValue(currentWalletAddress, 10, 8)
+        },
+        {
+          key: 'status',
+          icon: 'network',
+          label: '状态',
+          value: pairingPayload?.isExpired ? '二维码已过期' : statusText
+        }
+      ],
+      standard: pairingStandard,
+      tag: '验证者钱包',
+      verifiedText: pairingPayload?.isExpired ? '已过期' : validatorPairing.error.length > 0 ? '校验失败' : '节点已校验'
+    };
+  }
+
   return {
     isVerified: true,
     kind,
-    name: kind === 'address' ? 'SOL 地址' : kind === 'transfer' ? '交易请求' : kind === 'deploy' ? '合约部署请求' : '扫码内容',
+    name: kind === 'address' ? addressResultText.name : kind === 'transfer' ? '交易请求' : kind === 'deploy' ? '合约部署请求' : '扫码内容',
     rows: [
       { key: 'payload', icon: 'hash', label: firstLabel, value: displayValue },
-      { key: 'source', icon: 'source', label: '来源', value: '摄像头扫码' },
+      { key: 'source', icon: 'source', label: '来源', value: recognizedSourceValue },
       { key: 'network', icon: 'network', label: '网络', value: kind === 'unknown' ? '本地识别' : 'SOL Mainnet' }
     ],
-    standard: kind === 'deploy' ? 'ERC20-like' : kind === 'address' ? 'Address' : kind === 'transfer' ? 'Lamports' : 'Payload',
+    standard: kind === 'deploy' ? 'ERC20-like' : kind === 'address' ? addressResultText.standard : kind === 'transfer' ? 'Lamports' : 'Payload',
     tag: kind === 'address' ? '收款地址' : kind === 'transfer' ? '交易请求' : kind === 'deploy' ? '合约部署请求' : '已识别',
     verifiedText: 'Hash 已校验'
   };
 }
 
-export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topPadding }: ScanResultScreenProps) {
+async function ensureValidatorPairingWalletCredential(input: {
+  readonly currentWalletAddress?: string | null;
+  readonly currentWalletSigningSeed?: string | null;
+  readonly onEnsureWalletForValidatorPairing?: () => Promise<ValidatorPairingWalletCredential>;
+}): Promise<ValidatorPairingWalletCredential> {
+  const currentWalletAddress = input.currentWalletAddress?.trim() ?? '';
+  const currentWalletSigningSeed = input.currentWalletSigningSeed?.trim() ?? '';
+
+  if (currentWalletAddress.length > 0 && currentWalletSigningSeed.length > 0) {
+    return {
+      address: currentWalletAddress,
+      signingSeed: currentWalletSigningSeed
+    };
+  }
+
+  if (currentWalletAddress.length > 0) {
+    throw new Error('当前钱包未解锁。请重新导入助记词解锁后再绑定验证者节点。');
+  }
+
+  if (!input.onEnsureWalletForValidatorPairing) {
+    throw new Error('当前没有钱包，且应用未提供自动创建验证者质押钱包入口');
+  }
+
+  // 功能目的：无钱包时自动创建本地质押钱包；实现原因：节点扫码绑定不能要求用户先离开流程手动建账。
+  return input.onEnsureWalletForValidatorPairing();
+}
+
+export function ScanResultScreen({
+  bottomPadding,
+  currentWalletAddress,
+  currentWalletSigningSeed,
+  onBackPress,
+  onDeployRequest,
+  onEnsureWalletForValidatorPairing,
+  onSendDraft,
+  topPadding
+}: ScanResultScreenProps) {
   const layoutMetrics = useScanResultResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
@@ -146,10 +357,17 @@ export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topP
   const scanLockRef = useRef(false);
   const [cameraPermission, requestCameraPermission, getCameraPermission] = useCameraPermissions();
   const [cameraError, setCameraError] = useState('');
+  const [copyMessage, setCopyMessage] = useState('');
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [isImagePickerBusy, setIsImagePickerBusy] = useState(false);
   const [isScannerActive, setIsScannerActive] = useState(true);
+  const [imageScanMessage, setImageScanMessage] = useState('');
+  const [validatorBindingMessage, setValidatorBindingMessage] = useState('');
+  const [validatorBindingState, setValidatorBindingState] = useState<ValidatorPairingBindingState>('idle');
   const [scannedPayload, setScannedPayload] = useState<string | null>(null);
-  const scanSummary = createScanSummary(scannedPayload);
+  const [scanPayloadSource, setScanPayloadSource] = useState<ScanPayloadSource>(null);
+  const validatorPairing = parseValidatorPairingScanState(scannedPayload);
+  const scanSummary = createScanSummary(scannedPayload, validatorPairing, validatorBindingState, currentWalletAddress, scanPayloadSource);
 
   const requestCameraAccess = useCallback((requestSource: CameraPermissionRequestSource) => {
     if (cameraPermission?.granted) {
@@ -224,10 +442,20 @@ export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topP
   }, [cameraPermission]);
 
   const handleConfirmPress = () => {
+    if (validatorPairing.isPairing) {
+      void handleValidatorPairingConfirm();
+      return;
+    }
+
     const sendDraft = scannedPayload === null ? null : parseScannedSendPayload(scannedPayload);
 
     if (sendDraft !== null && onSendDraft !== undefined) {
       onSendDraft(sendDraft);
+      return;
+    }
+
+    if (scanSummary.kind === 'deploy' && scannedPayload !== null && onDeployRequest !== undefined) {
+      onDeployRequest(scannedPayload);
       return;
     }
 
@@ -238,18 +466,124 @@ export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topP
     });
   };
 
+  const handleValidatorPairingConfirm = async () => {
+    if (validatorPairing.payload === null) {
+      setValidatorBindingState('failed');
+      setValidatorBindingMessage(validatorPairing.error || '验证者绑定二维码无效');
+      return;
+    }
+
+    if (validatorPairing.payload.isExpired) {
+      setValidatorBindingState('failed');
+      setValidatorBindingMessage('二维码已过期，请在节点终端重新生成后再扫码');
+      return;
+    }
+
+    setValidatorBindingState('needsSignature');
+    setValidatorBindingMessage('正在连接节点确认绑定会话');
+
+    try {
+      const status = await getValidatorPairingStatus(validatorPairing.payload);
+      const state = typeof (status as { state?: unknown })?.state === 'string' ? String((status as { state: string }).state) : 'unknown';
+
+      if (state === 'completed') {
+        setValidatorBindingState('completed');
+        setValidatorBindingMessage(
+          `该节点已完成验证者钱包绑定${buildValidatorPairingRestartNotice(getValidatorPairingCompletion(status))}`
+        );
+        return;
+      }
+
+      const validatorPairingWallet = await ensureValidatorPairingWalletCredential({
+        currentWalletAddress,
+        currentWalletSigningSeed,
+        onEnsureWalletForValidatorPairing
+      });
+      const currentWalletAddressForPairing = validatorPairingWallet.address;
+      const currentWalletSigningSeedForPairing = validatorPairingWallet.signingSeed;
+
+      if (typeof currentWalletSigningSeedForPairing !== 'string' || currentWalletSigningSeedForPairing.trim().length === 0) {
+        setValidatorBindingState('failed');
+        setValidatorBindingMessage('当前钱包未解锁。请重新导入助记词解锁后再绑定验证者节点。');
+        return;
+      }
+
+      setValidatorBindingState('registering');
+      if (validatorPairing.payload.mode === VALIDATOR_PAIRING_MODE_BOOTSTRAP) {
+        setValidatorBindingMessage('节点会话已确认，正在本地签名公网引导加入授权');
+        const bootstrapStakerSignature = signBootstrapPairingAuthorization(validatorPairing.payload, {
+          signingSeed: currentWalletSigningSeedForPairing,
+          stakerAddress: currentWalletAddressForPairing,
+          stakeLamports: MINIMUM_VALIDATOR_STAKE_LAMPORTS
+        });
+        const completionResult = await completeValidatorPairing(validatorPairing.payload, {
+          stakerAddress: currentWalletAddressForPairing,
+          stakeLamports: MINIMUM_VALIDATOR_STAKE_LAMPORTS,
+          bootstrapStakerSignature
+        });
+        setValidatorBindingState('completed');
+        setValidatorBindingMessage(
+          `节点加入授权已提交，节点绑定已完成${buildValidatorPairingRestartNotice(completionResult)}。授权 ${bootstrapStakerSignature.slice(0, 8)}...${bootstrapStakerSignature.slice(-8)}`
+        );
+        return;
+      }
+
+      setValidatorBindingMessage('节点会话已确认，正在本地签名并向该节点提交最低质押注册交易');
+      const validatorPairingClient = new JsonRpcClient(validatorPairing.payload.rpcURL);
+      const walletBalance = await validatorPairingClient.getBalance(currentWalletAddressForPairing);
+      if (walletBalance < MINIMUM_VALIDATOR_STAKE_LAMPORTS) {
+        throw new Error(`当前钱包余额不足，验证者最低质押需要 ${MINIMUM_VALIDATOR_STAKE_LAMPORTS.toString()} lamports`);
+      }
+      const registrationResult = await submitRegisterValidatorIdentityTransaction({
+        client: validatorPairingClient,
+        signingSeed: currentWalletSigningSeedForPairing,
+        validatorAddress: validatorPairing.payload.validatorAddress,
+        consensusPublicKey: validatorPairing.payload.consensusAddress,
+        blsPublicKey: validatorPairing.payload.blsPublicKey,
+        peerId: validatorPairing.payload.nodePeerID,
+        stakeLamports: String(MINIMUM_VALIDATOR_STAKE_LAMPORTS),
+        commissionBps: 0
+      });
+      const completionResult = await completeValidatorPairing(validatorPairing.payload, {
+        stakerAddress: currentWalletAddressForPairing,
+        stakeLamports: Number(registrationResult.lamports),
+        signature: registrationResult.signature
+      });
+      setValidatorBindingState('completed');
+      setValidatorBindingMessage(
+        `验证者注册已提交，节点绑定已完成${buildValidatorPairingRestartNotice(completionResult)}。签名 ${registrationResult.signature.slice(0, 8)}...${registrationResult.signature.slice(-8)}`
+      );
+    } catch (error: unknown) {
+      setValidatorBindingState('failed');
+      setValidatorBindingMessage(error instanceof Error ? error.message : '连接验证者节点失败');
+    }
+  };
+
   const handleCopyPress = () => {
-    console.info('[scan-result] copy content requested', {
-      hasPayload: scannedPayload !== null,
-      payloadLength: scannedPayload?.length ?? 0
-    });
+    if (scannedPayload === null) {
+      setCopyMessage('暂无可复制内容');
+      return;
+    }
+
+    void copyTextToClipboard(scannedPayload, '已复制扫码内容')
+      .then((result) => {
+        setCopyMessage(result.message);
+      })
+      .catch((error: unknown) => {
+        setCopyMessage(error instanceof Error ? error.message : '复制失败');
+      });
   };
 
   const handleRescanPress = () => {
     scanLockRef.current = false;
     setCameraError('');
+    setCopyMessage('');
+    setImageScanMessage('');
     setScannedPayload(null);
+    setScanPayloadSource(null);
     setIsScannerActive(true);
+    setValidatorBindingMessage('');
+    setValidatorBindingState('idle');
     console.info('[scan-result] rescan requested');
   };
 
@@ -259,6 +593,78 @@ export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topP
 
   const handleRequestCameraPermission = () => {
     requestCameraAccess('manual');
+  };
+
+  const handlePickImagePress = async () => {
+    if (isImagePickerBusy) {
+      return;
+    }
+
+    const shouldResumeCameraOnFailure = scannedPayload === null;
+    let didScanImagePayload = false;
+    scanLockRef.current = true;
+    setIsImagePickerBusy(true);
+    setIsScannerActive(false);
+    setCopyMessage('');
+    setValidatorBindingMessage('');
+    setValidatorBindingState('idle');
+    setImageScanMessage('正在打开相册');
+
+    try {
+      const mediaPermission = Platform.OS === 'web' ? { canAskAgain: true, granted: true } : await ImagePicker.requestMediaLibraryPermissionsAsync(false);
+
+      if (!mediaPermission.granted) {
+        setImageScanMessage(mediaPermission.canAskAgain ? '请允许访问照片后选择二维码图片' : '照片权限已关闭，请在系统设置中允许 SOL 访问照片');
+
+        if (mediaPermission.canAskAgain === false) {
+          void Linking.openSettings().catch((error: unknown) => {
+            setImageScanMessage(error instanceof Error ? error.message : '无法打开系统权限设置');
+          });
+        }
+
+        return;
+      }
+
+      const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: false,
+        allowsMultipleSelection: false,
+        base64: false,
+        exif: false,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1
+      });
+
+      if (pickerResult.canceled || pickerResult.assets === null || pickerResult.assets.length === 0) {
+        setImageScanMessage('已取消选择图片');
+        return;
+      }
+
+      const selectedAsset = pickerResult.assets[0];
+      setImageScanMessage('正在识别图片二维码');
+      const nextPayload = await scanImageUriForPayload(selectedAsset.uri, scanFromURLAsync, sanitizeScanPayload);
+
+      scanLockRef.current = true;
+      didScanImagePayload = true;
+      setScannedPayload(nextPayload);
+      setScanPayloadSource('image');
+      setIsScannerActive(false);
+      setImageScanMessage('已识别本地图片二维码');
+      console.info('[scan-result] image QR scanned', {
+        height: selectedAsset.height,
+        payloadLength: nextPayload.length,
+        width: selectedAsset.width
+      });
+    } catch (error: unknown) {
+      setImageScanMessage(error instanceof Error ? error.message : '图片二维码识别失败');
+      console.info('[scan-result] image QR scan failed');
+    } finally {
+      setIsImagePickerBusy(false);
+
+      if (shouldResumeCameraOnFailure && !didScanImagePayload) {
+        scanLockRef.current = false;
+        setIsScannerActive(true);
+      }
+    }
   };
 
   const handleCameraReady = () => {
@@ -285,7 +691,9 @@ export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topP
 
     scanLockRef.current = true;
     setScannedPayload(nextPayload);
+    setScanPayloadSource('camera');
     setIsScannerActive(false);
+    setImageScanMessage('');
     console.info('[scan-result] barcode scanned', {
       payloadLength: nextPayload.length,
       type: result.type
@@ -314,21 +722,31 @@ export function ScanResultScreen({ bottomPadding, onBackPress, onSendDraft, topP
             cameraPermissionCanAskAgain={cameraPermission?.canAskAgain !== false}
             cameraPermissionGranted={cameraPermission?.granted === true}
             isCameraReady={isCameraReady}
+            isImagePickerBusy={isImagePickerBusy}
             isScannerActive={isScannerActive}
             onBarcodeScanned={handleBarcodeScanned}
             onCameraError={handleCameraError}
             onCameraReady={handleCameraReady}
+            onPickImagePress={handlePickImagePress}
             onRequestCameraPermission={handleRequestCameraPermission}
             scale={layoutMetrics.scale}
             styles={styles}
           />
           <RecognizedResultCard scale={layoutMetrics.scale} scanSummary={scanSummary} styles={styles} />
           <ActionButtons
+            confirmLabel={scanSummary.kind === 'validatorPairing' ? '绑定节点' : '继续确认'}
             onConfirmPress={handleConfirmPress}
             onCopyPress={handleCopyPress}
             onRescanPress={handleRescanPress}
             scale={layoutMetrics.scale}
             styles={styles}
+          />
+          <ScanFeedbackMessage
+            copyMessage={copyMessage}
+            imageScanMessage={imageScanMessage}
+            scale={layoutMetrics.scale}
+            styles={styles}
+            validatorBindingMessage={validatorBindingMessage}
           />
           <RecentScanCard onShowAllPress={handleShowAllPress} scale={layoutMetrics.scale} styles={styles} />
         </View>
@@ -362,10 +780,12 @@ function ScanPreviewCard({
   cameraPermissionCanAskAgain,
   cameraPermissionGranted,
   isCameraReady,
+  isImagePickerBusy,
   isScannerActive,
   onBarcodeScanned,
   onCameraError,
   onCameraReady,
+  onPickImagePress,
   onRequestCameraPermission,
   scale,
   styles
@@ -374,16 +794,25 @@ function ScanPreviewCard({
   readonly cameraPermissionCanAskAgain: boolean;
   readonly cameraPermissionGranted: boolean;
   readonly isCameraReady: boolean;
+  readonly isImagePickerBusy: boolean;
   readonly isScannerActive: boolean;
   readonly onBarcodeScanned: (result: BarcodeScanningResult) => void;
   readonly onCameraError: (event: { readonly message: string }) => void;
   readonly onCameraReady: () => void;
+  readonly onPickImagePress: () => void;
   readonly onRequestCameraPermission: () => void;
   readonly scale: number;
   readonly styles: ReturnType<typeof createStyles>;
 }) {
   return (
     <View style={styles.scanCard}>
+      <Image resizeMode="cover" source={scanResultImages.validatorPairingPlatform} style={styles.scanPlatformArtwork} />
+      <LinearGradient
+        colors={['#020306EE', '#02030688', '#02030600']}
+        end={{ x: 1, y: 0.5 }}
+        start={{ x: 0, y: 0.5 }}
+        style={styles.scanPlatformShade}
+      />
       {cameraPermissionGranted ? (
         <CameraView
           active
@@ -411,6 +840,16 @@ function ScanPreviewCard({
           <Text style={styles.cameraStateText}>{cameraError.length > 0 ? cameraError : '请保持摄像头权限开启'}</Text>
         </View>
       ) : null}
+      <Pressable
+        accessibilityLabel="从相册选择二维码图片"
+        accessibilityRole="button"
+        disabled={isImagePickerBusy}
+        onPress={onPickImagePress}
+        style={[styles.imagePickerButton, isImagePickerBusy ? styles.imagePickerButtonDisabled : null]}
+      >
+        <ImageLibraryIcon size={scaled(34, scale)} />
+        <Text style={styles.imagePickerButtonText}>{isImagePickerBusy ? '识别中' : '相册'}</Text>
+      </Pressable>
       <View style={styles.scanFrameWrap}>
         <ScanCornerFrameIcon size={scaled(570, scale)} />
       </View>
@@ -456,7 +895,7 @@ function RecognizedResultContent({
   return (
     <>
       <View style={styles.tokenIconWrap}>
-        <PopTokenIcon size={scaled(116, scale)} />
+        <ScanResultKindIcon kind={scanSummary.kind} size={scaled(116, scale)} />
       </View>
       <View style={styles.deployTag}>
         <Text style={styles.deployTagText}>{scanSummary.tag}</Text>
@@ -470,6 +909,26 @@ function RecognizedResultContent({
       ))}
     </>
   );
+}
+
+function ScanResultKindIcon({ kind, size }: { readonly kind: ScanKind; readonly size: number }) {
+  if (kind === 'address') {
+    return <SolAddressResultIcon size={size} />;
+  }
+
+  if (kind === 'transfer') {
+    return <TransferRequestResultIcon size={size} />;
+  }
+
+  if (kind === 'deploy') {
+    return <DeployRequestResultIcon size={size} />;
+  }
+
+  if (kind === 'validatorPairing') {
+    return <ValidatorPairingIcon size={size} />;
+  }
+
+  return <UnknownScanResultIcon size={size} />;
 }
 
 function WaitingResultSkeleton({
@@ -536,16 +995,26 @@ function ResultRowIcon({ iconKey, size }: { readonly iconKey: ResultIconKey; rea
     return <SourceFileIcon size={size} />;
   }
 
+  if (iconKey === 'validator') {
+    return <ValidatorNodeIcon size={size} />;
+  }
+
+  if (iconKey === 'wallet') {
+    return <WalletLinkIcon size={size} />;
+  }
+
   return <NetworkNodesIcon size={size} />;
 }
 
 function ActionButtons({
+  confirmLabel,
   onConfirmPress,
   onCopyPress,
   onRescanPress,
   scale,
   styles
 }: {
+  readonly confirmLabel: string;
   readonly onConfirmPress: () => void;
   readonly onCopyPress: () => void;
   readonly onRescanPress: () => void;
@@ -563,7 +1032,7 @@ function ActionButtons({
             style={pressed ? styles.confirmButtonPressed : styles.confirmButtonGradient}
           >
             <View style={styles.confirmButtonInner}>
-              <Text style={styles.confirmButtonText}>继续确认</Text>
+              <Text style={styles.confirmButtonText}>{confirmLabel}</Text>
             </View>
           </LinearGradient>
         )}
@@ -576,6 +1045,31 @@ function ActionButtons({
         <RescanIcon size={scaled(40, scale)} />
         <Text style={styles.secondaryButtonText}>重新扫描</Text>
       </Pressable>
+    </View>
+  );
+}
+
+function ScanFeedbackMessage({
+  copyMessage,
+  imageScanMessage,
+  styles,
+  validatorBindingMessage
+}: {
+  readonly copyMessage: string;
+  readonly imageScanMessage: string;
+  readonly scale: number;
+  readonly styles: ReturnType<typeof createStyles>;
+  readonly validatorBindingMessage: string;
+}) {
+  const message = validatorBindingMessage || imageScanMessage || copyMessage;
+
+  if (message.length === 0) {
+    return null;
+  }
+
+  return (
+    <View style={styles.feedbackBar}>
+      <Text numberOfLines={1} style={styles.feedbackText}>{message}</Text>
     </View>
   );
 }
@@ -636,6 +1130,10 @@ function RecentRowIcon({ iconKey, size }: { readonly iconKey: RecentIconKey; rea
     return <RecentDeployIcon size={size} />;
   }
 
+  if (iconKey === 'validator') {
+    return <ValidatorPairingIcon size={size} />;
+  }
+
   return <RecentTransferIcon size={size} />;
 }
 
@@ -687,21 +1185,26 @@ function createStyles(scale: number) {
       ...textBase
     },
     cameraPreview: {
-      bottom: 0,
-      left: 0,
+      borderRadius: scaled(22, scale),
+      height: scaled(396, scale),
+      left: scaled(176, scale),
+      overflow: 'hidden',
       position: 'absolute',
-      right: 0,
-      top: 0
+      top: scaled(58, scale),
+      width: scaled(446, scale)
     },
     cameraStatePanel: {
       alignItems: 'center',
-      backgroundColor: '#020306',
-      bottom: 0,
+      backgroundColor: '#020306D9',
+      borderColor: '#30374D',
+      borderRadius: scaled(22, scale),
+      borderWidth: 1,
+      height: scaled(396, scale),
       justifyContent: 'center',
-      left: 0,
+      left: scaled(176, scale),
       position: 'absolute',
-      right: 0,
-      top: 0
+      top: scaled(58, scale),
+      width: scaled(446, scale)
     },
     cameraStateText: {
       color: '#9AA0AE',
@@ -768,6 +1271,24 @@ function createStyles(scale: number) {
       top: 0,
       width: scaled(224, scale)
     },
+    feedbackBar: {
+      alignItems: 'center',
+      height: scaled(24, scale),
+      justifyContent: 'center',
+      left: scaled(27, scale),
+      position: 'absolute',
+      top: scaledBelowTopNavigation(1228, scale),
+      width: scaled(798, scale)
+    },
+    feedbackText: {
+      color: '#6F7486',
+      fontSize: scaled(18, scale),
+      fontWeight: '500',
+      lineHeight: scaled(23, scale),
+      textAlign: 'center',
+      width: '100%',
+      ...textBase
+    },
     deployTag: {
       alignItems: 'center',
       borderColor: '#305BFF',
@@ -795,6 +1316,31 @@ function createStyles(scale: number) {
       right: scaled(22, scale),
       top: scaled(-9, scale),
       width: scaled(48, scale)
+    },
+    imagePickerButton: {
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.16)',
+      borderColor: 'rgba(255, 255, 255, 0.32)',
+      borderRadius: scaled(18, scale),
+      borderWidth: 1,
+      flexDirection: 'row',
+      height: scaled(58, scale),
+      justifyContent: 'center',
+      position: 'absolute',
+      right: scaled(31, scale),
+      top: scaled(29, scale),
+      width: scaled(156, scale)
+    },
+    imagePickerButtonDisabled: {
+      opacity: 0.62
+    },
+    imagePickerButtonText: {
+      color: '#FFFFFF',
+      fontSize: scaled(22, scale),
+      fontWeight: '800',
+      lineHeight: scaled(29, scale),
+      marginLeft: scaled(8, scale),
+      ...textBase
     },
     pageHeading: {
       height: scaledBelowTopNavigation(218, scale),
@@ -1000,6 +1546,21 @@ function createStyles(scale: number) {
       textAlign: 'center',
       top: scaled(490, scale),
       ...textBase
+    },
+    scanPlatformArtwork: {
+      height: '100%',
+      left: 0,
+      opacity: 0.9,
+      position: 'absolute',
+      top: 0,
+      width: '100%'
+    },
+    scanPlatformShade: {
+      bottom: 0,
+      left: 0,
+      position: 'absolute',
+      right: 0,
+      top: 0
     },
     scrollContent: {
       backgroundColor: colors.background

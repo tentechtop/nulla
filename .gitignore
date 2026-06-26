@@ -28,3 +28,6 @@ yarn-error.log*
 /scan-result*.png
 /splash-capture*.png
 /account-home-*.png
+
+# 功能目的：忽略本地临时验收目录；实现原因：截图和运行日志由本机验证流程生成
+/tmp/

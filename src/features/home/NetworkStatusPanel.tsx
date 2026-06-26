@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { StatusItem, statusItems } from '../../data/home';
 import { colors, fontFamilies } from '../../theme/tokens';
+import { createEmptyWalletPortfolio, type WalletPortfolio } from '../../utils/walletBusiness';
 import { StatusSvgIcon } from './HomeSvgIcons';
 import { useHomeResponsiveLayout } from './useHomeResponsiveLayout';
 
@@ -8,13 +8,50 @@ const SECTION_HEIGHT = 176;
 const STATUS_COLUMN_LEFTS = [0, 217, 410, 620] as const;
 const STATUS_COLUMN_WIDTHS = [217, 193, 210, 196] as const;
 
+type NetworkStatusPanelProps = {
+  readonly isLoading?: boolean;
+  readonly onChainStatusPress?: () => void;
+  readonly onNetworkStatusPress?: () => void;
+  readonly onValidatorListPress?: () => void;
+  readonly portfolio?: WalletPortfolio;
+};
+
+type LiveStatusItem = {
+  readonly iconTitle: '节点连接' | '验证者' | '隐私账户' | '网络状态';
+  readonly subtitle: string;
+  readonly target: 'chain' | 'network' | 'privacy' | 'validator';
+  readonly title: string;
+  readonly value: string;
+};
+
 function scaled(value: number, scale: number) {
   return Math.round(value * scale);
 }
 
-export function NetworkStatusPanel() {
+export function NetworkStatusPanel({
+  isLoading = false,
+  onChainStatusPress,
+  onNetworkStatusPress,
+  onValidatorListPress,
+  portfolio = createEmptyWalletPortfolio()
+}: NetworkStatusPanelProps) {
   const { scale } = useHomeResponsiveLayout();
   const styles = createStyles(scale);
+  const liveStatusItems = createLiveStatusItems(portfolio, isLoading);
+
+  const handleStatusPress = (item: LiveStatusItem) => {
+    if (item.target === 'validator') {
+      onValidatorListPress?.();
+      return;
+    }
+
+    if (item.target === 'network') {
+      onNetworkStatusPress?.();
+      return;
+    }
+
+    onChainStatusPress?.();
+  };
 
   return (
     <View style={styles.section}>
@@ -22,11 +59,12 @@ export function NetworkStatusPanel() {
         <View style={styles.dividerOne} />
         <View style={styles.dividerTwo} />
         <View style={styles.dividerThree} />
-        {statusItems.map((item, index) => (
+        {liveStatusItems.map((item, index) => (
           <StatusCell
             item={item}
-            key={item.title}
+            key={item.target}
             left={STATUS_COLUMN_LEFTS[index]}
+            onPress={() => handleStatusPress(item)}
             scale={scale}
             styles={styles}
             width={STATUS_COLUMN_WIDTHS[index]}
@@ -40,12 +78,14 @@ export function NetworkStatusPanel() {
 function StatusCell({
   item,
   left,
+  onPress,
   scale,
   styles,
   width
 }: {
-  readonly item: StatusItem;
+  readonly item: LiveStatusItem;
   readonly left: number;
+  readonly onPress: () => void;
   readonly scale: number;
   readonly styles: ReturnType<typeof createStyles>;
   readonly width: number;
@@ -53,10 +93,10 @@ function StatusCell({
   const isNormal = item.value === '正常';
 
   return (
-    <Pressable accessibilityRole="button" style={[styles.statusCell, { left: scaled(left, scale), width: scaled(width, scale) }]}>
+    <Pressable accessibilityRole="button" onPress={onPress} style={[styles.statusCell, { left: scaled(left, scale), width: scaled(width, scale) }]}>
       <View style={styles.titleRow}>
         <View style={styles.statusIconSlot}>
-          <StatusSvgIcon size={scaled(32, scale)} title={item.title} />
+          <StatusSvgIcon size={scaled(32, scale)} title={item.iconTitle} />
         </View>
         <Text numberOfLines={1} style={styles.statusTitle}>
           {item.title}
@@ -70,6 +110,41 @@ function StatusCell({
       </Text>
     </Pressable>
   );
+}
+
+function createLiveStatusItems(portfolio: WalletPortfolio, isLoading: boolean): readonly LiveStatusItem[] {
+  const loadingValue = isLoading ? '加载中' : '';
+
+  return [
+    {
+      iconTitle: '节点连接',
+      subtitle: portfolio.chain.rpcURL.replace(/^https?:\/\//, ''),
+      target: 'chain',
+      title: '节点连接',
+      value: loadingValue || (portfolio.chain.isHealthy ? '正常' : '异常')
+    },
+    {
+      iconTitle: '验证者',
+      subtitle: `链高 ${portfolio.chain.headHeight}`,
+      target: 'validator',
+      title: '验证者',
+      value: loadingValue || `${portfolio.chain.validatorCount} 个`
+    },
+    {
+      iconTitle: '隐私账户',
+      subtitle: portfolio.address ? '当前钱包已连接' : '未选择钱包',
+      target: 'privacy',
+      title: '隐私账户',
+      value: '0 个'
+    },
+    {
+      iconTitle: '网络状态',
+      subtitle: `Peer ${portfolio.chain.knownPeerCount} / Slot ${portfolio.chain.headSlot}`,
+      target: 'network',
+      title: '网络状态',
+      value: loadingValue || (portfolio.chain.error ? '异常' : '正常')
+    }
+  ];
 }
 
 function createStyles(scale: number) {

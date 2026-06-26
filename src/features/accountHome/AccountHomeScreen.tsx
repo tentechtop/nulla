@@ -1,7 +1,12 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { AddressActionDialog } from '../../components/AddressActionDialog';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
+import { DEFAULT_PUBLIC_RPC_URL } from '../../utils/chainRpc';
+import { copyTextToClipboard } from '../../utils/clipboard';
+import { formatShortAddress } from '../../utils/walletSetup';
 import { accountHomeImages } from './designAssets';
 import {
   CardAddressQrIcon,
@@ -19,11 +24,11 @@ import { useAccountHomeResponsiveLayout } from './useAccountHomeResponsiveLayout
 
 const TOP_NAVIGATION_DESIGN_HEIGHT = 117;
 
-const walletRows = [
-  { key: 'currentWallet', icon: 'walletCurrent', label: '当前钱包', value: '3GT9QRA...TcZjT5S' },
-  { key: 'switchAccount', icon: 'switchAccount', label: '切换账户', value: '' },
-  { key: 'addressQr', icon: 'addressQr', label: '导出地址二维码', value: '' },
-  { key: 'backupKey', icon: 'backupKey', label: '备份助记词', value: '' }
+const walletRowTemplates = [
+  { key: 'currentWallet', icon: 'walletCurrent', label: '当前钱包' },
+  { key: 'switchAccount', icon: 'switchAccount', label: '切换账户' },
+  { key: 'addressQr', icon: 'addressQr', label: '导出地址二维码' },
+  { key: 'backupKey', icon: 'backupKey', label: '备份助记词' }
 ] as const;
 
 const securityRows = [
@@ -33,14 +38,35 @@ const securityRows = [
   { key: 'clearLocal', icon: 'clear', label: '清除本机账户', value: '' }
 ] as const;
 
-const rpcTabs = ['公网节点', '本地节点', '自定义'] as const;
+const rpcTabs = [
+  { key: 'public', label: '公网节点' },
+  { key: 'local', label: '本地节点' },
+  { key: 'custom', label: '自定义' }
+] as const;
 
-type WalletRowKey = (typeof walletRows)[number]['key'];
+type WalletRowKey = (typeof walletRowTemplates)[number]['key'];
 type SecurityRowKey = (typeof securityRows)[number]['key'];
-type RpcTab = (typeof rpcTabs)[number];
+export type RpcEndpointMode = (typeof rpcTabs)[number]['key'];
+type WalletRowItem = {
+  readonly icon: (typeof walletRowTemplates)[number]['icon'];
+  readonly key: WalletRowKey;
+  readonly label: string;
+  readonly value: string;
+};
 
 type AccountHomeScreenProps = {
   readonly bottomPadding?: number;
+  readonly currentWalletAddress?: string | null;
+  readonly customRpcEndpoint?: string;
+  readonly onBackupMnemonicPress?: () => void;
+  readonly onChainStatusPress?: () => void;
+  readonly onCustomRpcEndpointChange?: (endpoint: string) => void;
+  readonly onRpcNodeDetailPress?: () => void;
+  readonly onRpcModeChange?: (mode: RpcEndpointMode) => void;
+  readonly onSwitchAccountPress?: () => void;
+  readonly rpcEndpoint?: string;
+  readonly rpcStatusText?: string;
+  readonly selectedRpcMode?: RpcEndpointMode;
   readonly topPadding?: number;
 };
 
@@ -52,23 +78,89 @@ function scaledBelowTopNavigation(value: number, scale: number) {
   return scaled(value - TOP_NAVIGATION_DESIGN_HEIGHT, scale);
 }
 
-export function AccountHomeScreen({ bottomPadding, topPadding }: AccountHomeScreenProps) {
+export function AccountHomeScreen({
+  bottomPadding,
+  currentWalletAddress = null,
+  customRpcEndpoint = '',
+  onBackupMnemonicPress,
+  onChainStatusPress,
+  onCustomRpcEndpointChange,
+  onRpcNodeDetailPress,
+  onRpcModeChange,
+  onSwitchAccountPress,
+  rpcEndpoint = DEFAULT_PUBLIC_RPC_URL,
+  rpcStatusText = '已选择',
+  selectedRpcMode = 'public',
+  topPadding
+}: AccountHomeScreenProps) {
   const layoutMetrics = useAccountHomeResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
   const resolvedBottomPadding = bottomPadding ?? layoutMetrics.bottomNavHeight;
   const resolvedTopPadding = topPadding ?? layoutMetrics.topSafeArea + headerHeight;
+  const walletRows = createWalletRows(currentWalletAddress);
+  const [isAddressDialogVisible, setIsAddressDialogVisible] = useState(false);
+  const [addressDialogMessage, setAddressDialogMessage] = useState('请核对完整地址后扫码或复制。');
 
   const handleAccountActionPress = (actionKey: string) => {
+    if (actionKey === 'copyAddress') {
+      handleCopyCurrentAddress();
+      return;
+    }
+
+    if (actionKey === 'showQr') {
+      handleShowCurrentQr();
+      return;
+    }
+
     console.info('[account-home] action requested', { actionKey });
   };
 
+  const handleCopyCurrentAddress = () => {
+    setIsAddressDialogVisible(true);
+    setAddressDialogMessage('正在复制地址...');
+
+    void copyTextToClipboard(currentWalletAddress ?? '', '地址已复制')
+      .then((result) => setAddressDialogMessage(result.message))
+      .catch((error) => setAddressDialogMessage(error instanceof Error ? error.message : String(error)));
+  };
+
+  const handleShowCurrentQr = () => {
+    setAddressDialogMessage('请核对完整地址后扫码或复制。');
+    setIsAddressDialogVisible(true);
+  };
+
   const handleWalletPress = (rowKey: WalletRowKey) => {
+    if (rowKey === 'currentWallet') {
+      handleCopyCurrentAddress();
+      return;
+    }
+
+    if (rowKey === 'switchAccount') {
+      onSwitchAccountPress?.();
+      return;
+    }
+
+    if (rowKey === 'addressQr') {
+      handleShowCurrentQr();
+      return;
+    }
+
+    if (rowKey === 'backupKey') {
+      onBackupMnemonicPress?.();
+      return;
+    }
+
     console.info('[account-home] wallet row requested', { rowKey });
   };
 
-  const handleRpcTabPress = (tab: RpcTab) => {
-    console.info('[account-home] rpc tab requested', { tab });
+  const handleRpcTabPress = (mode: RpcEndpointMode) => {
+    onRpcModeChange?.(mode);
+    console.info('[account-home] rpc mode selected', { mode });
+  };
+
+  const handleCustomRpcEndpointChange = (nextValue: string) => {
+    onCustomRpcEndpointChange?.(sanitizeRpcEndpointInput(nextValue));
   };
 
   const handleSecurityPress = (rowKey: SecurityRowKey) => {
@@ -92,13 +184,31 @@ export function AccountHomeScreen({ bottomPadding, topPadding }: AccountHomeScre
       >
         <View style={styles.canvas}>
           <PageHeading styles={styles} />
-          <AccountSummaryCard onActionPress={handleAccountActionPress} scale={layoutMetrics.scale} styles={styles} />
-          <WalletManageCard onWalletPress={handleWalletPress} scale={layoutMetrics.scale} styles={styles} />
-          <RpcNodeCard onRpcTabPress={handleRpcTabPress} scale={layoutMetrics.scale} styles={styles} />
+          <AccountSummaryCard address={currentWalletAddress} onActionPress={handleAccountActionPress} scale={layoutMetrics.scale} styles={styles} />
+          <WalletManageCard onWalletPress={handleWalletPress} scale={layoutMetrics.scale} styles={styles} walletRows={walletRows} />
+          <RpcNodeCard
+            customRpcEndpoint={customRpcEndpoint}
+            onCustomRpcEndpointChange={handleCustomRpcEndpointChange}
+            onPress={onRpcNodeDetailPress ?? onChainStatusPress}
+            onRpcTabPress={handleRpcTabPress}
+            rpcEndpoint={rpcEndpoint}
+            rpcStatusText={rpcStatusText}
+            scale={layoutMetrics.scale}
+            selectedRpcMode={selectedRpcMode}
+            styles={styles}
+          />
           <SecuritySettingsCard onSecurityPress={handleSecurityPress} scale={layoutMetrics.scale} styles={styles} />
           <LogoutButton onPress={() => handleAccountActionPress('logout')} scale={layoutMetrics.scale} styles={styles} />
         </View>
       </ScrollView>
+      <AddressActionDialog
+        address={currentWalletAddress ?? ''}
+        message={addressDialogMessage}
+        onClose={() => setIsAddressDialogVisible(false)}
+        onCopyPress={handleCopyCurrentAddress}
+        scale={layoutMetrics.scale}
+        visible={isAddressDialogVisible}
+      />
     </View>
   );
 }
@@ -113,20 +223,24 @@ function PageHeading({ styles }: { readonly styles: ReturnType<typeof createStyl
 }
 
 function AccountSummaryCard({
+  address,
   onActionPress,
   scale,
   styles
 }: {
+  readonly address: string | null;
   readonly onActionPress: (actionKey: string) => void;
   readonly scale: number;
   readonly styles: ReturnType<typeof createStyles>;
 }) {
+  const displayAddress = formatWalletDisplayAddress(address, 7, 7);
+
   return (
     <View style={styles.summaryCard}>
       <Image resizeMode="cover" source={accountHomeImages.accountCardBackground} style={styles.summaryArtwork} />
       <LinearGradient colors={['#050507F7', '#050507BB', '#05050722']} end={{ x: 1, y: 0.5 }} start={{ x: 0, y: 0.5 }} style={styles.summaryShade} />
       <Text style={styles.summaryLabel}>当前账户</Text>
-      <Text adjustsFontSizeToFit minimumFontScale={0.82} numberOfLines={1} style={styles.summaryAddress}>3GT9QRA...TcZjT5S</Text>
+      <Text adjustsFontSizeToFit minimumFontScale={0.82} numberOfLines={1} style={styles.summaryAddress}>{displayAddress}</Text>
       <Pressable accessibilityLabel="复制当前账户地址" accessibilityRole="button" onPress={() => onActionPress('copyAddress')} style={styles.copyAddressButton}>
         <CardCopyAddressIcon size={scaled(64, scale)} />
       </Pressable>
@@ -150,11 +264,13 @@ function AccountSummaryCard({
 function WalletManageCard({
   onWalletPress,
   scale,
-  styles
+  styles,
+  walletRows
 }: {
   readonly onWalletPress: (rowKey: WalletRowKey) => void;
   readonly scale: number;
   readonly styles: ReturnType<typeof createStyles>;
+  readonly walletRows: readonly WalletRowItem[];
 }) {
   return (
     <View style={styles.walletCard}>
@@ -176,42 +292,93 @@ function WalletManageCard({
   );
 }
 
+function createWalletRows(currentWalletAddress: string | null): readonly WalletRowItem[] {
+  const displayAddress = formatWalletDisplayAddress(currentWalletAddress, 7, 7);
+
+  return walletRowTemplates.map((row) => ({
+    icon: row.icon,
+    key: row.key,
+    label: row.label,
+    value: row.key === 'currentWallet' ? displayAddress : ''
+  }));
+}
+
+function formatWalletDisplayAddress(address: string | null, prefixLength: number, suffixLength: number) {
+  if (!address) {
+    return '未创建钱包';
+  }
+
+  return formatShortAddress(address, prefixLength, suffixLength);
+}
+
+function sanitizeRpcEndpointInput(nextValue: string) {
+  // 功能目的：限制 RPC 输入边界；实现原因：避免控制字符和超长文本进入全局网络配置。
+  return nextValue.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 160);
+}
+
 function RpcNodeCard({
+  customRpcEndpoint,
+  onCustomRpcEndpointChange,
+  onPress,
   onRpcTabPress,
+  rpcEndpoint,
+  rpcStatusText,
   scale,
+  selectedRpcMode,
   styles
 }: {
-  readonly onRpcTabPress: (tab: RpcTab) => void;
+  readonly customRpcEndpoint: string;
+  readonly onCustomRpcEndpointChange: (endpoint: string) => void;
+  readonly onPress?: () => void;
+  readonly onRpcTabPress: (mode: RpcEndpointMode) => void;
+  readonly rpcEndpoint: string;
+  readonly rpcStatusText: string;
   readonly scale: number;
+  readonly selectedRpcMode: RpcEndpointMode;
   readonly styles: ReturnType<typeof createStyles>;
 }) {
   return (
-    <View style={styles.rpcCard}>
+    <Pressable accessibilityRole="button" onPress={onPress} style={styles.rpcCard}>
       <Text style={styles.cardTitle}>RPC 节点</Text>
       <View style={styles.rpcGlobeIcon}>
         <RpcGlobeIcon size={scaled(66, scale)} />
       </View>
-      <Text style={styles.rpcUrl}>http://101.35.87.31:8899</Text>
+      <Text adjustsFontSizeToFit minimumFontScale={0.74} numberOfLines={1} style={styles.rpcUrl}>{rpcEndpoint}</Text>
       <View style={styles.rpcHealthyDot} />
-      <Text style={styles.rpcHealthyText}>连接正常</Text>
+      <Text style={styles.rpcHealthyText}>{rpcStatusText}</Text>
       <View style={styles.rpcChevron}>
         <ChevronRightIcon size={scaled(38, scale)} />
       </View>
       {rpcTabs.map((tab, index) => {
-        const isActive = index === 0;
+        const isActive = tab.key === selectedRpcMode;
         return (
           <Pressable
             accessibilityRole="tab"
             accessibilityState={{ selected: isActive }}
-            key={tab}
-            onPress={() => onRpcTabPress(tab)}
+            key={tab.key}
+            onPress={() => onRpcTabPress(tab.key)}
             style={[isActive ? styles.rpcTabActive : styles.rpcTab, { left: scaled(32 + index * 247, scale) }]}
           >
-            <Text style={isActive ? styles.rpcTabTextActive : styles.rpcTabText}>{tab}</Text>
+            <Text style={isActive ? styles.rpcTabTextActive : styles.rpcTabText}>{tab.label}</Text>
           </Pressable>
         );
       })}
-    </View>
+      {selectedRpcMode === 'custom' ? (
+        <TextInput
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+          onChangeText={onCustomRpcEndpointChange}
+          placeholder="http://192.168.1.10:8899/"
+          placeholderTextColor="#8D93A1"
+          style={styles.customRpcInput}
+          underlineColorAndroid="transparent"
+          value={customRpcEndpoint}
+        />
+      ) : (
+        <Text numberOfLines={1} style={styles.rpcHint}>点击右侧查看当前 RPC 节点详情</Text>
+      )}
+    </Pressable>
   );
 }
 
@@ -271,7 +438,7 @@ function createStyles(scale: number) {
   return StyleSheet.create({
     canvas: {
       backgroundColor: colors.background,
-      height: scaled(1576, scale),
+      height: scaled(1654, scale),
       position: 'relative',
       width: '100%'
     },
@@ -333,7 +500,7 @@ function createStyles(scale: number) {
       justifyContent: 'center',
       left: scaled(28, scale),
       position: 'absolute',
-      top: scaledBelowTopNavigation(1584, scale),
+      top: scaledBelowTopNavigation(1662, scale),
       width: scaled(808, scale)
     },
     logoutText: {
@@ -389,7 +556,7 @@ function createStyles(scale: number) {
       borderRadius: scaled(27, scale),
       borderWidth: 1,
       elevation: 1,
-      height: scaled(252, scale),
+      height: scaled(330, scale),
       left: scaled(28, scale),
       position: 'absolute',
       shadowColor: '#151824',
@@ -437,6 +604,17 @@ function createStyles(scale: number) {
       lineHeight: scaled(31, scale),
       position: 'absolute',
       top: scaled(128, scale),
+      ...textBase
+    },
+    rpcHint: {
+      color: colors.textMuted,
+      fontSize: scaled(20, scale),
+      fontWeight: '400',
+      left: scaled(34, scale),
+      lineHeight: scaled(27, scale),
+      position: 'absolute',
+      top: scaled(250, scale),
+      width: scaled(700, scale),
       ...textBase
     },
     rpcLabel: {
@@ -492,6 +670,21 @@ function createStyles(scale: number) {
       lineHeight: scaled(33, scale),
       position: 'absolute',
       top: scaled(92, scale),
+      width: scaled(560, scale),
+      ...textBase
+    },
+    customRpcInput: {
+      borderColor: '#D9DEE9',
+      borderRadius: scaled(13, scale),
+      borderWidth: 1,
+      color: colors.text,
+      fontSize: scaled(22, scale),
+      height: scaled(58, scale),
+      left: scaled(32, scale),
+      paddingHorizontal: scaled(16, scale),
+      position: 'absolute',
+      top: scaled(242, scale),
+      width: scaled(744, scale),
       ...textBase
     },
     scrollContent: {
@@ -513,7 +706,7 @@ function createStyles(scale: number) {
       shadowOffset: { width: 0, height: 8 },
       shadowOpacity: 0.04,
       shadowRadius: 16,
-      top: scaledBelowTopNavigation(1222, scale),
+      top: scaledBelowTopNavigation(1300, scale),
       width: scaled(808, scale)
     },
     securityChevron: {

@@ -44,8 +44,6 @@ type BottomIconProps = {
   readonly size: number;
 };
 
-const ASSETS_TAB_ICON_PATH =
-  'M972.8 395.008L512 51.2 51.2 400.384l35.2256 47.7696 67.4304-49.5616v469.1456c0 32.9728 26.7264 59.6992 59.6992 59.6992h596.8896c32.9728 0 59.6992-26.7264 59.6992-59.6992V390.2464l68.608 51.3024 34.048-46.5408z m-162.3552 472.7296H213.5552V353.28L512 125.7984l298.4448 220.8768v521.0624z';
 const webNoFocusOutline = Platform.OS === 'web'
   ? ({ outlineColor: 'transparent', outlineStyle: 'none', outlineWidth: 0 } as unknown as ViewStyle)
   : undefined;
@@ -324,17 +322,15 @@ function MarketMoreTabIcon({ color, size }: Pick<BottomIconProps, 'color' | 'siz
 function AssetsTabIcon({ color, isActive, size }: BottomIconProps) {
   if (isActive) {
     return (
-      <Svg height={size} viewBox="0 0 1024 1024" width={size}>
-        <Path d={ASSETS_TAB_ICON_PATH} fill={color} />
+      <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
+        <Path d="M28 8L46 20V44L28 52L10 44V20L28 8Z" fill={color} />
       </Svg>
     );
   }
 
   return (
     <Svg fill="none" height={size} viewBox="0 0 56 56" width={size}>
-      <Path d="M14 18H43C46 18 48 20 48 23V41C48 44 46 46 43 46H14C10.7 46 8 43.3 8 40V16C8 12.7 10.7 10 14 10H41" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.6" />
-      <Path d="M8 18H44" stroke={color} strokeLinecap="round" strokeWidth="3.6" />
-      <Circle cx="39" cy="32" r="3.5" stroke={color} strokeWidth="3" />
+      <Path d="M28 8L46 20V44L28 52L10 44V20L28 8Z" stroke={color} strokeLinejoin="round" strokeWidth="3.6" />
     </Svg>
   );
 }

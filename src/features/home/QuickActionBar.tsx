@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
 import { quickActions } from '../../data/home';
 import { colors, fontFamilies } from '../../theme/tokens';
@@ -6,33 +7,62 @@ import { useHomeResponsiveLayout } from './useHomeResponsiveLayout';
 
 const SECTION_HEIGHT = 196;
 
-const quickActionImages: Record<(typeof quickActions)[number]['key'], ImageSourcePropType> = {
+type QuickActionKey = (typeof quickActions)[number]['key'];
+
+const quickActionImages: Partial<Record<QuickActionKey, ImageSourcePropType>> = {
   receive: homeAssetImages.quickReceive,
-  scan: homeAssetImages.quickScan,
   send: homeAssetImages.quickSend,
   stake: homeAssetImages.quickStake
 };
 
 type QuickActionBarProps = {
-  readonly onScanPress?: () => void;
+  readonly onHistoryPress?: () => void;
+  readonly onReceivePress?: () => void;
   readonly onSendPress?: () => void;
+  readonly onStakePress?: () => void;
 };
 
 function scaled(value: number, scale: number) {
   return Math.round(value * scale);
 }
 
-export function QuickActionBar({ onScanPress, onSendPress }: QuickActionBarProps) {
+export function QuickActionBar({ onHistoryPress, onReceivePress, onSendPress, onStakePress }: QuickActionBarProps) {
   const { scale } = useHomeResponsiveLayout();
   const styles = createStyles(scale);
 
-  const handleActionPress = (actionKey: (typeof quickActions)[number]['key']) => {
+  const renderActionIcon = (actionKey: QuickActionKey) => {
+    const imageSource = quickActionImages[actionKey];
+
+    if (imageSource) {
+      return <Image resizeMode="contain" source={imageSource} style={styles.actionIcon} />;
+    }
+
+    if (actionKey !== 'history') {
+      return <View style={styles.vectorIconFrame} />;
+    }
+
+    return (
+      <View style={styles.vectorIconFrame}>
+        <MaterialCommunityIcons color={colors.text} name="history" size={scaled(54, scale)} />
+      </View>
+    );
+  };
+
+  const handleActionPress = (actionKey: QuickActionKey) => {
+    if (actionKey === 'receive') {
+      onReceivePress?.();
+    }
+
     if (actionKey === 'send') {
       onSendPress?.();
     }
 
-    if (actionKey === 'scan') {
-      onScanPress?.();
+    if (actionKey === 'history') {
+      onHistoryPress?.();
+    }
+
+    if (actionKey === 'stake') {
+      onStakePress?.();
     }
   };
 
@@ -49,7 +79,7 @@ export function QuickActionBar({ onScanPress, onSendPress }: QuickActionBarProps
             onPress={() => handleActionPress(action.key)}
             style={[styles.actionButton, { left: scaled(index * 201, scale) }]}
           >
-            <Image resizeMode="contain" source={quickActionImages[action.key]} style={styles.actionIcon} />
+            {renderActionIcon(action.key)}
             <Text style={styles.actionLabel}>{action.label}</Text>
           </Pressable>
         ))}
@@ -84,6 +114,12 @@ function createStyles(scale: number) {
       lineHeight: scaled(27, scale),
       marginTop: scaled(13, scale),
       ...textBase
+    },
+    vectorIconFrame: {
+      alignItems: 'center',
+      height: scaled(64, scale),
+      justifyContent: 'center',
+      width: scaled(64, scale)
     },
     card: {
       backgroundColor: colors.surface,

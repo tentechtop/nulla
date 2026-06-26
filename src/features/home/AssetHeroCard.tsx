@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { assetSummary } from '../../data/home';
 import { colors, fontFamilies } from '../../theme/tokens';
 import { HIDDEN_AMOUNT_TEXT } from '../../utils/sensitiveDisplay';
+import { createEmptyWalletPortfolio, splitSolAmount, type WalletPortfolio } from '../../utils/walletBusiness';
 import { homeAssetImages } from './designAssets';
 import { useHomeResponsiveLayout } from './useHomeResponsiveLayout';
 
@@ -19,14 +20,25 @@ const HERO_CARD_CURRENCY_LEFT = HERO_CARD_WIDTH - HERO_CARD_CONTENT_PADDING - HE
 const HERO_PRIVATE_COLUMN_LEFT = HERO_CARD_CONTENT_PADDING + 290;
 const LAMPORTS_ICON_IMAGE_SIZE = 43;
 
+type AssetHeroCardProps = {
+  readonly isLoading?: boolean;
+  readonly onContractPress?: () => void;
+  readonly onTransactionHistoryPress?: () => void;
+  readonly portfolio?: WalletPortfolio;
+};
+
 function scaled(value: number, scale: number) {
   return Math.round(value * scale);
 }
 
-export function AssetHeroCard() {
+export function AssetHeroCard({ isLoading = false, onContractPress, onTransactionHistoryPress, portfolio = createEmptyWalletPortfolio() }: AssetHeroCardProps) {
   const { scale } = useHomeResponsiveLayout();
   const styles = createStyles(scale);
   const [isAmountHidden, setIsAmountHidden] = useState(false);
+  const totalAmountParts = splitSolAmount(portfolio.totalSolText);
+  const visibleAvailableText = isLoading ? '加载中' : portfolio.availableSolText;
+  const visiblePrivateText = isLoading ? '加载中' : portfolio.privateSolText;
+  const visibleTokenText = isLoading ? '加载中' : portfolio.tokenLamportsText;
 
   const handleToggleAmountVisibility = () => {
     setIsAmountHidden((currentValue) => !currentValue);
@@ -68,26 +80,31 @@ export function AssetHeroCard() {
             <Text style={styles.totalIntegerText}>{HIDDEN_AMOUNT_TEXT}</Text>
           ) : (
             <>
-              <Text style={styles.totalIntegerText}>99,999,999</Text>
-              <Text style={styles.totalDecimalText}>.958218</Text>
+              <Text style={styles.totalIntegerText}>{isLoading ? '...' : totalAmountParts.integerPart}</Text>
+              <Text style={styles.totalDecimalText}>{isLoading ? '' : totalAmountParts.decimalPart}</Text>
             </>
           )}
         </View>
         <Text style={styles.totalSymbol}>{assetSummary.symbol}</Text>
         <View style={styles.availableColumn}>
           <Text style={styles.smallLabel}>可用资产</Text>
-          <Text style={styles.smallAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : assetSummary.available}</Text>
+          <Text style={styles.smallAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : visibleAvailableText}</Text>
           <Text style={styles.smallSymbol}>{assetSummary.symbol}</Text>
         </View>
         <View style={styles.privateColumn}>
           <Text style={styles.smallLabel}>隐私可用</Text>
-          <Text style={styles.smallAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : assetSummary.privateAvailable}</Text>
+          <Text style={styles.smallAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : visiblePrivateText}</Text>
           <Text style={styles.smallSymbol}>{assetSummary.symbol}</Text>
         </View>
-        <View style={styles.firstDivider} />
-        <TokenRow isAmountHidden={isAmountHidden} scale={scale} styles={styles} />
+        <TokenRow
+          isAmountHidden={isAmountHidden}
+          onPress={onTransactionHistoryPress}
+          scale={scale}
+          styles={styles}
+          tokenAmountText={visibleTokenText}
+        />
         <View style={styles.secondDivider} />
-        <ContractRow scale={scale} styles={styles} />
+        <ContractRow onPress={onContractPress} scale={scale} styles={styles} />
       </View>
     </View>
   );
@@ -95,22 +112,26 @@ export function AssetHeroCard() {
 
 function TokenRow({
   isAmountHidden,
+  onPress,
   scale,
-  styles
+  styles,
+  tokenAmountText
 }: {
   readonly isAmountHidden: boolean;
+  readonly onPress?: () => void;
   readonly scale: number;
   readonly styles: ReturnType<typeof createStyles>;
+  readonly tokenAmountText: string;
 }) {
   return (
-    <Pressable accessibilityLabel="查看 LAMPORTS 资产" accessibilityRole="button" style={styles.tokenRow}>
+    <Pressable accessibilityLabel="查看 LAMPORTS 资产" accessibilityRole="button" onPress={onPress} style={styles.tokenRow}>
       <LamportsAssetIcon scale={scale} styles={styles} />
       <View style={styles.tokenNameBlock}>
         <Text style={styles.tokenTitle}>{assetSummary.tokenName}</Text>
         <Text style={styles.tokenSubtitle}>{assetSummary.tokenDescription}</Text>
       </View>
       <View style={styles.tokenAmountBlock}>
-        <Text style={styles.tokenAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : assetSummary.available}</Text>
+        <Text style={styles.tokenAmount}>{isAmountHidden ? HIDDEN_AMOUNT_TEXT : tokenAmountText}</Text>
         <Text style={styles.tokenUnit}>{assetSummary.tokenName}</Text>
       </View>
       <MaterialCommunityIcons color="#FFFFFF" name="chevron-right" size={scaled(36, scale)} />
@@ -132,9 +153,9 @@ function LamportsAssetIcon({
   );
 }
 
-function ContractRow({ scale, styles }: { readonly scale: number; readonly styles: ReturnType<typeof createStyles> }) {
+function ContractRow({ onPress, scale, styles }: { readonly onPress?: () => void; readonly scale: number; readonly styles: ReturnType<typeof createStyles> }) {
   return (
-    <Pressable accessibilityLabel="查看链上合约" accessibilityRole="button" style={styles.contractRow}>
+    <Pressable accessibilityLabel="查看链上合约" accessibilityRole="button" onPress={onPress} style={styles.contractRow}>
       <MaterialCommunityIcons color={colors.primary} name="link-variant" size={scaled(35, scale)} />
       <Text style={styles.contractTitle}>链上合约</Text>
       <Text style={styles.contractValue}>12 个</Text>
@@ -233,14 +254,6 @@ function createStyles(scale: number) {
       position: 'absolute',
       right: 0,
       top: 0
-    },
-    firstDivider: {
-      backgroundColor: 'rgba(255,255,255,0.2)',
-      height: 1,
-      left: scaled(HERO_CARD_CONTENT_PADDING, scale),
-      position: 'absolute',
-      top: scaled(374, scale),
-      width: scaled(HERO_CARD_CONTENT_WIDTH, scale)
     },
     eyeButton: {
       alignItems: 'center',

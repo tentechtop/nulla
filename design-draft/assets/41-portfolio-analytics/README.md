@@ -1,3 +1,12 @@
-# 41-portfolio-analytics 闈欐€佽祫婧恅r
+# 41-portfolio-analytics
 
-绗竴杞珮淇濈湡璧勬簮琛ラ綈锛氬寘鍚〉闈㈢被鍨嬪尮閰嶇殑楂樻竻鑳屾櫙鍥惧拰閫氱敤 SVG ICON銆傚悗缁彲鎸夌孩妗嗘垨鍏蜂綋鍥炬爣杩涜鍗曢〉绮句慨銆俙r
+Assets for the wallet portfolio analytics page.
+
+- `background-portfolio-hero-hd.png`: generated dark hero artwork for the total assets card.
+- `icon-eye.svg`: total balance visibility icon.
+- `icon-metric-*.svg`: hero metric icons for risk, asset kinds, contracts, and private balance.
+- `icon-risk-*.svg`: risk exposure row icons.
+- `icon-action-*.svg`: suggestion and footer action icons.
+- `icon-token-*.svg`, `icon-asset-*.svg`: token and synthetic asset marks reused by the holdings table.
+
+The page itself is implemented with native React Native layout, text, charts, and controls rather than full-page screenshot slices.

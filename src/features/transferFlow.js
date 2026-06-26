@@ -1,5 +1,6 @@
+import { isSystemAddress } from '../utils/addressSpec.js';
+
 const MAX_SCANNED_SEND_PAYLOAD_LENGTH = 512;
-const ADDRESS_PATTERN = /^[1-9A-HJ-NP-Za-km-z]{32,64}$/;
 const ADDRESS_FIELD_NAMES = ['address', 'to', 'recipient', 'receiver', 'account'];
 const AMOUNT_FIELD_NAMES = ['lamports', 'amount', 'value'];
 
@@ -29,7 +30,7 @@ export function parseScannedSendPayload(payload) {
     return withSourcePayload(uriDraft, sanitizedPayload);
   }
 
-  if (ADDRESS_PATTERN.test(sanitizedPayload)) {
+  if (isSystemAddress(sanitizedPayload)) {
     return withSourcePayload({ address: sanitizedPayload, amount: '' }, sanitizedPayload);
   }
 
@@ -199,7 +200,7 @@ function readFirstAmountParam(params) {
 }
 
 function isSupportedAddress(address) {
-  return typeof address === 'string' && ADDRESS_PATTERN.test(address.trim());
+  return typeof address === 'string' && isSystemAddress(address.trim());
 }
 
 function normalizeAmountValue(value, fieldName) {

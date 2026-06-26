@@ -13,7 +13,7 @@ type SvgIconProps = {
 };
 
 type MarketTokenSymbol = MarketRow['symbol'];
-type StatusTitle = StatusItem['title'];
+type StatusTitle = StatusItem['title'] | '节点连接' | '验证者' | '隐私账户' | '网络状态';
 
 export function MarketTokenIcon({ size, symbol }: SvgIconProps & { readonly symbol: MarketTokenSymbol }) {
   if (symbol === 'BTC') {

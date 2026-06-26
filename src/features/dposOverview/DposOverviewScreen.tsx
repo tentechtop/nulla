@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { getGlobalHeaderHeight } from '../../components/GlobalHeader';
 import { colors, fontFamilies, fontWeights } from '../../theme/tokens';
+import { JsonRpcClient } from '../../utils/chainRpc';
 import { getSensitiveAmountParts, getSensitiveAmountText } from '../../utils/sensitiveDisplay';
+import { createEmptyWalletPortfolio, formatLamports, loadWalletPortfolio, type WalletDposSummary, type WalletPortfolio, type WalletValidatorSummary } from '../../utils/walletBusiness';
 import { dposOverviewImages } from './designAssets';
 import {
   ActionClaimIcon,
@@ -24,45 +26,48 @@ import { useDposOverviewResponsiveLayout } from './useDposOverviewResponsiveLayo
 const actionItems = [
   { key: 'stake', label: '质押' },
   { key: 'delegate', label: '委托' },
-  { key: 'claim', label: '领取收益' },
+  { key: 'rewardDetails', label: '收益明细' },
   { key: 'validator', label: '验证者' }
 ] as const;
 
-const summaryItems = [
-  { label: '自质押', value: '10,000,000', unit: 'lamports' },
-  { label: '委托质押', value: '0', unit: 'lamports' },
-  { label: '自质押收益', value: '128', unit: 'lamports' },
-  { label: '委托收益', value: '0', unit: 'lamports' }
-] as const;
-
-const detailRows = [
-  { key: 'self', label: '我的自质押', value: '10,000,000', unit: 'lamports', status: '已质押', tone: 'primary' },
-  { key: 'delegate', label: '我的委托', value: '0', unit: 'lamports', status: '未委托', tone: 'muted' },
-  { key: 'reward', label: '待领取收益', value: '128', unit: 'lamports', status: '可领取', tone: 'primary' },
-  { key: 'cooling', label: '冷却中', value: '0', unit: 'lamports', status: '无', tone: 'muted' }
-] as const;
-
-const validatorRows = [
-  {
-    key: 'sol',
-    commission: '佣金 0%',
-    name: '3GT9QRA...TcZjT5S',
-    power: '总权重 10,000,000'
-  },
-  {
-    key: 'v',
-    commission: '佣金 0%',
-    name: '2LDSjHQ3...RKic2c',
-    power: '总权重 10,000,000'
-  }
-] as const;
-
 type ActionKey = (typeof actionItems)[number]['key'];
-type DetailRowKey = (typeof detailRows)[number]['key'];
-type ValidatorKey = (typeof validatorRows)[number]['key'];
+type DetailRowKey = 'cooling' | 'delegate' | 'reward' | 'self';
+type ValidatorKey = 'sol' | 'v';
+
+type SummaryItem = {
+  readonly label: string;
+  readonly unit: string;
+  readonly value: string;
+};
+
+type DetailRow = {
+  readonly key: DetailRowKey;
+  readonly label: string;
+  readonly status: string;
+  readonly tone: 'muted' | 'primary';
+  readonly unit: string;
+  readonly value: string;
+};
+
+type ValidatorRow = {
+  readonly commission: string;
+  readonly key: string;
+  readonly name: string;
+  readonly power: string;
+  readonly reachabilityLabel: string;
+  readonly reachabilityStatus: WalletValidatorSummary['reachabilityStatus'];
+  readonly status: string;
+  readonly validatorKey: ValidatorKey;
+};
 
 type DposOverviewScreenProps = {
   readonly bottomPadding?: number;
+  readonly currentWalletAddress?: string | null;
+  readonly onDelegatePress?: () => void;
+  readonly onRewardPress?: () => void;
+  readonly onStakePress?: () => void;
+  readonly onValidatorListPress?: () => void;
+  readonly rpcEndpoint?: string;
   readonly topPadding?: number;
 };
 
@@ -70,16 +75,81 @@ function scaled(value: number, scale: number) {
   return Math.round(value * scale);
 }
 
-export function DposOverviewScreen({ bottomPadding, topPadding }: DposOverviewScreenProps) {
+export function DposOverviewScreen({
+  bottomPadding,
+  currentWalletAddress = null,
+  onDelegatePress,
+  onRewardPress,
+  onStakePress,
+  onValidatorListPress,
+  rpcEndpoint,
+  topPadding
+}: DposOverviewScreenProps) {
   const [isStakeAmountVisible, setIsStakeAmountVisible] = useState(true);
+  const [portfolio, setPortfolio] = useState<WalletPortfolio>(() => createEmptyWalletPortfolio(currentWalletAddress));
+  const [isPortfolioLoading, setIsPortfolioLoading] = useState(true);
   const layoutMetrics = useDposOverviewResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
   const resolvedBottomPadding = bottomPadding ?? layoutMetrics.bottomNavHeight;
   const resolvedTopPadding = topPadding ?? layoutMetrics.topSafeArea + headerHeight;
+  const summaryItems = createSummaryItems(portfolio.dpos, isPortfolioLoading);
+  const detailRows = createDetailRows(portfolio.dpos, isPortfolioLoading);
+  const validatorRows = createValidatorRows(portfolio.dpos.validators, isPortfolioLoading);
+  const totalPowerText = isPortfolioLoading ? '加载中' : formatLamports(portfolio.dpos.totalPowerLamports);
+  const client = useMemo(() => new JsonRpcClient(rpcEndpoint), [rpcEndpoint]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsPortfolioLoading(true);
+
+    // 功能目的：加载 DPoS 真实账户视图；实现原因：质押、委托和验证者数量必须来自当前 RPC。
+    void loadWalletPortfolio(currentWalletAddress, client)
+      .then((nextPortfolio) => {
+        if (!cancelled) {
+          setPortfolio(nextPortfolio);
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          const fallbackPortfolio = createEmptyWalletPortfolio(currentWalletAddress);
+          setPortfolio({
+            ...fallbackPortfolio,
+            chain: {
+              ...fallbackPortfolio.chain,
+              error: error instanceof Error ? error.message : String(error)
+            }
+          });
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsPortfolioLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [client, currentWalletAddress]);
 
   const handleActionPress = (actionKey: ActionKey) => {
-    console.info('[dpos-overview] action requested', { actionKey });
+    if (actionKey === 'stake') {
+      onStakePress?.();
+      return;
+    }
+
+    if (actionKey === 'delegate') {
+      onDelegatePress?.();
+      return;
+    }
+
+    if (actionKey === 'validator') {
+      onValidatorListPress?.();
+      return;
+    }
+
+    onRewardPress?.();
   };
 
   const handleToggleStakeAmount = () => {
@@ -107,12 +177,14 @@ export function DposOverviewScreen({ bottomPadding, topPadding }: DposOverviewSc
             isAmountVisible={isStakeAmountVisible}
             onToggleAmountVisibility={handleToggleStakeAmount}
             scale={layoutMetrics.scale}
+            summaryItems={summaryItems}
             styles={styles}
+            totalPowerText={totalPowerText}
           />
           <ActionCard onActionPress={handleActionPress} scale={layoutMetrics.scale} styles={styles} />
-          <ValidatorSummaryCard scale={layoutMetrics.scale} styles={styles} />
-          <StakeDetailCard isAmountVisible={isStakeAmountVisible} scale={layoutMetrics.scale} styles={styles} />
-          <ValidatorListCard scale={layoutMetrics.scale} styles={styles} />
+          <ValidatorSummaryCard isLoading={isPortfolioLoading} onPress={onValidatorListPress} portfolio={portfolio} scale={layoutMetrics.scale} styles={styles} />
+          <StakeDetailCard detailRows={detailRows} isAmountVisible={isStakeAmountVisible} scale={layoutMetrics.scale} styles={styles} />
+          <ValidatorListCard onValidatorListPress={onValidatorListPress} scale={layoutMetrics.scale} styles={styles} validatorCount={portfolio.dpos.validatorCount} validatorRows={validatorRows} />
         </View>
       </ScrollView>
     </View>
@@ -132,14 +204,18 @@ function OverviewCard({
   isAmountVisible,
   onToggleAmountVisibility,
   scale,
-  styles
+  summaryItems,
+  styles,
+  totalPowerText
 }: {
   readonly isAmountVisible: boolean;
   readonly onToggleAmountVisibility: () => void;
   readonly scale: number;
+  readonly summaryItems: readonly SummaryItem[];
   readonly styles: ReturnType<typeof createStyles>;
+  readonly totalPowerText: string;
 }) {
-  const totalAmountParts = getSensitiveAmountParts('10,000,000', 'lamports', isAmountVisible);
+  const totalAmountParts = getSensitiveAmountParts(totalPowerText, 'lamports', isAmountVisible);
 
   return (
     <View style={styles.overviewCard}>
@@ -212,21 +288,36 @@ function ActionIcon({ actionKey, size }: { readonly actionKey: ActionKey; readon
     return <ActionDelegateIcon size={size} />;
   }
 
-  if (actionKey === 'claim') {
+  if (actionKey === 'rewardDetails') {
     return <ActionClaimIcon size={size} />;
   }
 
   return <ActionValidatorIcon size={size} />;
 }
 
-function ValidatorSummaryCard({ scale, styles }: { readonly scale: number; readonly styles: ReturnType<typeof createStyles> }) {
+function ValidatorSummaryCard({
+  isLoading,
+  onPress,
+  portfolio,
+  scale,
+  styles
+}: {
+  readonly isLoading: boolean;
+  readonly onPress?: () => void;
+  readonly portfolio: WalletPortfolio;
+  readonly scale: number;
+  readonly styles: ReturnType<typeof createStyles>;
+}) {
+  const firstValidatorName = portfolio.dpos.validators[0]?.displayName ?? '-';
+  const loadingText = isLoading ? '加载中' : '';
+
   return (
-    <View style={styles.validatorSummaryCard}>
+    <Pressable accessibilityRole="button" onPress={onPress} style={styles.validatorSummaryCard}>
       <View style={styles.validatorSummaryIcon}>
         <ValidatorSummaryIcon size={scaled(64, scale)} />
       </View>
       <Text style={styles.validatorSummaryTitle}>验证者</Text>
-      <Text style={styles.validatorSummaryValue}>2 个</Text>
+      <Text style={styles.validatorSummaryValue}>{loadingText || `${portfolio.dpos.validatorCount} 个`}</Text>
       <View style={styles.validatorSummaryChevron}>
         <ChevronRightIcon size={scaled(42, scale)} />
       </View>
@@ -234,20 +325,22 @@ function ValidatorSummaryCard({ scale, styles }: { readonly scale: number; reado
       <View style={styles.validatorDividerTwo} />
       <View style={styles.validatorDividerThree} />
       <Text style={styles.connectedLabel}>已连接</Text>
-      <Text style={styles.connectedValue}>2</Text>
+      <Text style={styles.connectedValue}>{loadingText || String(portfolio.chain.knownPeerCount)}</Text>
       <Text style={styles.heightLabel}>同步高度</Text>
-      <Text style={styles.heightValue}>1,180</Text>
+      <Text style={styles.heightValue}>{loadingText || String(portfolio.chain.headHeight)}</Text>
       <Text style={styles.recommendLabel}>推荐</Text>
-      <Text style={styles.recommendValue}>3GT9QRA...TcZjT5S</Text>
-    </View>
+      <Text ellipsizeMode="middle" numberOfLines={1} style={styles.recommendValue}>{loadingText || firstValidatorName}</Text>
+    </Pressable>
   );
 }
 
 function StakeDetailCard({
+  detailRows,
   isAmountVisible,
   scale,
   styles
 }: {
+  readonly detailRows: readonly DetailRow[];
   readonly isAmountVisible: boolean;
   readonly scale: number;
   readonly styles: ReturnType<typeof createStyles>;
@@ -290,35 +383,47 @@ function DetailIcon({ rowKey, size }: { readonly rowKey: DetailRowKey; readonly 
   return <CoolingHourglassIcon size={size} />;
 }
 
-function ValidatorListCard({ scale, styles }: { readonly scale: number; readonly styles: ReturnType<typeof createStyles> }) {
+function ValidatorListCard({
+  onValidatorListPress,
+  scale,
+  styles,
+  validatorCount,
+  validatorRows
+}: {
+  readonly onValidatorListPress?: () => void;
+  readonly scale: number;
+  readonly styles: ReturnType<typeof createStyles>;
+  readonly validatorCount: number;
+  readonly validatorRows: readonly ValidatorRow[];
+}) {
   return (
     <View style={styles.validatorListCard}>
       <Text style={styles.validatorListTitle}>验证者列表</Text>
-      <Pressable accessibilityRole="button" style={styles.viewAllValidatorsButton}>
-        <Text style={styles.viewAllValidatorsText}>查看全部 2 个</Text>
+      <Pressable accessibilityRole="button" onPress={onValidatorListPress} style={styles.viewAllValidatorsButton}>
+        <Text style={styles.viewAllValidatorsText}>查看全部 {validatorCount} 个</Text>
         <View style={styles.viewAllChevron}>
           <ChevronRightIcon size={scaled(38, scale)} />
         </View>
       </Pressable>
       {validatorRows.map((row, index) => (
-        <View key={row.key} style={[styles.validatorRow, { top: scaled(81 + index * 106, scale) }]}>
+        <Pressable accessibilityRole="button" key={row.key} onPress={onValidatorListPress} style={[styles.validatorRow, { top: scaled(81 + index * 106, scale) }]}>
           <View style={styles.validatorAvatar}>
-            <ValidatorAvatar rowKey={row.key} size={scaled(64, scale)} />
-            <View style={styles.onlineDotOnAvatar} />
+            <ValidatorAvatar rowKey={row.validatorKey} size={scaled(64, scale)} />
+            <View style={getAvatarReachabilityDotStyle(row.reachabilityStatus, styles)} />
           </View>
-          <Text style={styles.validatorName}>{row.name}</Text>
+          <Text ellipsizeMode="middle" numberOfLines={1} style={styles.validatorName}>{row.name}</Text>
           <View style={styles.activePill}>
-            <Text style={styles.activePillText}>active</Text>
+            <Text numberOfLines={1} style={styles.activePillText}>{row.status}</Text>
           </View>
-          <Text style={styles.validatorMeta}>{row.power}</Text>
+          <Text ellipsizeMode="tail" numberOfLines={1} style={styles.validatorMeta}>{row.power}</Text>
           <Text style={styles.validatorMetaDot}>·</Text>
-          <Text style={styles.validatorCommission}>{row.commission}</Text>
-          <View style={styles.onlineDot} />
-          <Text style={styles.onlineText}>在线</Text>
+          <Text ellipsizeMode="tail" numberOfLines={1} style={styles.validatorCommission}>{row.commission}</Text>
+          <View style={getReachabilityDotStyle(row.reachabilityStatus, styles)} />
+          <Text style={getReachabilityTextStyle(row.reachabilityStatus, styles)}>{row.reachabilityLabel}</Text>
           <View style={styles.validatorRowChevron}>
             <ChevronRightIcon size={scaled(38, scale)} />
           </View>
-        </View>
+        </Pressable>
       ))}
     </View>
   );
@@ -330,6 +435,150 @@ function ValidatorAvatar({ rowKey, size }: { readonly rowKey: ValidatorKey; read
   }
 
   return <VValidatorAvatar size={size} />;
+}
+
+function createSummaryItems(dpos: WalletDposSummary, isLoading: boolean): readonly SummaryItem[] {
+  const loadingValue = isLoading ? '加载中' : '';
+  const validatorRewardLamports = dpos.selfRewardLamports + dpos.commissionRewardLamports;
+  const delegatedLamportsText = formatLamports(dpos.delegatedLamports);
+  const delegatedLockedLamports = dpos.delegatedLamports + dpos.delegatedPendingLamports;
+  const delegatedLockedLamportsText = delegatedLockedLamports > 0n ? formatLamports(delegatedLockedLamports) : delegatedLamportsText;
+
+  return [
+    { label: '自质押', value: loadingValue || formatLamports(dpos.selfStakeLamports), unit: 'lamports' },
+    { label: '委托质押', value: loadingValue || delegatedLockedLamportsText, unit: 'lamports' },
+    { label: '节点收益', value: loadingValue || formatLamports(validatorRewardLamports), unit: 'lamports' },
+    { label: '委托收益', value: loadingValue || formatLamports(dpos.delegatedRewardLamports), unit: 'lamports' }
+  ];
+}
+
+function createDetailRows(dpos: WalletDposSummary, isLoading: boolean): readonly DetailRow[] {
+  const loadingValue = isLoading ? '加载中' : '';
+  const coolingLamports = dpos.selfUnlockingLamports + dpos.delegatedUnlockingLamports;
+  const delegatedLamportsText = formatLamports(dpos.delegatedLamports);
+  const delegatedLockedLamports = dpos.delegatedLamports + dpos.delegatedPendingLamports;
+  const delegatedLockedLamportsText = delegatedLockedLamports > 0n ? formatLamports(delegatedLockedLamports) : delegatedLamportsText;
+  const rewardLamports = dpos.totalRewardLamports;
+
+  return [
+    {
+      key: 'self',
+      label: '我的自质押',
+      status: dpos.selfStakeLamports > 0n ? '已质押' : '未质押',
+      tone: dpos.selfStakeLamports > 0n ? 'primary' : 'muted',
+      unit: 'lamports',
+      value: loadingValue || formatLamports(dpos.selfStakeLamports)
+    },
+    {
+      key: 'delegate',
+      label: '我的委托',
+      status: delegatedLockedLamports > 0n ? '已委托' : '未委托',
+      tone: delegatedLockedLamports > 0n ? 'primary' : 'muted',
+      unit: 'lamports',
+      value: loadingValue || delegatedLockedLamportsText
+    },
+    {
+      key: 'reward',
+      label: '累计收益',
+      status: rewardLamports > 0n ? '已自动到账' : '无收益',
+      tone: rewardLamports > 0n ? 'primary' : 'muted',
+      unit: 'lamports',
+      value: loadingValue || formatLamports(rewardLamports)
+    },
+    {
+      key: 'cooling',
+      label: '冷却中',
+      status: coolingLamports > 0n ? '解锁中' : '无',
+      tone: coolingLamports > 0n ? 'primary' : 'muted',
+      unit: 'lamports',
+      value: loadingValue || formatLamports(coolingLamports)
+    }
+  ];
+}
+
+function createValidatorRows(validators: readonly WalletValidatorSummary[], isLoading: boolean): readonly ValidatorRow[] {
+  if (isLoading) {
+    return [{
+      commission: '佣金 -',
+      key: 'loading-validator',
+      name: '加载中',
+      power: '总权重 加载中',
+      reachabilityLabel: '待检测',
+      reachabilityStatus: 'unknown',
+      status: 'sync',
+      validatorKey: 'sol'
+    }];
+  }
+
+  return validators.slice(0, 2).map((validator, index) => ({
+    commission: `佣金 ${formatCommissionBps(validator.commissionBps)}`,
+    key: validator.accountAddress || validator.validatorID || `validator-${index}`,
+    name: validator.displayName,
+    power: `总权重 ${formatLamports(validator.totalStakeLamports)}`,
+    reachabilityLabel: validator.reachabilityLabel,
+    reachabilityStatus: validator.reachabilityStatus,
+    status: validator.status || 'unknown',
+    validatorKey: index % 2 === 0 ? 'sol' : 'v'
+  }));
+}
+
+function getAvatarReachabilityDotStyle(
+  reachabilityStatus: WalletValidatorSummary['reachabilityStatus'],
+  styles: ReturnType<typeof createStyles>
+) {
+  if (reachabilityStatus === 'offline') {
+    return [styles.onlineDotOnAvatar, styles.onlineDotOnAvatarOffline];
+  }
+
+  if (reachabilityStatus === 'unknown') {
+    return [styles.onlineDotOnAvatar, styles.onlineDotOnAvatarUnknown];
+  }
+
+  return styles.onlineDotOnAvatar;
+}
+
+function getReachabilityDotStyle(
+  reachabilityStatus: WalletValidatorSummary['reachabilityStatus'],
+  styles: ReturnType<typeof createStyles>
+) {
+  if (reachabilityStatus === 'offline') {
+    return [styles.onlineDot, styles.onlineDotOffline];
+  }
+
+  if (reachabilityStatus === 'unknown') {
+    return [styles.onlineDot, styles.onlineDotUnknown];
+  }
+
+  return styles.onlineDot;
+}
+
+function getReachabilityTextStyle(
+  reachabilityStatus: WalletValidatorSummary['reachabilityStatus'],
+  styles: ReturnType<typeof createStyles>
+) {
+  if (reachabilityStatus === 'offline') {
+    return [styles.onlineText, styles.onlineTextOffline];
+  }
+
+  if (reachabilityStatus === 'unknown') {
+    return [styles.onlineText, styles.onlineTextUnknown];
+  }
+
+  return styles.onlineText;
+}
+
+function formatCommissionBps(commissionBps: number) {
+  if (!Number.isFinite(commissionBps) || commissionBps < 0) {
+    return '0%';
+  }
+
+  const integerPart = Math.floor(commissionBps / 100);
+  const fractionalPart = commissionBps % 100;
+  if (fractionalPart === 0) {
+    return `${integerPart}%`;
+  }
+
+  return `${integerPart}.${String(fractionalPart).padStart(2, '0').replace(/0+$/, '')}%`;
 }
 
 function createStyles(scale: number) {
@@ -407,6 +656,8 @@ function createStyles(scale: number) {
       fontSize: scaled(22, scale),
       fontWeight: '500',
       lineHeight: scaled(28, scale),
+      textAlign: 'center',
+      width: scaled(70, scale),
       ...textBase
     },
     canvas: {
@@ -556,6 +807,12 @@ function createStyles(scale: number) {
       top: scaled(38, scale),
       width: scaled(10, scale)
     },
+    onlineDotOffline: {
+      backgroundColor: '#D84D4D'
+    },
+    onlineDotUnknown: {
+      backgroundColor: '#A0A6B2'
+    },
     onlineDotOnAvatar: {
       backgroundColor: '#18C772',
       borderColor: '#FFFFFF',
@@ -567,8 +824,14 @@ function createStyles(scale: number) {
       right: scaled(-1, scale),
       width: scaled(20, scale)
     },
+    onlineDotOnAvatarOffline: {
+      backgroundColor: '#D84D4D'
+    },
+    onlineDotOnAvatarUnknown: {
+      backgroundColor: '#A0A6B2'
+    },
     onlineText: {
-      color: colors.textMuted,
+      color: '#18C772',
       fontSize: scaled(24, scale),
       fontWeight: '400',
       lineHeight: scaled(31, scale),
@@ -576,6 +839,12 @@ function createStyles(scale: number) {
       right: scaled(70, scale),
       top: scaled(27, scale),
       ...textBase
+    },
+    onlineTextOffline: {
+      color: '#D84D4D'
+    },
+    onlineTextUnknown: {
+      color: colors.textMuted
     },
     overviewArtwork: {
       height: '100%',
@@ -646,6 +915,7 @@ function createStyles(scale: number) {
       lineHeight: scaled(30, scale),
       position: 'absolute',
       top: scaled(65, scale),
+      width: scaled(184, scale),
       ...textBase
     },
     root: {
@@ -744,6 +1014,7 @@ function createStyles(scale: number) {
       lineHeight: scaled(28, scale),
       position: 'absolute',
       top: scaled(50, scale),
+      width: scaled(150, scale),
       ...textBase
     },
     validatorDividerOne: {
@@ -799,6 +1070,7 @@ function createStyles(scale: number) {
       lineHeight: scaled(28, scale),
       position: 'absolute',
       top: scaled(50, scale),
+      width: scaled(180, scale),
       ...textBase
     },
     validatorMetaDot: {
@@ -819,6 +1091,7 @@ function createStyles(scale: number) {
       lineHeight: scaled(35, scale),
       position: 'absolute',
       top: scaled(0, scale),
+      width: scaled(260, scale),
       ...textBase
     },
     validatorRow: {

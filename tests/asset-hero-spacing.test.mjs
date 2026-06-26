@@ -17,6 +17,11 @@ test('asset hero card avoids mismatched legacy left padding', () => {
   assert.doesNotMatch(assetHeroSource, /left: scaled\(674, scale\)/);
 });
 
+test('asset hero card removes the top horizontal separator', () => {
+  assert.doesNotMatch(assetHeroSource, /firstDivider/);
+  assert.doesNotMatch(assetHeroSource, /top: scaled\(374, scale\)/);
+});
+
 test('asset hero LAMPORTS row uses prototype token image with centered bordered slot', () => {
   assert.match(homeDesignAssetsSource, /lamportsTokenIcon: require\('\.\.\/\.\.\/\.\.\/assets\/images\/home\/lamports-token\.png'\)/);
   assert.match(assetHeroSource, /<Image resizeMode="contain" source=\{homeAssetImages\.lamportsTokenIcon\} style=\{styles\.tokenIconImage\} \/>/);
@@ -33,7 +38,10 @@ test('asset hero visibility button toggles all balance amounts', () => {
   assert.match(assetHeroSource, /accessibilityLabel=\{isAmountHidden \? '显示金额' : '隐藏金额'\}/);
   assert.match(assetHeroSource, /onPress=\{handleToggleAmountVisibility\}/);
   assert.match(assetHeroSource, /name=\{isAmountHidden \? 'eye-off-outline' : 'eye-outline'\}/);
-  assert.match(assetHeroSource, /<TokenRow isAmountHidden=\{isAmountHidden\}/);
-  assert.match(assetHeroSource, /isAmountHidden \? HIDDEN_AMOUNT_TEXT : assetSummary\.available/);
-  assert.match(assetHeroSource, /isAmountHidden \? HIDDEN_AMOUNT_TEXT : assetSummary\.privateAvailable/);
+  assert.match(assetHeroSource, /<TokenRow[\s\S]*isAmountHidden=\{isAmountHidden\}/);
+  assert.match(assetHeroSource, /visibleAvailableText = isLoading \? '加载中' : portfolio\.availableSolText/);
+  assert.match(assetHeroSource, /visiblePrivateText = isLoading \? '加载中' : portfolio\.privateSolText/);
+  assert.match(assetHeroSource, /isAmountHidden \? HIDDEN_AMOUNT_TEXT : visibleAvailableText/);
+  assert.match(assetHeroSource, /isAmountHidden \? HIDDEN_AMOUNT_TEXT : visiblePrivateText/);
+  assert.match(assetHeroSource, /isAmountHidden \? HIDDEN_AMOUNT_TEXT : tokenAmountText/);
 });

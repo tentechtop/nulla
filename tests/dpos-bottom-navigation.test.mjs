@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const appSource = readFileSync(new URL('../App.tsx', import.meta.url), 'utf8');
 const globalBottomSource = readFileSync(new URL('../src/components/GlobalBottomNavigation.tsx', import.meta.url), 'utf8');
-const homeIconSource = readFileSync(new URL('../design-draft/common/home.svg', import.meta.url), 'utf8');
+const navAssetsIconSource = readFileSync(new URL('../design-draft/common/nav-assets.svg', import.meta.url), 'utf8');
 const homeBottomPath = new URL('../src/features/home/BottomNavigation.tsx', import.meta.url);
 const homeScreenSource = readFileSync(new URL('../src/features/home/HomeScreen.tsx', import.meta.url), 'utf8');
 const marketHomeSource = readFileSync(new URL('../src/features/marketHome/MarketHomeScreen.tsx', import.meta.url), 'utf8');
@@ -49,7 +49,7 @@ test('wallet workspace bottom navigation uses wallet-specific labels and routes'
   assert.match(globalBottomSource, /readonly onWalletTradePress\?: \(\) => void;/);
   assert.match(globalBottomSource, /readonly onWalletDposPress\?: \(\) => void;/);
   assert.match(globalBottomSource, /readonly onWalletPrivacyPress\?: \(\) => void;/);
-  assert.match(appSource, /currentRoute === 'home'\s+\?\s+'walletHome'/);
+  assert.match(appSource, /route === 'home'\s*\)\s*\{\s*return 'walletHome';/);
   assert.match(appSource, /onWalletHomePress=\{handleOpenHome\}/);
   assert.match(appSource, /onWalletTradePress=\{handleOpenTransferSend\}/);
   assert.match(appSource, /onWalletDposPress=\{handleOpenDposOverview\}/);
@@ -67,8 +67,8 @@ test('market workspace bottom navigation uses market-specific labels and routes'
   assert.match(globalBottomSource, /readonly onMarketContractsPress\?: \(\) => void;/);
   assert.match(globalBottomSource, /readonly onMarketOrdersPress\?: \(\) => void;/);
   assert.match(globalBottomSource, /readonly onMarketMorePress\?: \(\) => void;/);
-  assert.match(appSource, /currentRoute === 'marketHome'\s+\?\s+'marketQuotes'/);
-  assert.match(appSource, /currentRoute === 'contractsList'\s+\?\s+'marketContracts'/);
+  assert.match(appSource, /route === 'marketHome'\s*\)\s*\{\s*return 'marketQuotes';/);
+  assert.match(appSource, /route === 'contractsList' \|\| route === 'contractDeployConfirm'\)\s*\{\s*return 'marketContracts';/);
   assert.match(appSource, /workspace=\{activeHeaderWorkspace\}/);
   assert.match(appSource, /onMarketContractsPress=\{handleOpenContractsList\}/);
   assert.match(appSource, /onMarketOrdersPress=\{handleOpenMarketHome\}/);
@@ -81,14 +81,35 @@ test('market workspace bottom navigation uses market-specific labels and routes'
 test('contract bottom navigation opens and highlights the contracts page', () => {
   assert.match(appSource, /const handleOpenContractsList = \(\) => \{\s+openRoute\('contractsList'\);/);
   assert.match(appSource, /onMarketContractsPress=\{handleOpenContractsList\}/);
-  assert.match(appSource, /return <ContractsListScreen bottomPadding=\{bottomPadding\} topPadding=\{0\} \/>/);
+  assert.match(appSource, /return <ContractsListScreen bottomPadding=\{bottomPadding\} onDeployPress=\{onContractDeployPress\} topPadding=\{0\} \/>/);
 });
 
-test('assets tab icon keeps the provided home SVG geometry available', () => {
-  assert.match(homeIconSource, /viewBox="0 0 1024 1024"/);
-  assert.match(homeIconSource, /M972\.8 395\.008L512 51\.2/);
-  assert.match(globalBottomSource, /const ASSETS_TAB_ICON_PATH =/);
-  assert.match(globalBottomSource, /M972\.8 395\.008L512 51\.2/);
-  assert.match(globalBottomSource, /<Path d=\{ASSETS_TAB_ICON_PATH\} fill=\{color\} \/>/);
+test('wallet assets bottom navigation opens and highlights portfolio analytics page', () => {
+  assert.match(appSource, /const handleOpenAccountHome = \(\) => \{\s+openRoute\('accountHome'\);/);
+  assert.match(appSource, /const handleOpenPortfolioAnalytics = \(\) => \{\s+openRoute\('portfolioAnalytics'\);/);
+  assert.match(appSource, /onAccountPress=\{handleOpenAccountHome\}/);
+  assert.match(appSource, /onWalletAssetsPress=\{handleOpenPortfolioAnalytics\}/);
+  assert.match(appSource, /route === 'portfolioAnalytics'/);
+  assert.match(appSource, /return 'walletAssets';/);
+  assert.doesNotMatch(appSource, /route === 'accountHome'[\s\S]{0,180}return 'walletAssets';/);
+  assert.doesNotMatch(appSource, /route === 'walletSwitchAccount'[\s\S]{0,180}return 'walletAssets';/);
+  assert.doesNotMatch(appSource, /onWalletAssetsPress=\{handleOpenHome\}/);
+});
+
+test('assets tab icon uses simplified single-shape geometry like wallet home', () => {
+  assert.match(navAssetsIconSource, /viewBox="0 0 56 56"/);
+  assert.match(navAssetsIconSource, /M28 8L46 20V44L28 52L10 44V20L28 8Z/);
+  assert.match(globalBottomSource, /function AssetsTabIcon/);
+  assert.match(globalBottomSource, /<Path d="M28 8L46 20V44L28 52L10 44V20L28 8Z" fill=\{color\} \/>/);
+  assert.match(globalBottomSource, /<Path d="M28 8L46 20V44L28 52L10 44V20L28 8Z" stroke=\{color\} strokeLinejoin="round" strokeWidth="3\.6" \/>/);
+  assert.doesNotMatch(globalBottomSource, /<Rect fill=\{color\} height="27"|<Circle cx="38" cy="34"/);
+  assert.doesNotMatch(globalBottomSource, /const ASSETS_TAB_ICON_PATH/);
+  assert.doesNotMatch(globalBottomSource, /M972\.8 395\.008L512 51\.2/);
   assert.doesNotMatch(globalBottomSource, /SvgXml/);
+});
+
+test('DPoS reward details do not route to withdraw principal transactions', () => {
+  assert.match(appSource, /onRewardPress=\{\(\) => onValidatorListPress\('delegate'\)\}/);
+  assert.doesNotMatch(appSource, /onClaimPress=\{\(\) =>[\s\S]{0,160}withdrawDelegation/);
+  assert.doesNotMatch(dposScreenSource, /onClaimPress|领取收益|待领取收益|可领取/);
 });

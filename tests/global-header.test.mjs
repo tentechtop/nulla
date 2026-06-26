@@ -5,6 +5,7 @@ import test from 'node:test';
 const appSource = readFileSync(new URL('../App.tsx', import.meta.url), 'utf8');
 const homeHeaderPath = new URL('../src/features/home/HomeHeader.tsx', import.meta.url);
 const globalHeaderSource = readFileSync(new URL('../src/components/GlobalHeader.tsx', import.meta.url), 'utf8');
+const homeDataSource = readFileSync(new URL('../src/data/home.ts', import.meta.url), 'utf8');
 const homeScreenSource = readFileSync(new URL('../src/features/home/HomeScreen.tsx', import.meta.url), 'utf8');
 const marketHomeSource = readFileSync(new URL('../src/features/marketHome/MarketHomeScreen.tsx', import.meta.url), 'utf8');
 const quickActionBarSource = readFileSync(new URL('../src/features/home/QuickActionBar.tsx', import.meta.url), 'utf8');
@@ -32,7 +33,7 @@ test('top navigation is provided by one shared GlobalHeader mounted at App level
   assert.doesNotMatch(globalHeaderSource, />资产<\/Text>|>合约<\/Text>/);
   assert.doesNotMatch(globalHeaderSource, /segmentedDivider/);
   assert.match(appSource, /<TransferSendScreen[\s\S]+bottomPadding=\{bottomPadding\}[\s\S]+onBackPress=\{onBackPress\}[\s\S]+onScanPress=\{onScanPress\}[\s\S]+scannedDraft=\{scannedSendDraft\}[\s\S]+topPadding=\{0\}/);
-  assert.match(appSource, /<ScanResultScreen bottomPadding=\{bottomPadding\} onBackPress=\{onBackPress\} onSendDraft=\{onScannedSendDraft\} topPadding=\{0\} \/>/);
+  assert.match(appSource, /<ScanResultScreen[\s\S]+bottomPadding=\{bottomPadding\}[\s\S]+currentWalletAddress=\{currentWalletAddress\}[\s\S]+onBackPress=\{onBackPress\}[\s\S]+onSendDraft=\{onScannedSendDraft\}[\s\S]+topPadding=\{0\}/);
 });
 
 test('feature screens do not mount their own top navigation', () => {
@@ -85,28 +86,45 @@ test('feature screens do not keep duplicated top header implementations', () => 
 });
 
 test('global scan actions route to the scan result page', () => {
-  assert.match(appSource, /type AppRoute = 'home' \| 'transferSend' \| 'marketHome' \| 'contractsList' \| 'dposOverview' \| 'privacyHome' \| 'accountHome' \| 'scanResult'/);
+  assert.match(appSource, /type AppRoute = 'home' \| 'transferSend' \| 'transactionDetail' \| 'marketHome' \| 'contractsList'[\s\S]+\| 'scanResult'/);
   assert.match(appSource, /const handleOpenScanResult = \(\) => \{\s+openRoute\('scanResult'\);/);
-  assert.match(homeScreenSource, /<QuickActionBar onScanPress=\{onScanPress\} onSendPress=\{onSendPress\} \/>/);
-  assert.match(quickActionBarSource, /if \(actionKey === 'scan'\) \{\s+onScanPress\?\.\(\);/);
+  assert.match(globalHeaderSource, /onPress=\{onScanPress\}/);
+});
+
+test('wallet quick history action routes to transaction history', () => {
+  assert.match(homeDataSource, /\{ key: 'history', label: '历史', icon: 'history' \}/);
+  assert.doesNotMatch(homeDataSource, /\{ key: 'scan', label: '扫码'/);
+  assert.match(homeScreenSource, /<QuickActionBar[\s\S]+onHistoryPress=\{onTransactionHistoryPress\}[\s\S]+onSendPress=\{onSendPress\}[\s\S]+\/>/);
+  assert.match(quickActionBarSource, /readonly onHistoryPress\?: \(\) => void;/);
+  assert.match(quickActionBarSource, /if \(actionKey === 'history'\) \{\s+onHistoryPress\?\.\(\);/);
 });
 
 test('android side back returns to the previous app route before exiting', () => {
-  assert.match(appSource, /import \{ AppState, BackHandler, StyleSheet, View, type AppStateStatus \} from 'react-native'/);
-  assert.match(appSource, /const routeStackRef = useRef<readonly AppRoute\[\]>\(LAUNCH_ROUTE_STACK\)/);
-  assert.match(appSource, /const \[routeStack, setRouteStack\] = useState<readonly AppRoute\[\]>\(LAUNCH_ROUTE_STACK\)/);
+  assert.match(appSource, /import \{ BackHandler, StyleSheet, View \} from 'react-native'/);
+  assert.match(appSource, /const routeStackRef = useRef<readonly AppRoute\[\]>\(EMPTY_WALLET_ROUTE_STACK\)/);
+  assert.match(appSource, /const \[routeStack, setRouteStack\] = useState<readonly AppRoute\[\]>\(EMPTY_WALLET_ROUTE_STACK\)/);
   assert.match(appSource, /const currentRoute = routeStack\[routeStack\.length - 1\] \?\? 'marketHome'/);
   assert.match(appSource, /BackHandler\.addEventListener\('hardwareBackPress', goBackOneRoute\)/);
   assert.match(appSource, /currentRouteStack\.slice\(0, -1\)/);
   assert.match(appSource, /if \(currentRouteStack\.length <= 1\) \{\s+return false;/);
 });
 
-test('app launch and foreground restore always open market home', () => {
+test('app launch guides empty wallets to creation before market home', () => {
   assert.match(appSource, /const LAUNCH_ROUTE_STACK: readonly AppRoute\[\] = \['marketHome'\]/);
+  assert.match(appSource, /const EMPTY_WALLET_ROUTE_STACK: readonly AppRoute\[\] = \['walletCreateMnemonicEntry'\]/);
   assert.match(appSource, /const WALLET_HOME_ROUTE_STACK: readonly AppRoute\[\] = \['home'\]/);
-  assert.match(appSource, /const appStateRef = useRef<AppStateStatus>\(AppState\.currentState\)/);
-  assert.match(appSource, /if \(nextRoute === 'home'\) \{\s+replaceRouteStack\(WALLET_HOME_ROUTE_STACK\);/);
-  assert.match(appSource, /if \(previousAppState === 'background' && nextAppState === 'active'\) \{\s+resetToLaunchRoute\(\);/);
+  assert.match(appSource, /const guardedNextRoute = hasWalletAccount \|\| canOpenRouteWithoutWallet\(nextRoute\) \? nextRoute : 'walletCreateMnemonicEntry'/);
+  assert.match(appSource, /if \(guardedNextRoute === 'home'\) \{\s+replaceRouteStack\(WALLET_HOME_ROUTE_STACK\);/);
+  assert.match(appSource, /replaceRouteStack\(persistedWalletState\.accounts\.length > 0 \? LAUNCH_ROUTE_STACK : EMPTY_WALLET_ROUTE_STACK\)/);
+});
+
+test('app preserves active route when returning from background', () => {
+  assert.doesNotMatch(appSource, /AppState\.addEventListener\('change'/);
+  assert.doesNotMatch(appSource, /previousAppState !== 'background' \|\| nextAppState !== 'active'/);
+  assert.doesNotMatch(appSource, /resetToLaunchRoute\(\)/);
+  assert.doesNotMatch(appSource, /FOREGROUND_RESET_PRESERVED_ROUTES|shouldPreserveRouteOnForeground/);
+  assert.match(scanResultSource, /requestCameraAccess\('auto'\)/);
+  assert.match(scanResultSource, /AppState\.addEventListener\('change'/);
 });
 
 test('app background is pinned to white across react and native shells', () => {
@@ -137,7 +155,7 @@ test('scrolling screens keep the content plane the same white as the global head
 
 test('send page address scan button opens the real scanner route', () => {
   assert.match(transferSendSource, /readonly onScanPress\?: \(\) => void;/);
-  assert.match(transferSendSource, /export function TransferSendScreen\(\{ bottomPadding, onBackPress, onScanPress, scannedDraft, topPadding \}/);
+  assert.match(transferSendSource, /export function TransferSendScreen\(\{[\s\S]*?onScanPress,[\s\S]*?scannedDraft,[\s\S]*?topPadding[\s\S]*?\}: TransferSendScreenProps\)/);
   assert.match(transferSendSource, /onScanPress=\{onScanPress\}/);
   assert.match(transferSendSource, /accessibilityLabel="扫码输入地址" accessibilityRole="button" onPress=\{onScanPress\}/);
 });

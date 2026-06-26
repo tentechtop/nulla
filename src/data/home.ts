@@ -30,7 +30,7 @@ export const quickActions = [
   { key: 'send', label: '发送', icon: 'arrow-up-right' },
   { key: 'receive', label: '接收', icon: 'download' },
   { key: 'stake', label: '质押', icon: 'shield' },
-  { key: 'scan', label: '扫码', icon: 'maximize' }
+  { key: 'history', label: '历史', icon: 'history' }
 ] as const;
 
 export const statusItems: readonly StatusItem[] = [

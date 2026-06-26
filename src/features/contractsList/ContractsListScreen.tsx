@@ -62,6 +62,7 @@ type FilterTab = (typeof filterTabs)[number];
 
 type ContractsListScreenProps = {
   readonly bottomPadding?: number;
+  readonly onDeployPress?: () => void;
   readonly topPadding?: number;
 };
 
@@ -73,7 +74,7 @@ function scaledBelowTopNavigation(value: number, scale: number) {
   return scaled(value - TOP_NAVIGATION_DESIGN_HEIGHT, scale);
 }
 
-export function ContractsListScreen({ bottomPadding, topPadding }: ContractsListScreenProps) {
+export function ContractsListScreen({ bottomPadding, onDeployPress, topPadding }: ContractsListScreenProps) {
   const layoutMetrics = useContractsListResponsiveLayout();
   const styles = createStyles(layoutMetrics.scale);
   const headerHeight = getGlobalHeaderHeight(layoutMetrics.scale);
@@ -89,6 +90,7 @@ export function ContractsListScreen({ bottomPadding, topPadding }: ContractsList
   };
 
   const handleDeployPress = () => {
+    onDeployPress?.();
     console.info('[contracts-list] deploy requested');
   };
 

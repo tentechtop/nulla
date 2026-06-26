@@ -1,12 +1,12 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Path, Stop } from 'react-native-svg';
 import { colors, fontFamilies } from '../theme/tokens';
+import { FastDialogModal } from './FastDialogModal';
 
-const DIALOG_LEFT = 161;
-const DIALOG_TOP = 599;
-const DIALOG_WIDTH = 535;
-const DIALOG_HEIGHT = 652;
+const DIALOG_WIDTH = 590;
+const DIALOG_MAX_WIDTH_PERCENT = '92%';
+const DESIGN_VIEWPORT_WIDTH = 852;
 
 type SvgIconProps = {
   readonly size: number;
@@ -27,6 +27,17 @@ function scaled(value: number, scale: number) {
   return Math.round(value * scale);
 }
 
+function getEffectiveDialogScale(requestedScale: number, viewportWidth: number) {
+  const safeScale = Number.isFinite(requestedScale) && requestedScale > 0 ? requestedScale : 1;
+
+  if (!Number.isFinite(viewportWidth) || viewportWidth <= 0) {
+    return safeScale;
+  }
+
+  // 功能目的：限制弹窗在手机宽度下的真实缩放；实现原因：部分调用方传入 scale=1 会导致子元素超过 92% 卡片宽度。
+  return Math.min(safeScale, viewportWidth / DESIGN_VIEWPORT_WIDTH);
+}
+
 export function OperationTipDialog({
   blockEstimate = '预计 1-2 个区块',
   message = '交易已提交到公网 RPC，正在等待链上确认。',
@@ -37,27 +48,29 @@ export function OperationTipDialog({
   title = '操作提示',
   visible
 }: OperationTipDialogProps) {
-  const styles = createStyles(scale);
+  const { width } = useWindowDimensions();
+  const dialogScale = getEffectiveDialogScale(scale, width);
+  const styles = createStyles(dialogScale);
 
   return (
-    <Modal animationType="fade" onRequestClose={onClose} statusBarTranslucent transparent visible={visible}>
+    <FastDialogModal onRequestClose={onClose} visible={visible}>
       <View style={styles.overlay}>
         <View style={styles.dialogCard}>
           <View style={styles.heroIcon}>
-            <DialogInfoLargeIcon size={scaled(106, scale)} />
+            <DialogInfoLargeIcon size={scaled(92, dialogScale)} />
           </View>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
 
           <View style={styles.summaryRow}>
             <View style={styles.statusPill}>
-              <StatusProcessingIcon size={scaled(32, scale)} />
-              <Text style={styles.statusLabel}>状态：</Text>
-              <Text style={styles.statusValue}>{statusText}</Text>
+              <StatusProcessingIcon size={scaled(32, dialogScale)} />
+              <Text numberOfLines={1} style={styles.statusLabel}>状态：</Text>
+              <Text numberOfLines={1} style={styles.statusValue}>{statusText}</Text>
             </View>
             <View style={styles.blockPill}>
-              <EstimatedBlockIcon size={scaled(32, scale)} />
-              <Text style={styles.blockText}>{blockEstimate}</Text>
+              <EstimatedBlockIcon size={scaled(32, dialogScale)} />
+              <Text numberOfLines={1} style={styles.blockText}>{blockEstimate}</Text>
             </View>
           </View>
 
@@ -76,27 +89,29 @@ export function OperationTipDialog({
             )}
           </Pressable>
 
-          <Pressable accessibilityRole="button" onPress={onDetailPress} style={styles.detailButton}>
-            <Text style={styles.detailText}>查看详情</Text>
-          </Pressable>
+          {onDetailPress === undefined ? null : (
+            <Pressable accessibilityRole="button" onPress={onDetailPress} style={styles.detailButton}>
+              <Text style={styles.detailText}>查看详情</Text>
+            </Pressable>
+          )}
 
           <View style={styles.resultRow}>
             <View style={styles.resultPill}>
-              <ResultSuccessIcon size={scaled(32, scale)} />
-              <Text style={styles.resultText}>成功</Text>
+              <ResultSuccessIcon size={scaled(32, dialogScale)} />
+              <Text numberOfLines={1} style={styles.resultText}>成功</Text>
             </View>
             <View style={styles.resultPill}>
-              <ResultInfoIcon size={scaled(32, scale)} />
-              <Text style={styles.resultText}>提示</Text>
+              <ResultInfoIcon size={scaled(32, dialogScale)} />
+              <Text numberOfLines={1} style={styles.resultText}>提示</Text>
             </View>
             <View style={styles.resultPill}>
-              <ResultRiskIcon size={scaled(32, scale)} />
-              <Text style={styles.resultText}>风险</Text>
+              <ResultRiskIcon size={scaled(32, dialogScale)} />
+              <Text numberOfLines={1} style={styles.resultText}>风险</Text>
             </View>
           </View>
         </View>
       </View>
-    </Modal>
+    </FastDialogModal>
   );
 }
 
@@ -190,14 +205,17 @@ function createStyles(scale: number) {
       alignItems: 'center',
       backgroundColor: '#F7F8FC',
       borderRadius: scaled(19, scale),
+      flex: 1,
       flexDirection: 'row',
       height: scaled(58, scale),
       justifyContent: 'center',
-      marginLeft: scaled(20, scale),
-      width: scaled(235, scale)
+      marginLeft: scaled(14, scale),
+      minWidth: 0,
+      paddingHorizontal: scaled(10, scale)
     },
     blockText: {
       color: '#1B1D27',
+      flexShrink: 1,
       fontSize: scaled(24, scale),
       fontWeight: '500',
       lineHeight: scaled(31, scale),
@@ -208,10 +226,8 @@ function createStyles(scale: number) {
       alignItems: 'center',
       height: scaled(54, scale),
       justifyContent: 'center',
-      left: scaled(187, scale),
-      position: 'absolute',
-      top: scaled(492, scale),
-      width: scaled(160, scale)
+      marginTop: scaled(18, scale),
+      width: scaled(180, scale)
     },
     detailText: {
       color: colors.primary,
@@ -223,46 +239,43 @@ function createStyles(scale: number) {
     dialogCard: {
       alignItems: 'center',
       backgroundColor: '#FFFFFF',
-      borderRadius: scaled(28, scale),
-      height: scaled(DIALOG_HEIGHT, scale),
-      left: scaled(DIALOG_LEFT, scale),
-      position: 'absolute',
+      borderRadius: scaled(22, scale),
+      maxWidth: DIALOG_MAX_WIDTH_PERCENT,
+      paddingBottom: scaled(34, scale),
+      paddingHorizontal: scaled(34, scale),
+      paddingTop: scaled(34, scale),
       shadowColor: '#070A12',
-      shadowOffset: { width: 0, height: scaled(18, scale) },
-      shadowOpacity: 0.22,
-      shadowRadius: scaled(38, scale),
-      top: scaled(DIALOG_TOP, scale),
+      shadowOffset: { width: 0, height: scaled(14, scale) },
+      shadowOpacity: 0.18,
+      shadowRadius: scaled(30, scale),
       width: scaled(DIALOG_WIDTH, scale),
-      elevation: 18
+      elevation: 14
     },
     heroIcon: {
-      left: scaled(214, scale),
-      position: 'absolute',
-      top: scaled(50, scale)
+      marginBottom: scaled(18, scale)
     },
     message: {
       color: '#1E212C',
       fontSize: scaled(24, scale),
       fontWeight: '400',
-      left: scaled(55, scale),
       lineHeight: scaled(32, scale),
-      position: 'absolute',
+      marginTop: scaled(16, scale),
+      minHeight: scaled(64, scale),
       textAlign: 'center',
-      top: scaled(250, scale),
-      width: scaled(422, scale),
+      width: '100%',
       ...textBase
     },
     overlay: {
+      alignItems: 'center',
       backgroundColor: 'rgba(6, 8, 14, 0.58)',
       flex: 1,
-      position: 'relative'
+      justifyContent: 'center',
+      paddingHorizontal: scaled(28, scale)
     },
     primaryButton: {
       height: scaled(73, scale),
-      left: scaled(33, scale),
-      position: 'absolute',
-      top: scaled(395, scale),
-      width: scaled(467, scale)
+      marginTop: scaled(32, scale),
+      width: '100%'
     },
     primaryButtonBorder: {
       borderRadius: scaled(20, scale),
@@ -303,13 +316,12 @@ function createStyles(scale: number) {
     resultRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      left: scaled(31, scale),
-      position: 'absolute',
-      top: scaled(560, scale),
-      width: scaled(470, scale)
+      marginTop: scaled(24, scale),
+      width: '100%'
     },
     resultText: {
       color: '#1B1D27',
+      flexShrink: 1,
       fontSize: scaled(24, scale),
       fontWeight: '500',
       lineHeight: scaled(31, scale),
@@ -328,13 +340,16 @@ function createStyles(scale: number) {
       alignItems: 'center',
       backgroundColor: '#F7F8FC',
       borderRadius: scaled(19, scale),
+      flex: 1,
       flexDirection: 'row',
       height: scaled(58, scale),
       justifyContent: 'center',
-      width: scaled(215, scale)
+      minWidth: 0,
+      paddingHorizontal: scaled(10, scale)
     },
     statusValue: {
       color: colors.primary,
+      flexShrink: 1,
       fontSize: scaled(24, scale),
       fontWeight: '700',
       lineHeight: scaled(31, scale),
@@ -342,20 +357,16 @@ function createStyles(scale: number) {
     },
     summaryRow: {
       flexDirection: 'row',
-      left: scaled(31, scale),
-      position: 'absolute',
-      top: scaled(303, scale),
-      width: scaled(470, scale)
+      marginTop: scaled(22, scale),
+      width: '100%'
     },
     title: {
       color: colors.text,
       fontSize: scaled(34, scale),
       fontWeight: '900',
       lineHeight: scaled(42, scale),
-      position: 'absolute',
       textAlign: 'center',
-      top: scaled(185, scale),
-      width: scaled(320, scale),
+      width: '100%',
       ...textBase
     }
   });

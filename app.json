@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "com.nulla.dex",
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/brand/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -29,10 +30,17 @@
     },
     "plugins": [
       "expo-font",
+      "./plugins/withCleartextHttp",
       [
         "expo-camera",
         {
           "cameraPermission": "允许 SOL 使用相机扫描二维码。"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允许 SOL 选择包含二维码的图片用于扫码识别。"
         }
       ]
     ]

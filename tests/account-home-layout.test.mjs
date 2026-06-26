@@ -37,14 +37,28 @@ test('account home recreates the provided design with native sections and assets
   assert.match(accountHomeSource, /账户/);
   assert.match(accountHomeSource, /钱包、RPC、安全/);
   assert.match(accountHomeSource, /当前账户/);
-  assert.match(accountHomeSource, /3GT9QRA\.\.\.TcZjT5S/);
+  assert.match(accountHomeSource, /currentWalletAddress/);
+  assert.match(accountHomeSource, /formatWalletDisplayAddress/);
   assert.match(accountHomeSource, /钱包管理/);
   assert.match(accountHomeSource, /导出地址二维码/);
   assert.match(accountHomeSource, /RPC 节点/);
-  assert.match(accountHomeSource, /http:\/\/101\.35\.87\.31:8899/);
+  assert.match(accountHomeSource, /DEFAULT_PUBLIC_RPC_URL/);
+  assert.match(accountHomeSource, /selectedRpcMode/);
+  assert.match(accountHomeSource, /onRpcModeChange/);
+  assert.match(accountHomeSource, /onCustomRpcEndpointChange/);
+  assert.match(accountHomeSource, /TextInput/);
   assert.match(accountHomeSource, /安全设置/);
   assert.match(accountHomeSource, /退出当前账户/);
+  assert.doesNotMatch(accountHomeSource, /3GT9QRA\.\.\.TcZjT5S/);
   assert.doesNotMatch(accountHomeSource, /10-account\.png/);
+});
+
+test('account home binds copy and QR actions to a visible address dialog', () => {
+  assert.match(accountHomeSource, /AddressActionDialog/);
+  assert.match(accountHomeSource, /copyTextToClipboard\(currentWalletAddress \?\? '', '地址已复制'\)/);
+  assert.match(accountHomeSource, /handleShowCurrentQr/);
+  assert.match(accountHomeSource, /rowKey === 'addressQr'/);
+  assert.match(accountHomeSource, /onCopyPress=\{handleCopyCurrentAddress\}/);
 });
 
 test('account home uses supplied SVG geometry as component icons', () => {

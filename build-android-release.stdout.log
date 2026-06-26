@@ -18,12 +18,17 @@
 Using expo modules
   - [32mexpo-asset[0m (10.0.10)
   - [32mexpo-camera[0m (15.0.16)
+  - [32mexpo-clipboard[0m (6.0.3)
   - [32mexpo-constants[0m (16.0.2)
+  - [32mexpo-crypto[0m (13.0.2)
   - [32mexpo-file-system[0m (17.0.1)
   - [32mexpo-font[0m (12.0.10)
+  - [32mexpo-image-loader[0m (4.7.0)
+  - [32mexpo-image-picker[0m (15.1.0)
   - [32mexpo-keep-awake[0m (13.0.2)
   - [32mexpo-linear-gradient[0m (13.0.2)
   - [32mexpo-modules-core[0m (1.12.26)
+  - [32mexpo-secure-store[0m (13.0.2)
   - [32mexpo-splash-screen[0m (0.27.7)
 
 
@@ -45,16 +50,28 @@ Using expo modules
 > Task :expo-camera:preBuild UP-TO-DATE
 > Task :expo-camera:preReleaseBuild UP-TO-DATE
 > Task :expo-camera:writeReleaseAarMetadata UP-TO-DATE
+> Task :expo-clipboard:preBuild UP-TO-DATE
+> Task :expo-clipboard:preReleaseBuild UP-TO-DATE
+> Task :expo-clipboard:writeReleaseAarMetadata UP-TO-DATE
 > Task :expo-constants:createExpoConfig UP-TO-DATE
 > Task :expo-constants:preBuild UP-TO-DATE
 > Task :expo-constants:preReleaseBuild UP-TO-DATE
 > Task :expo-constants:writeReleaseAarMetadata UP-TO-DATE
+> Task :expo-crypto:preBuild UP-TO-DATE
+> Task :expo-crypto:preReleaseBuild UP-TO-DATE
+> Task :expo-crypto:writeReleaseAarMetadata UP-TO-DATE
 > Task :expo-file-system:preBuild UP-TO-DATE
 > Task :expo-file-system:preReleaseBuild UP-TO-DATE
 > Task :expo-file-system:writeReleaseAarMetadata UP-TO-DATE
 > Task :expo-font:preBuild UP-TO-DATE
 > Task :expo-font:preReleaseBuild UP-TO-DATE
 > Task :expo-font:writeReleaseAarMetadata UP-TO-DATE
+> Task :expo-image-loader:preBuild UP-TO-DATE
+> Task :expo-image-loader:preReleaseBuild UP-TO-DATE
+> Task :expo-image-loader:writeReleaseAarMetadata UP-TO-DATE
+> Task :expo-image-picker:preBuild UP-TO-DATE
+> Task :expo-image-picker:preReleaseBuild UP-TO-DATE
+> Task :expo-image-picker:writeReleaseAarMetadata UP-TO-DATE
 > Task :expo-keep-awake:preBuild UP-TO-DATE
 > Task :expo-keep-awake:preReleaseBuild UP-TO-DATE
 > Task :expo-keep-awake:writeReleaseAarMetadata UP-TO-DATE
@@ -64,6 +81,9 @@ Using expo modules
 > Task :expo-modules-core:preBuild UP-TO-DATE
 > Task :expo-modules-core:preReleaseBuild UP-TO-DATE
 > Task :expo-modules-core:writeReleaseAarMetadata UP-TO-DATE
+> Task :expo-secure-store:preBuild UP-TO-DATE
+> Task :expo-secure-store:preReleaseBuild UP-TO-DATE
+> Task :expo-secure-store:writeReleaseAarMetadata UP-TO-DATE
 > Task :expo-splash-screen:preBuild UP-TO-DATE
 > Task :expo-splash-screen:preReleaseBuild UP-TO-DATE
 > Task :expo-splash-screen:writeReleaseAarMetadata UP-TO-DATE
@@ -74,17 +94,7 @@ Using expo modules
 > Task :react-native-svg:preReleaseBuild UP-TO-DATE
 > Task :react-native-svg:writeReleaseAarMetadata UP-TO-DATE
 > Task :app:checkReleaseAarMetadata UP-TO-DATE
-
-> Task :app:createBundleReleaseJsAndAssets
-Starting Metro Bundler
-warning: Bundler cache is empty, rebuilding (this may take a minute)
-Android Bundled 4970ms F:\workSpace2029\nulla\node_modules\expo\AppEntry.js (767 modules)
-Writing bundle output to: android\app\build\generated\assets\createBundleReleaseJsAndAssets\index.android.bundle
-Writing sourcemap output to: android\app\build\intermediates\sourcemaps\react\release\index.android.bundle.packager.map
-Copying 37 asset files
-Done writing bundle output
-Done writing sourcemap output
-
+> Task :app:createBundleReleaseJsAndAssets UP-TO-DATE
 > Task :app:generateReleaseResValues UP-TO-DATE
 > Task :expo:generateReleaseResValues UP-TO-DATE
 > Task :expo:generateReleaseResources UP-TO-DATE
@@ -95,15 +105,27 @@ Done writing sourcemap output
 > Task :expo-camera:generateReleaseResValues UP-TO-DATE
 > Task :expo-camera:generateReleaseResources UP-TO-DATE
 > Task :expo-camera:packageReleaseResources UP-TO-DATE
+> Task :expo-clipboard:generateReleaseResValues UP-TO-DATE
+> Task :expo-clipboard:generateReleaseResources UP-TO-DATE
+> Task :expo-clipboard:packageReleaseResources UP-TO-DATE
 > Task :expo-constants:generateReleaseResValues UP-TO-DATE
 > Task :expo-constants:generateReleaseResources UP-TO-DATE
 > Task :expo-constants:packageReleaseResources UP-TO-DATE
+> Task :expo-crypto:generateReleaseResValues UP-TO-DATE
+> Task :expo-crypto:generateReleaseResources UP-TO-DATE
+> Task :expo-crypto:packageReleaseResources UP-TO-DATE
 > Task :expo-file-system:generateReleaseResValues UP-TO-DATE
 > Task :expo-file-system:generateReleaseResources UP-TO-DATE
 > Task :expo-file-system:packageReleaseResources UP-TO-DATE
 > Task :expo-font:generateReleaseResValues UP-TO-DATE
 > Task :expo-font:generateReleaseResources UP-TO-DATE
 > Task :expo-font:packageReleaseResources UP-TO-DATE
+> Task :expo-image-loader:generateReleaseResValues UP-TO-DATE
+> Task :expo-image-loader:generateReleaseResources UP-TO-DATE
+> Task :expo-image-loader:packageReleaseResources UP-TO-DATE
+> Task :expo-image-picker:generateReleaseResValues UP-TO-DATE
+> Task :expo-image-picker:generateReleaseResources UP-TO-DATE
+> Task :expo-image-picker:packageReleaseResources UP-TO-DATE
 > Task :expo-keep-awake:generateReleaseResValues UP-TO-DATE
 > Task :expo-keep-awake:generateReleaseResources UP-TO-DATE
 > Task :expo-keep-awake:packageReleaseResources UP-TO-DATE
@@ -113,6 +135,9 @@ Done writing sourcemap output
 > Task :expo-modules-core:generateReleaseResValues UP-TO-DATE
 > Task :expo-modules-core:generateReleaseResources UP-TO-DATE
 > Task :expo-modules-core:packageReleaseResources UP-TO-DATE
+> Task :expo-secure-store:generateReleaseResValues UP-TO-DATE
+> Task :expo-secure-store:generateReleaseResources UP-TO-DATE
+> Task :expo-secure-store:packageReleaseResources UP-TO-DATE
 > Task :expo-splash-screen:generateReleaseResValues UP-TO-DATE
 > Task :expo-splash-screen:generateReleaseResources UP-TO-DATE
 > Task :expo-splash-screen:packageReleaseResources UP-TO-DATE
@@ -135,18 +160,28 @@ Done writing sourcemap output
 > Task :expo-asset:processReleaseManifest UP-TO-DATE
 > Task :expo-camera:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-camera:processReleaseManifest UP-TO-DATE
+> Task :expo-clipboard:extractDeepLinksRelease UP-TO-DATE
+> Task :expo-clipboard:processReleaseManifest UP-TO-DATE
 > Task :expo-constants:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-constants:processReleaseManifest UP-TO-DATE
+> Task :expo-crypto:extractDeepLinksRelease UP-TO-DATE
+> Task :expo-crypto:processReleaseManifest UP-TO-DATE
 > Task :expo-file-system:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-file-system:processReleaseManifest UP-TO-DATE
 > Task :expo-font:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-font:processReleaseManifest UP-TO-DATE
+> Task :expo-image-loader:extractDeepLinksRelease UP-TO-DATE
+> Task :expo-image-loader:processReleaseManifest UP-TO-DATE
+> Task :expo-image-picker:extractDeepLinksRelease UP-TO-DATE
+> Task :expo-image-picker:processReleaseManifest UP-TO-DATE
 > Task :expo-keep-awake:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-keep-awake:processReleaseManifest UP-TO-DATE
 > Task :expo-linear-gradient:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-linear-gradient:processReleaseManifest UP-TO-DATE
 > Task :expo-modules-core:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-modules-core:processReleaseManifest UP-TO-DATE
+> Task :expo-secure-store:extractDeepLinksRelease UP-TO-DATE
+> Task :expo-secure-store:processReleaseManifest UP-TO-DATE
 > Task :expo-splash-screen:extractDeepLinksRelease UP-TO-DATE
 > Task :expo-splash-screen:processReleaseManifest UP-TO-DATE
 > Task :react-native-safe-area-context:extractDeepLinksRelease UP-TO-DATE
@@ -165,15 +200,27 @@ Done writing sourcemap output
 > Task :expo-camera:compileReleaseLibraryResources UP-TO-DATE
 > Task :expo-camera:parseReleaseLocalResources UP-TO-DATE
 > Task :expo-camera:generateReleaseRFile UP-TO-DATE
+> Task :expo-clipboard:compileReleaseLibraryResources UP-TO-DATE
+> Task :expo-clipboard:parseReleaseLocalResources UP-TO-DATE
+> Task :expo-clipboard:generateReleaseRFile UP-TO-DATE
 > Task :expo-constants:compileReleaseLibraryResources UP-TO-DATE
 > Task :expo-constants:parseReleaseLocalResources UP-TO-DATE
 > Task :expo-constants:generateReleaseRFile UP-TO-DATE
+> Task :expo-crypto:compileReleaseLibraryResources UP-TO-DATE
+> Task :expo-crypto:parseReleaseLocalResources UP-TO-DATE
+> Task :expo-crypto:generateReleaseRFile UP-TO-DATE
 > Task :expo-file-system:compileReleaseLibraryResources UP-TO-DATE
 > Task :expo-file-system:parseReleaseLocalResources UP-TO-DATE
 > Task :expo-file-system:generateReleaseRFile UP-TO-DATE
 > Task :expo-font:compileReleaseLibraryResources UP-TO-DATE
 > Task :expo-font:parseReleaseLocalResources UP-TO-DATE
 > Task :expo-font:generateReleaseRFile UP-TO-DATE
+> Task :expo-image-loader:compileReleaseLibraryResources UP-TO-DATE
+> Task :expo-image-loader:parseReleaseLocalResources UP-TO-DATE
+> Task :expo-image-loader:generateReleaseRFile UP-TO-DATE
+> Task :expo-image-picker:compileReleaseLibraryResources UP-TO-DATE
+> Task :expo-image-picker:parseReleaseLocalResources UP-TO-DATE
+> Task :expo-image-picker:generateReleaseRFile UP-TO-DATE
 > Task :expo-keep-awake:compileReleaseLibraryResources UP-TO-DATE
 > Task :expo-keep-awake:parseReleaseLocalResources UP-TO-DATE
 > Task :expo-keep-awake:generateReleaseRFile UP-TO-DATE
@@ -183,6 +230,9 @@ Done writing sourcemap output
 > Task :expo-modules-core:compileReleaseLibraryResources UP-TO-DATE
 > Task :expo-modules-core:parseReleaseLocalResources UP-TO-DATE
 > Task :expo-modules-core:generateReleaseRFile UP-TO-DATE
+> Task :expo-secure-store:compileReleaseLibraryResources UP-TO-DATE
+> Task :expo-secure-store:parseReleaseLocalResources UP-TO-DATE
+> Task :expo-secure-store:generateReleaseRFile UP-TO-DATE
 > Task :expo-splash-screen:compileReleaseLibraryResources UP-TO-DATE
 > Task :expo-splash-screen:parseReleaseLocalResources UP-TO-DATE
 > Task :expo-splash-screen:generateReleaseRFile UP-TO-DATE
@@ -213,12 +263,24 @@ Done writing sourcemap output
 > Task :expo-camera:javaPreCompileRelease UP-TO-DATE
 > Task :expo-camera:compileReleaseJavaWithJavac UP-TO-DATE
 > Task :expo-camera:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :expo-clipboard:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-clipboard:generateReleaseBuildConfig UP-TO-DATE
+> Task :expo-clipboard:compileReleaseKotlin UP-TO-DATE
+> Task :expo-clipboard:javaPreCompileRelease UP-TO-DATE
+> Task :expo-clipboard:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :expo-clipboard:bundleLibCompileToJarRelease UP-TO-DATE
 > Task :expo-constants:checkKotlinGradlePluginConfigurationErrors
 > Task :expo-constants:generateReleaseBuildConfig UP-TO-DATE
 > Task :expo-constants:compileReleaseKotlin UP-TO-DATE
 > Task :expo-constants:javaPreCompileRelease UP-TO-DATE
 > Task :expo-constants:compileReleaseJavaWithJavac UP-TO-DATE
 > Task :expo-constants:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :expo-crypto:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-crypto:generateReleaseBuildConfig UP-TO-DATE
+> Task :expo-crypto:compileReleaseKotlin UP-TO-DATE
+> Task :expo-crypto:javaPreCompileRelease UP-TO-DATE
+> Task :expo-crypto:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :expo-crypto:bundleLibCompileToJarRelease UP-TO-DATE
 > Task :expo-file-system:checkKotlinGradlePluginConfigurationErrors
 > Task :expo-file-system:generateReleaseBuildConfig UP-TO-DATE
 > Task :expo-file-system:compileReleaseKotlin UP-TO-DATE
@@ -231,6 +293,18 @@ Done writing sourcemap output
 > Task :expo-font:javaPreCompileRelease UP-TO-DATE
 > Task :expo-font:compileReleaseJavaWithJavac UP-TO-DATE
 > Task :expo-font:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :expo-image-loader:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-image-loader:generateReleaseBuildConfig UP-TO-DATE
+> Task :expo-image-loader:compileReleaseKotlin UP-TO-DATE
+> Task :expo-image-loader:javaPreCompileRelease UP-TO-DATE
+> Task :expo-image-loader:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :expo-image-loader:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :expo-image-picker:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-image-picker:generateReleaseBuildConfig UP-TO-DATE
+> Task :expo-image-picker:compileReleaseKotlin UP-TO-DATE
+> Task :expo-image-picker:javaPreCompileRelease UP-TO-DATE
+> Task :expo-image-picker:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :expo-image-picker:bundleLibCompileToJarRelease UP-TO-DATE
 > Task :expo-keep-awake:checkKotlinGradlePluginConfigurationErrors
 > Task :expo-keep-awake:generateReleaseBuildConfig UP-TO-DATE
 > Task :expo-keep-awake:compileReleaseKotlin UP-TO-DATE
@@ -243,6 +317,12 @@ Done writing sourcemap output
 > Task :expo-linear-gradient:javaPreCompileRelease UP-TO-DATE
 > Task :expo-linear-gradient:compileReleaseJavaWithJavac UP-TO-DATE
 > Task :expo-linear-gradient:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :expo-secure-store:checkKotlinGradlePluginConfigurationErrors
+> Task :expo-secure-store:generateReleaseBuildConfig UP-TO-DATE
+> Task :expo-secure-store:compileReleaseKotlin UP-TO-DATE
+> Task :expo-secure-store:javaPreCompileRelease UP-TO-DATE
+> Task :expo-secure-store:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :expo-secure-store:bundleLibCompileToJarRelease UP-TO-DATE
 > Task :expo-splash-screen:checkKotlinGradlePluginConfigurationErrors
 > Task :expo-splash-screen:generateReleaseBuildConfig UP-TO-DATE
 > Task :expo-splash-screen:compileReleaseKotlin UP-TO-DATE
@@ -323,6 +403,24 @@ Done writing sourcemap output
 > Task :expo-camera:mergeReleaseJavaResource UP-TO-DATE
 > Task :expo-camera:syncReleaseLibJars UP-TO-DATE
 > Task :expo-camera:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :expo-clipboard:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :expo-clipboard:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-clipboard:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-clipboard:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :expo-clipboard:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-clipboard:extractReleaseAnnotations UP-TO-DATE
+> Task :expo-clipboard:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-clipboard:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-clipboard:mergeReleaseShaders UP-TO-DATE
+> Task :expo-clipboard:compileReleaseShaders NO-SOURCE
+> Task :expo-clipboard:generateReleaseAssets UP-TO-DATE
+> Task :expo-clipboard:packageReleaseAssets UP-TO-DATE
+> Task :expo-clipboard:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-clipboard:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-clipboard:processReleaseJavaRes UP-TO-DATE
+> Task :expo-clipboard:mergeReleaseJavaResource UP-TO-DATE
+> Task :expo-clipboard:syncReleaseLibJars UP-TO-DATE
+> Task :expo-clipboard:bundleReleaseLocalLintAar UP-TO-DATE
 > Task :expo-constants:mergeReleaseJniLibFolders UP-TO-DATE
 > Task :expo-constants:mergeReleaseNativeLibs NO-SOURCE
 > Task :expo-constants:stripReleaseDebugSymbols NO-SOURCE
@@ -341,6 +439,24 @@ Done writing sourcemap output
 > Task :expo-constants:mergeReleaseJavaResource UP-TO-DATE
 > Task :expo-constants:syncReleaseLibJars UP-TO-DATE
 > Task :expo-constants:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :expo-crypto:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :expo-crypto:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-crypto:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-crypto:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :expo-crypto:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-crypto:extractReleaseAnnotations UP-TO-DATE
+> Task :expo-crypto:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-crypto:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-crypto:mergeReleaseShaders UP-TO-DATE
+> Task :expo-crypto:compileReleaseShaders NO-SOURCE
+> Task :expo-crypto:generateReleaseAssets UP-TO-DATE
+> Task :expo-crypto:packageReleaseAssets UP-TO-DATE
+> Task :expo-crypto:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-crypto:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-crypto:processReleaseJavaRes UP-TO-DATE
+> Task :expo-crypto:mergeReleaseJavaResource UP-TO-DATE
+> Task :expo-crypto:syncReleaseLibJars UP-TO-DATE
+> Task :expo-crypto:bundleReleaseLocalLintAar UP-TO-DATE
 > Task :expo-file-system:mergeReleaseJniLibFolders UP-TO-DATE
 > Task :expo-file-system:mergeReleaseNativeLibs NO-SOURCE
 > Task :expo-file-system:stripReleaseDebugSymbols NO-SOURCE
@@ -377,6 +493,42 @@ Done writing sourcemap output
 > Task :expo-font:mergeReleaseJavaResource UP-TO-DATE
 > Task :expo-font:syncReleaseLibJars UP-TO-DATE
 > Task :expo-font:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-image-loader:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-image-loader:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :expo-image-loader:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-image-loader:extractReleaseAnnotations UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseShaders UP-TO-DATE
+> Task :expo-image-loader:compileReleaseShaders NO-SOURCE
+> Task :expo-image-loader:generateReleaseAssets UP-TO-DATE
+> Task :expo-image-loader:packageReleaseAssets UP-TO-DATE
+> Task :expo-image-loader:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-image-loader:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-image-loader:processReleaseJavaRes UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseJavaResource UP-TO-DATE
+> Task :expo-image-loader:syncReleaseLibJars UP-TO-DATE
+> Task :expo-image-loader:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-image-picker:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-image-picker:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :expo-image-picker:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-image-picker:extractReleaseAnnotations UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseShaders UP-TO-DATE
+> Task :expo-image-picker:compileReleaseShaders NO-SOURCE
+> Task :expo-image-picker:generateReleaseAssets UP-TO-DATE
+> Task :expo-image-picker:packageReleaseAssets UP-TO-DATE
+> Task :expo-image-picker:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-image-picker:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-image-picker:processReleaseJavaRes UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseJavaResource UP-TO-DATE
+> Task :expo-image-picker:syncReleaseLibJars UP-TO-DATE
+> Task :expo-image-picker:bundleReleaseLocalLintAar UP-TO-DATE
 > Task :expo-keep-awake:mergeReleaseJniLibFolders UP-TO-DATE
 > Task :expo-keep-awake:mergeReleaseNativeLibs NO-SOURCE
 > Task :expo-keep-awake:stripReleaseDebugSymbols NO-SOURCE
@@ -413,6 +565,24 @@ Done writing sourcemap output
 > Task :expo-linear-gradient:mergeReleaseJavaResource UP-TO-DATE
 > Task :expo-linear-gradient:syncReleaseLibJars UP-TO-DATE
 > Task :expo-linear-gradient:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :expo-secure-store:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :expo-secure-store:mergeReleaseNativeLibs NO-SOURCE
+> Task :expo-secure-store:stripReleaseDebugSymbols NO-SOURCE
+> Task :expo-secure-store:copyReleaseJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :expo-secure-store:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :expo-secure-store:extractReleaseAnnotations UP-TO-DATE
+> Task :expo-secure-store:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :expo-secure-store:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :expo-secure-store:mergeReleaseShaders UP-TO-DATE
+> Task :expo-secure-store:compileReleaseShaders NO-SOURCE
+> Task :expo-secure-store:generateReleaseAssets UP-TO-DATE
+> Task :expo-secure-store:packageReleaseAssets UP-TO-DATE
+> Task :expo-secure-store:prepareLintJarForPublish UP-TO-DATE
+> Task :expo-secure-store:prepareReleaseArtProfile UP-TO-DATE
+> Task :expo-secure-store:processReleaseJavaRes UP-TO-DATE
+> Task :expo-secure-store:mergeReleaseJavaResource UP-TO-DATE
+> Task :expo-secure-store:syncReleaseLibJars UP-TO-DATE
+> Task :expo-secure-store:bundleReleaseLocalLintAar UP-TO-DATE
 > Task :expo-splash-screen:mergeReleaseJniLibFolders UP-TO-DATE
 > Task :expo-splash-screen:mergeReleaseNativeLibs NO-SOURCE
 > Task :expo-splash-screen:stripReleaseDebugSymbols NO-SOURCE
@@ -474,11 +644,21 @@ Done writing sourcemap output
 > Task :expo-camera:extractProguardFiles UP-TO-DATE
 > Task :expo-camera:writeReleaseLintModelMetadata UP-TO-DATE
 > Task :expo-camera:generateReleaseLintModel UP-TO-DATE
+> Task :expo-clipboard:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :expo-clipboard:createFullJarRelease UP-TO-DATE
+> Task :expo-clipboard:extractProguardFiles UP-TO-DATE
+> Task :expo-clipboard:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :expo-clipboard:generateReleaseLintModel UP-TO-DATE
 > Task :expo-constants:bundleLibRuntimeToJarRelease UP-TO-DATE
 > Task :expo-constants:createFullJarRelease UP-TO-DATE
 > Task :expo-constants:extractProguardFiles UP-TO-DATE
 > Task :expo-constants:writeReleaseLintModelMetadata UP-TO-DATE
 > Task :expo-constants:generateReleaseLintModel UP-TO-DATE
+> Task :expo-crypto:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :expo-crypto:createFullJarRelease UP-TO-DATE
+> Task :expo-crypto:extractProguardFiles UP-TO-DATE
+> Task :expo-crypto:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :expo-crypto:generateReleaseLintModel UP-TO-DATE
 > Task :expo-file-system:bundleLibRuntimeToJarRelease UP-TO-DATE
 > Task :expo-file-system:createFullJarRelease UP-TO-DATE
 > Task :expo-file-system:extractProguardFiles UP-TO-DATE
@@ -489,6 +669,16 @@ Done writing sourcemap output
 > Task :expo-font:extractProguardFiles UP-TO-DATE
 > Task :expo-font:writeReleaseLintModelMetadata UP-TO-DATE
 > Task :expo-font:generateReleaseLintModel UP-TO-DATE
+> Task :expo-image-loader:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :expo-image-loader:createFullJarRelease UP-TO-DATE
+> Task :expo-image-loader:extractProguardFiles UP-TO-DATE
+> Task :expo-image-loader:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :expo-image-loader:generateReleaseLintModel UP-TO-DATE
+> Task :expo-image-picker:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :expo-image-picker:createFullJarRelease UP-TO-DATE
+> Task :expo-image-picker:extractProguardFiles UP-TO-DATE
+> Task :expo-image-picker:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :expo-image-picker:generateReleaseLintModel UP-TO-DATE
 > Task :expo-keep-awake:bundleLibRuntimeToJarRelease UP-TO-DATE
 > Task :expo-keep-awake:createFullJarRelease UP-TO-DATE
 > Task :expo-keep-awake:extractProguardFiles UP-TO-DATE
@@ -499,6 +689,11 @@ Done writing sourcemap output
 > Task :expo-linear-gradient:extractProguardFiles UP-TO-DATE
 > Task :expo-linear-gradient:writeReleaseLintModelMetadata UP-TO-DATE
 > Task :expo-linear-gradient:generateReleaseLintModel UP-TO-DATE
+> Task :expo-secure-store:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :expo-secure-store:createFullJarRelease UP-TO-DATE
+> Task :expo-secure-store:extractProguardFiles UP-TO-DATE
+> Task :expo-secure-store:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :expo-secure-store:generateReleaseLintModel UP-TO-DATE
 > Task :expo-splash-screen:bundleLibRuntimeToJarRelease UP-TO-DATE
 > Task :expo-splash-screen:createFullJarRelease UP-TO-DATE
 > Task :expo-splash-screen:extractProguardFiles UP-TO-DATE
@@ -559,18 +754,28 @@ Done writing sourcemap output
 > Task :expo-asset:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-camera:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-camera:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :expo-clipboard:generateReleaseLintVitalModel UP-TO-DATE
+> Task :expo-clipboard:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-constants:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-constants:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :expo-crypto:generateReleaseLintVitalModel UP-TO-DATE
+> Task :expo-crypto:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-file-system:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-file-system:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-font:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-font:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :expo-image-loader:generateReleaseLintVitalModel UP-TO-DATE
+> Task :expo-image-loader:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :expo-image-picker:generateReleaseLintVitalModel UP-TO-DATE
+> Task :expo-image-picker:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-keep-awake:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-keep-awake:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-linear-gradient:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-linear-gradient:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-modules-core:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-modules-core:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :expo-secure-store:generateReleaseLintVitalModel UP-TO-DATE
+> Task :expo-secure-store:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :expo-splash-screen:generateReleaseLintVitalModel UP-TO-DATE
 > Task :expo-splash-screen:lintVitalAnalyzeRelease UP-TO-DATE
 > Task :react-native-safe-area-context:generateReleaseLintVitalModel UP-TO-DATE
@@ -583,12 +788,17 @@ Done writing sourcemap output
 > Task :expo:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-asset:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-camera:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :expo-clipboard:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-constants:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :expo-crypto:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-file-system:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-font:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :expo-image-loader:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :expo-image-picker:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-keep-awake:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-linear-gradient:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-modules-core:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :expo-secure-store:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :expo-splash-screen:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :react-native-safe-area-context:copyReleaseJniLibsProjectOnly UP-TO-DATE
 > Task :react-native-svg:copyReleaseJniLibsProjectOnly UP-TO-DATE
@@ -607,7 +817,8 @@ Done writing sourcemap output
 > Task :app:mergeReleaseShaders UP-TO-DATE
 > Task :app:compileReleaseShaders NO-SOURCE
 > Task :app:generateReleaseAssets UP-TO-DATE
-> Task :app:mergeReleaseAssets
+> Task :app:mergeReleaseAssets UP-TO-DATE
+> Task :app:compressReleaseAssets UP-TO-DATE
 > Task :app:processReleaseJavaRes UP-TO-DATE
 > Task :app:mergeReleaseJavaResource UP-TO-DATE
 > Task :app:optimizeReleaseResources UP-TO-DATE
@@ -616,6 +827,9 @@ Done writing sourcemap output
 > Task :app:validateSigningRelease UP-TO-DATE
 > Task :app:writeReleaseAppMetadata UP-TO-DATE
 > Task :app:writeReleaseSigningConfigVersions UP-TO-DATE
+> Task :app:packageRelease UP-TO-DATE
+> Task :app:createReleaseApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleRelease
 > Task :expo:bundleReleaseAar UP-TO-DATE
 > Task :expo:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo:mergeReleaseResources UP-TO-DATE
@@ -624,7 +838,6 @@ Done writing sourcemap output
 > Task :expo-asset:bundleReleaseAar UP-TO-DATE
 > Task :expo-asset:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo-asset:mergeReleaseResources UP-TO-DATE
-> Task :app:compressReleaseAssets
 > Task :expo-asset:verifyReleaseResources UP-TO-DATE
 > Task :expo-asset:assembleRelease UP-TO-DATE
 > Task :expo-camera:bundleReleaseAar UP-TO-DATE
@@ -632,11 +845,21 @@ Done writing sourcemap output
 > Task :expo-camera:mergeReleaseResources UP-TO-DATE
 > Task :expo-camera:verifyReleaseResources UP-TO-DATE
 > Task :expo-camera:assembleRelease UP-TO-DATE
+> Task :expo-clipboard:bundleReleaseAar UP-TO-DATE
+> Task :expo-clipboard:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :expo-clipboard:mergeReleaseResources UP-TO-DATE
+> Task :expo-clipboard:verifyReleaseResources UP-TO-DATE
+> Task :expo-clipboard:assembleRelease UP-TO-DATE
 > Task :expo-constants:bundleReleaseAar UP-TO-DATE
 > Task :expo-constants:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo-constants:mergeReleaseResources UP-TO-DATE
 > Task :expo-constants:verifyReleaseResources UP-TO-DATE
 > Task :expo-constants:assembleRelease UP-TO-DATE
+> Task :expo-crypto:bundleReleaseAar UP-TO-DATE
+> Task :expo-crypto:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :expo-crypto:mergeReleaseResources UP-TO-DATE
+> Task :expo-crypto:verifyReleaseResources UP-TO-DATE
+> Task :expo-crypto:assembleRelease UP-TO-DATE
 > Task :expo-file-system:bundleReleaseAar UP-TO-DATE
 > Task :expo-file-system:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo-file-system:mergeReleaseResources UP-TO-DATE
@@ -647,6 +870,16 @@ Done writing sourcemap output
 > Task :expo-font:mergeReleaseResources UP-TO-DATE
 > Task :expo-font:verifyReleaseResources UP-TO-DATE
 > Task :expo-font:assembleRelease UP-TO-DATE
+> Task :expo-image-loader:bundleReleaseAar UP-TO-DATE
+> Task :expo-image-loader:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :expo-image-loader:mergeReleaseResources UP-TO-DATE
+> Task :expo-image-loader:verifyReleaseResources UP-TO-DATE
+> Task :expo-image-loader:assembleRelease UP-TO-DATE
+> Task :expo-image-picker:bundleReleaseAar UP-TO-DATE
+> Task :expo-image-picker:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :expo-image-picker:mergeReleaseResources UP-TO-DATE
+> Task :expo-image-picker:verifyReleaseResources UP-TO-DATE
+> Task :expo-image-picker:assembleRelease UP-TO-DATE
 > Task :expo-keep-awake:bundleReleaseAar UP-TO-DATE
 > Task :expo-keep-awake:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo-keep-awake:mergeReleaseResources UP-TO-DATE
@@ -662,6 +895,11 @@ Done writing sourcemap output
 > Task :expo-modules-core:mergeReleaseResources UP-TO-DATE
 > Task :expo-modules-core:verifyReleaseResources UP-TO-DATE
 > Task :expo-modules-core:assembleRelease UP-TO-DATE
+> Task :expo-secure-store:bundleReleaseAar UP-TO-DATE
+> Task :expo-secure-store:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :expo-secure-store:mergeReleaseResources UP-TO-DATE
+> Task :expo-secure-store:verifyReleaseResources UP-TO-DATE
+> Task :expo-secure-store:assembleRelease UP-TO-DATE
 > Task :expo-splash-screen:bundleReleaseAar UP-TO-DATE
 > Task :expo-splash-screen:mapReleaseSourceSetPaths UP-TO-DATE
 > Task :expo-splash-screen:mergeReleaseResources UP-TO-DATE
@@ -677,9 +915,6 @@ Done writing sourcemap output
 > Task :react-native-svg:mergeReleaseResources UP-TO-DATE
 > Task :react-native-svg:verifyReleaseResources UP-TO-DATE
 > Task :react-native-svg:assembleRelease UP-TO-DATE
-> Task :app:packageRelease
-> Task :app:createReleaseApkListingFileRedirect UP-TO-DATE
-> Task :app:assembleRelease
 
 Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
 
@@ -687,5 +922,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 26s
-550 actionable tasks: 28 executed, 522 up-to-date
+BUILD SUCCESSFUL in 19s
+750 actionable tasks: 29 executed, 721 up-to-date
